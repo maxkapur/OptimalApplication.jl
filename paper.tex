@@ -79,7 +79,7 @@
 
 \maketitle
 \section*{Abstract}
-This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, the problem is NP-complete. For this more general problem, we provide two dynamic programs that produce exact solutions in pseudopolynomial time and a polynomial-time approximation scheme. 
+This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, we show that the problem is NP-complete. We provide two dynamic programs for this more general problem. The first produces an exact solution in pseudopolynomial time, and the second yields a fully polynomial-time approximation scheme. 
 \pagebreak
 
 \tableofcontents
@@ -418,7 +418,7 @@ Let $t = (3, 3, 4)$, $Z_1 \sim \operatorname{Bernoulli}(0.5)$, $Z_2 = 1 - Z_1$, 
 
 
 \section{Heterogeneous application costs}
-In this section, we turn to the more general problem in which the constant $g_j$ represents the \emph{cost} of applying to $c_j$ and the student, whom we now call Ellis, has a \emph{budget} of $H$ to spend on college applications. Applying Theorem \ref{assumetzerozero}, we assume $t_0 = 0$ and disregard $c_0$ throughout.
+In this section, we turn to the more general problem in which the constant $g_j$ represents the \emph{cost} of applying to $c_j$ and the student, whom we now call Ellis, has a \emph{budget} of $H$ to spend on college applications. Applying Theorem \ref{assumetzerozero}, we assume $t_0 = 0$ and disregard $c_0$ throughout. We also assume with trivial loss of generality that all $g_j \leq H$. 
 
 \begin{definition}[Ellis's problem]
 Ellis's optimal college application portfolio is given by the solution to the following integer nonlinear program:
@@ -473,10 +473,8 @@ This means that given a nonempty portfolio $\mathcal{X}$, its value for the corr
 An intuitive extension of the greedy algorithm for Alma's problem is to iteratively add to $\mathcal{X}$ the school $k$ for which $[ v(\mathcal{X}\cup\{k\}) - v(\mathcal{X}) ] / g_k$ is largest. However, this algorithm offers no guaranteed approximation ratio. 
 % as the following example suggests ...The construction above shows that the objective function of Ellis's problem can approximate that of a knapsack problem with arbitrary precision, and this algorithm
 
-\subsection{Pseudopolynomial-time dynamic programs}
-
-\subsubsection{Dynamic program based on application costs}
-We will provide an algorithmic solution to Ellis's problem that runs in $O(Hm + m\log m)$ time and $O(Hm)$ space. The algorithm resembles the dynamic programming algorithm for the binary knapsack problem. Because we cannot assume that $H \leq m$ (as was the case in Alma's problem), this represents a pseudopolynomial-time solution (Dantzig 1957; Garey and Johnson 1979; \emph{Wikipedia}, s.v. ``Knapsack problem'').
+\subsection{Pseudopolynomial-time dynamic program}
+In this subsection, we provide an algorithmic solution to Ellis's problem that runs in $O(Hm + m\log m)$ time and $O(Hm)$ space. The algorithm resembles the dynamic programming algorithm for the binary knapsack problem. Because we cannot assume that $H \leq m$ (as was the case in Alma's problem), this represents a pseudopolynomial-time solution (Dantzig 1957; Garey and Johnson 1979; \emph{Wikipedia}, s.v. ``Knapsack problem'').
 
 With minimal loss of generality, we assume that $g_j \in \mathbb{N}$ for $j = 1\dots m$ and $H \in\mathbb{N}$. For $j = 0 \dots m$ and $h = 0 \dots H$, let $\mathcal{X}[j, h]$ denote the optimal portfolio using only the schools $\{ 1, \dots, j\}$ and costing no more than $h$, and let $V[j,h] = v(\mathcal{X}[j, h])$.  It is clear that if $j=0$ or $h=0$, then $\mathcal{X}[j, h] = \O$ and $V[j, h] = 0$.  For convenience, we also define $V[j, h] = -\infty$ for all $h < 0$.
 
@@ -531,12 +529,98 @@ Optimality follows from the foregoing discussion. Sorting by $t_j$ is $O(m \log 
 
 
 
-\subsubsection{Dynamic program based on portfolio valuations}
-As with the knapsack problem, Ellis's problem admits a complementary dynamic program that iterates on the value of the cheapest portfolio instead of on the cost of the most valuable portfolio. 
+%\subsubsection{Dynamic program based on portfolio valuations}
+%
+%With minimal loss of generality, we assume that all $t_j\in \mathbb{N}$ and $f_j \in (0, 1] \cap \mathbb{Q}$. Let $D$ denote the product of the denominators of the $f_j$-values. Since $v(\mathcal{X})$ is linear in $t_j$, by rescaling the $t_j$-values, we may assume that each $t_j$ is divisible by $D$. Therefore, for any portfolio $\mathcal{X}\subseteq\mathcal{X}$, $v(\mathcal{X})$ is a natural number between zero and $t_m$. %Mention size of t_m
+%
+%For integers $0 \leq j \leq m$ and $v \leq t_m$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio using only the schools $\{ 1, \dots, j\}$ and having value at least $v$, if such a portfolio exists. Let $G[j, v] = v(\mathcal{W}[j, v])$ denote the corresponding value, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$. If $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
+%\begin{align} \label{recursionrelationforcostmindp}
+%G[j, v] &=
+%\begin{cases}
+%\infty, \quad & t_j < v \\
+%\min\bigl\{G[j-1, v], g_j + G[j-1, v - \Delta] \bigr\}, \quad & t_j \geq v 
+%%\begin{cases}
+%%\min\bigl\{G[j-1, v], g_j + G[j-1, v - \Delta] \bigr\}, \quad &f_j < 1 \\
+%%\min\bigl\{G[j-1, v], g_j \bigr\}, \quad &f_j = 1 \text{ and } f_j t_j \geq v\\
+%%G[j-1, v], \quad &f_j = 1 \text{ and } f_j t_j < v
+%\end{cases}\\
+%\text{where}\qquad
+%\Delta &= 
+%\begin{cases}
+%\lfloor \frac{f_j}{1 - f_j} (t_j - v)\rfloor, \quad & f_j < 1\\
+%\infty, &f_j = 1
+%\end{cases}
+%\end{align}
+%In the $t_j < v$ case, any feasible portfolio must be composed of schools with utility less than $v$, and therefore its valuation can not equal $v$, meaning that $\mathcal{W}[j, v]$ is undefined. In the $t_j \geq v$ case, the first argument to $\min\{\}$ says simply that omitting $j$ and choosing $\mathcal{W}[j-1, v]$ is a feasible choice for $\mathcal{W}[j, v]$. If, on the other hand, $j \in \mathcal{W}[j, v]$, then
+%\begin{equation}v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j\end{equation}
+%Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a value of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. This value may not be an integer; however, because $v(\mathcal{X})$ can take only integer values, if some portfolio has $v(\mathcal{X})\geq v - \Delta$, then $v(\mathcal{X})\geq \lceil v - \Delta \rceil$ as well, which allows us to apply the floor operator to $\Delta$. When $f_j = 1$, then the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
+%\begin{equation}G[j, v] = \min\bigl\{G[j-1, v], g_j \bigr\}\end{equation}
+%Defining $\Delta = \infty$ in this case ensures that $G[j-1, v-\Delta] = 0$ as required.
+%%we have $t_j < v$, and since no portfolio can be more valueable than the largest $t_j$ value of its elements, we must have $G[j, v] =\infty$. Defining $\Delta$ as zero in this guess automatically chooses $G[j, v] = G[j-1, v] = \infty$ for the same reason.
+%%
+%%In the $f_j t_j \geq v$ case, the singleton $\{j\}$ is feasible for $j$ and $v$, so $\mathcal{W}[j, v]$ is simply the cheaper of $\{j\}$ and $.\mathcal{W}[j-1, v]$.
+%
+%Once $G[j, v]$ has been calculated at each index, the corresponding portfolio can be found by applying the observation that $
+%\mathcal{W}[j, v]$ contains $j$ if and only if $G[j, v] < G[j-1, v]$. Then solution to Ellis's problem is obtained by applying this observation to the optimal objective value $\max\{ w: G[m, w] \leq H\}$. 
+%
+%
+%
+%\begin{algorithm}[H] 
+%%\DontPrintSemicolon
+%\caption{Dynamic program for Ellis's problem with integral utility parameters and rational admissions probabilities.} \label{ellisDP2}
+%\KwData{Utility values $t \in \mathbb{N}^m$, admissions probabilities $f \in \bigl((0, 1] \cap \mathbb{Q}\bigr)^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$.}
+%Index schools in ascending order by $t$\;
+%Multiply each $t_j$ by $D$, the product of the denominators of the $f_j$\;
+%\SetKwProg{Fn}{function}{ do}{end}
+%\Fn{$G(j, v)$}{
+%	\lIf{$v \leq 0$}{\Return{$0$}}
+%	\lElseIf{$j=0$ or $t_j < v$}{\Return{$\infty$}}
+%	\Else {\Return{$\min\bigl\{ G(j-1, v), g_j + G(j-1, v -  \Delta) \bigr\}$}}
+%}
+%%	\uIf{$f_j < 1$}{\Return{$\min\bigl\{ G(j-1, v), g_j + G(j-1, v -  \lfloor \frac{f_j}{1 - f_j} (t_j - v)\rfloor ) \bigr\}$}}
+%%	\uElseIf{$f_j = 1$ and $f_j t_j \geq v$}{\Return{$\min\bigl\{G[j-1, v], g_j \bigr\}$}}
+%%	\lElse{\Return{$G(j-1, v)$}}
+%%	}
+%%\lFor{$j=1\dots m$}
+%%{$\operatorname{push!}\bigl(\mathtt{H}, (j, f_j, t_j)\bigr)$}
+%%\For{$i=1\dots h$}
+%%{
+%%    $\mathtt{D} \gets \operatorname{pop!}(\mathtt{H})$\;
+%%    $\operatorname{append!}(\mathtt{X}, \mathtt{D.j})$\;
+%%     \lIfElse{$i=1$}{$\operatorname{append!}(\mathtt{V}, \mathtt{D.f}\cdot\mathtt{D.t})$}
+%%     {$\operatorname{append!}(\mathtt{V}, \mathtt{V[i-1]} + \mathtt{D.f}\cdot\mathtt{D.t})$}
+%%    \For{$\mathtt{E} \in \mathtt{H}$}
+%%	{
+%%	\lIfElse{$\mathtt{E.j} < \mathtt{D.j}$}{$\mathtt{E.t} \gets  \mathtt{E.t} \cdot(1 -  \mathtt{D.f})$}{$\mathtt{E.t} \gets  \mathtt{E.t} -  \mathtt{D.f}\cdot\mathtt{D.t}$}
+%%	}
+%%}
+%$v \gets  \max\{ w: G(m, w) \leq H\}$\;
+%$\mathcal{X} \gets \O$\;
+%\For{$j = m, m-1, \dots, 1$}{
+%	\If{$G(j, v)< \infty$ and $G(j, v) < G(j-1, v)$}{
+%		$\mathcal{X} \gets \mathcal{X}\cup\{j\}$\; 
+%		$v \gets v - \Delta$\;
+%	}
+%}
+%\Return{$\mathcal{X}$}
+%\end{algorithm}
+%
+%\begin{theorem}[Validity of Algorithm \ref{ellisDP2}]
+%Algorithm \ref{ellisDP2} produces an optimal application portfolio for Ellis's problem in $O(D m + m \log m)$ time and $O(D m)$ space, where $D$ is the product of the denominators of the $f_j$-values.
+%\end{theorem}
+%
+%\begin{proof}
+%Optimality follows from the foregoing discussion. The computational complexity follows by symmetry with Algorithm \ref{ellisDP1}. 
+%\end{proof}
 
-With minimal loss of generality, we assume that all $t_j\in \mathbb{N}$ and $f_j \in (0, 1] \cap \mathbb{Q}$. Let $D$ denote the product of the denominators of the $f_j$-values. Since $v(\mathcal{X})$ is linear in $t_j$, by rescaling the $t_j$-values, we may assume that each $t_j$ is divisible by $D$. Therefore, for any portfolio $\mathcal{X}\subseteq\mathcal{X}$, $v(\mathcal{X})$ is a natural number between zero and $t_m$. %Mention size of t_m
 
-For integers $0 \leq j \leq m$ and $v \leq t_m$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio using only the schools $\{ 1, \dots, j\}$ and having value at least $v$, if such a portfolio exists. Let $G[j, v] = v(\mathcal{W}[j, v])$ denote the corresponding value, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$. If $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
+\subsection{Fully polynomial-time approximation scheme}
+As with the knapsack problem, Ellis's problem admits a complementary dynamic program that iterates on the value of the cheapest portfolio instead of on the cost of the most valuable portfolio. We will use this algorithm as the basis for a fully polynomial-time approximation scheme for Ellis's problem.
+%Now, we modify Algorithm \ref{ellisDP2} into a fully polynomial-time approximation scheme for Ellis's problem.
+Here we assume only that is each $t_j$ is integral. We will represent the approximate value of each portfolio using a fixed-point decimal with a precision of $P$, where $P$ is the number of digits to retain after the decimal point. Since $t_m$ is a trivial upper bound on the value of any portfolio, the set of possible portfolio valuations is now finite: $\mathcal{V} = \{0, 1\times 10^{-P}, 2\times 10^{-P}, \dots, t_m - 1\times 10^{-P}, t_m\}$. Its cardinality is $|\mathcal{V} | = P t_m$. 
+Let $r[x] = \lfloor 10^P x \rfloor 10^{-P}$ denote the value of $x$ rounded down to its nearest fixed-point representation.
+
+For integers $0 \leq j \leq m$ and $v \leq t_m$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio using only the schools $\{ 1, \dots, j\}$ and having value at least $v$, if such a portfolio exists. Let $G[j, v] = r\bigl[v(\mathcal{W}[j, v])\bigr]$ denote the fixed-point representation of the corresponding value, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$. If $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
 \begin{align} \label{recursionrelationforcostmindp}
 G[j, v] &=
 \begin{cases}
@@ -548,15 +632,18 @@ G[j, v] &=
 %G[j-1, v], \quad &f_j = 1 \text{ and } f_j t_j < v
 \end{cases}\\
 \text{where}\qquad
-\Delta &= 
+\Delta_j (v) &= 
 \begin{cases}
-\lfloor \frac{f_j}{1 - f_j} (t_j - v)\rfloor, \quad & f_j < 1\\
+r\left[\frac{f_j}{1 - f_j} (t_j - v)\right], \quad & f_j < 1\\
 \infty, &f_j = 1
-\end{cases}
+\end{cases} \label{deltajvdef}
 \end{align}
 In the $t_j < v$ case, any feasible portfolio must be composed of schools with utility less than $v$, and therefore its valuation can not equal $v$, meaning that $\mathcal{W}[j, v]$ is undefined. In the $t_j \geq v$ case, the first argument to $\min\{\}$ says simply that omitting $j$ and choosing $\mathcal{W}[j-1, v]$ is a feasible choice for $\mathcal{W}[j, v]$. If, on the other hand, $j \in \mathcal{W}[j, v]$, then
-\begin{equation}v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j\end{equation}
-Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a value of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. This value may not be an integer; however, because $v(\mathcal{X})$ can take only integer values, if some portfolio has $v(\mathcal{X})\geq v - \Delta$, then $v(\mathcal{X})\geq \lceil v - \Delta \rceil$ as well, which allows us to apply the floor operator to $\Delta$. When $f_j = 1$, then the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
+\begin{equation} \label{solvemeforvwjvminusj}
+v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j\end{equation}
+Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a value of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. By rounding this value down, we ensure that the true valuation of $\mathcal{W}[j, v]$ is \emph{at least} $v - \Delta$. 
+
+When $f_j = 1$, then the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
 \begin{equation}G[j, v] = \min\bigl\{G[j-1, v], g_j \bigr\}\end{equation}
 Defining $\Delta = \infty$ in this case ensures that $G[j-1, v-\Delta] = 0$ as required.
 %we have $t_j < v$, and since no portfolio can be more valueable than the largest $t_j$ value of its elements, we must have $G[j, v] =\infty$. Defining $\Delta$ as zero in this guess automatically chooses $G[j, v] = G[j-1, v] = \infty$ for the same reason.
@@ -564,21 +651,22 @@ Defining $\Delta = \infty$ in this case ensures that $G[j-1, v-\Delta] = 0$ as r
 %In the $f_j t_j \geq v$ case, the singleton $\{j\}$ is feasible for $j$ and $v$, so $\mathcal{W}[j, v]$ is simply the cheaper of $\{j\}$ and $.\mathcal{W}[j-1, v]$.
 
 Once $G[j, v]$ has been calculated at each index, the corresponding portfolio can be found by applying the observation that $
-\mathcal{W}[j, v]$ contains $j$ if and only if $G[j, v] < G[j-1, v]$. Then solution to Ellis's problem is obtained by applying this observation to the optimal objective value $\max\{ w: G[m, w] \leq H\}$. 
+\mathcal{W}[j, v]$ contains $j$ if and only if $G[j, v] < G[j-1, v]$. Then an approximate solution to Ellis's problem is obtained by applying this observation to the approximate optimal objective value $\max\{ w: G[m, w] \leq H\}$. 
+
 
 
 
 \begin{algorithm}[H] 
 %\DontPrintSemicolon
-\caption{Dynamic program for Ellis's problem with integral utility parameters and rational admissions probabilities.} \label{ellisDP2}
-\KwData{Utility values $t \in \mathbb{N}^m$, admissions probabilities $f \in \bigl((0, 1] \cap \mathbb{Q}\bigr)^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$.}
+\caption{Polynomial-time approximation scheme for Ellis's problem.} \label{ellisDP3}
+\KwData{Utility values $t \in \mathbb{N}^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$, tolerance $\varepsilon \in (0, 1)$.}
 Index schools in ascending order by $t$\;
-Multiply each $t_j$ by $D$, the product of the denominators of the $f_j$\;
+$P \gets \bigl\lceil\log_{10}\left(m / \varepsilon f_m t_m\right)\bigr\rceil$\;
 \SetKwProg{Fn}{function}{ do}{end}
 \Fn{$G(j, v)$}{
 	\lIf{$v \leq 0$}{\Return{$0$}}
 	\lElseIf{$j=0$ or $t_j < v$}{\Return{$\infty$}}
-	\Else {\Return{$\min\bigl\{ G(j-1, v), g_j + G(j-1, v -  \Delta) \bigr\}$}}
+	\Else {\Return{$\min\Bigl\{ G(j-1, v), g_j + G\bigl(j-1, v -  \Delta_j(v)\bigr) \Bigr\}$}}
 }
 %	\uIf{$f_j < 1$}{\Return{$\min\bigl\{ G(j-1, v), g_j + G(j-1, v -  \lfloor \frac{f_j}{1 - f_j} (t_j - v)\rfloor ) \bigr\}$}}
 %	\uElseIf{$f_j = 1$ and $f_j t_j \geq v$}{\Return{$\min\bigl\{G[j-1, v], g_j \bigr\}$}}
@@ -597,50 +685,58 @@ Multiply each $t_j$ by $D$, the product of the denominators of the $f_j$\;
 %	\lIfElse{$\mathtt{E.j} < \mathtt{D.j}$}{$\mathtt{E.t} \gets  \mathtt{E.t} \cdot(1 -  \mathtt{D.f})$}{$\mathtt{E.t} \gets  \mathtt{E.t} -  \mathtt{D.f}\cdot\mathtt{D.t}$}
 %	}
 %}
-$v \gets  \max\{ w: G(m, w) \leq H\}$\;
+$v^* \gets  \max\{ w: G(m, w) \leq H\}$\;
+$v \gets v^*$\;
 $\mathcal{X} \gets \O$\;
 \For{$j = m, m-1, \dots, 1$}{
 	\If{$G(j, v)< \infty$ and $G(j, v) < G(j-1, v)$}{
 		$\mathcal{X} \gets \mathcal{X}\cup\{j\}$\; 
-		$v \gets v - \Delta$\;
+		$v \gets v -  \Delta_j(v)$\;
 	}
 }
 \Return{$\mathcal{X}$}
 \end{algorithm}
 
-\begin{theorem}[Validity of Algorithm \ref{ellisDP2}]
-Algorithm \ref{ellisDP2} produces an optimal application portfolio for Ellis's problem in $O(D m + m \log m)$ time and $O(D m)$ space, where $D$ is the product of the denominators of the $f_j$-values.
+\begin{theorem}[Validity of Algorithm \ref{ellisDP3}]
+Algorithm \ref{ellisDP3} produces a $(1 - \varepsilon)$-optimal application portfolio for Ellis's problem.% in $O(D m + m \log m)$ time and $O(D m)$ space, where $D$ is the product of the denominators of the $f_j$-values.
 \end{theorem}
 
 \begin{proof}
-Optimality follows from the foregoing discussion. The computational complexity follows by symmetry with Algorithm \ref{ellisDP1}. 
-\end{proof}
-
-\subsection{A polynomial-time approximation scheme}
-By rounding the $f_j$ values down to the nearest multiple of $1/K$, where $K \in \mathbb{N}$, Algorithm \ref{ellisDP2} yields a polynomial-time approximation scheme for Ellis's problem. Here we assume only that is each $t_j$ is integral. 
-
-\begin{algorithm}[H] 
-%\DontPrintSemicolon
-\caption{Polynomial-time approximation scheme for Ellis's problem.} \label{ellisPTAS}
-\KwData{Utility values $t \in \mathbb{N}^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$, tolerance $\varepsilon \in (0, 1)$.}
-$K \gets \bigl\lceil\,{m}/{\sqrt[m]{\varepsilon f_m}}\,\bigr\rceil$\;
-Round each $f_j$ down to the nearest multiple of $1/K$\;
-\Return{} the output of Algorithm \ref{ellisDP2}
-\end{algorithm}
-
-
-
-
-
-\begin{proof}
-The initialization steps trivial. By rounding, we ensure that $D \leq K^m$; therefore, the time required by Algorithm \ref{ellisDP2} is
+%Let $\mathcal{W}$ denote the output of Algorithm \ref{ellisDP3} and $\mathcal{X}$ the true optimum. In the main loop, each time the target valuation $v$ is updated using
+Because $\Delta_j(v)$ is rounded down, if $j \in \mathcal{W}[j, v]$, then the true value of $(1 - f_j) v\bigl(\mathcal{W}[j-1, v- \Delta_j(v)]\bigr) + f_j t_j$ may exceed the fixed-point value $v$ of $\mathcal{W}[j, v]$, but not by more than $10^{-P}$. This error accumulates with each school added to $\mathcal{W}$, but the number of additions is at most $m$. Therefore, where $v^*(\mathcal{W})$ denotes the fixed-point valuation of $\mathcal{W}$ as recorded in the algorithm, 
 \begin{equation}
-O\left(Dm + m\log m \right) = 
+v(\mathcal{W}) - v^*(\mathcal{W}) \leq m 10^{-P} 
 \end{equation}
+We can define $v^*(\mathcal{X})$ analogously as the fixed-point valuation of $\mathcal{X}$ when its elements are added in index order and its value is updated and rounded down at each addition in accordance with \eqref{solvemeforvwjvminusj}. For the same reason as above, 
+$v(\mathcal{X}) - v^*(\mathcal{X}) \leq m 10^{-P}$.
+
+Finally, by the trivial assumption that all $g_j \leq H$, we know $v(\mathcal{X}) \geq v(\{m\}) = f_m t_m$. From this we obtain
+\begin{equation}
+\begin{split}
+v(\mathcal{W}) &\geq v^*(\mathcal{W}) \geq v^*(\mathcal{X})
+\geq v(\mathcal{X}) - m 10^{-P} \\
+&\geq \left(1 - \frac{m 10^{-P}}{f_m t_m}\right) v(\mathcal{X})
+\geq \left(1 - \varepsilon\right) v(\mathcal{X})
+\end{split}
+\end{equation}
+which completes the proof. 
 \end{proof}
 
+\begin{theorem}[Computational complexity of Algorithm \ref{ellisDP3}]
+Algorithm \ref{ellisDP3} uses $O(m /\varepsilon + m \log m)$ time and $O(m/\varepsilon)$ space, where $D$ is the product of the denominators of the $f_j$-values.
+\end{theorem}
 
+% To make this fully polynomial, need to get rid of the f_m t_m business ...
+\begin{proof}
+In the worst case, the number of indices at which $G(j, v)$ is evaluated is $O(|\mathcal{V}| m)$. Since
+\begin{equation}
+|\mathcal{V}| = t_m 10^{P} = t_m10^ { \bigl\lceil\log_{10}\left(m / \varepsilon f_m t_m\right)\bigr\rceil}
+%\leq {\text{const.}}/{\varepsilon}
+\end{equation}
+is $O(1/ \varepsilon)$, adding the $O(m \log m)$-time required to sort $t$ yields the result. By recording the values of $G(j, v)$ in a dictionary as they are computed, we prevent redundant recursive calls at a cost of $O(|\mathcal{V}| m) = O(m / \varepsilon)$ space.
+\end{proof}
 
+Since these bounds are polynomial in $m$ and $1 / \varepsilon$, Algorithm \ref{ellisDP3} is a fully polynomial-time approximation scheme for Ellis's problem. 
 
 
 
