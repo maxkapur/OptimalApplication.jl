@@ -1,0 +1,790 @@
+%!TEX encoding = UTF-8 Unicode 
+\documentclass[12pt]{article} %try amsproc, amsart
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper, margin=2.5cm}                   % ... or a4paper or a5paper or ... 
+% \geometry{landscape}                % Activate for for rotated page geometry
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{setspace}
+\setstretch{1.1}
+
+\usepackage{hyperref}
+\hyperbaseurl{}
+\urlstyle{same}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\newcommand{\lIfElse}[3]{\lIf{#1}{#2 \textbf{else}~#3}}
+
+\usepackage{times}
+\usepackage{letltxmacro}
+\usepackage[shortlabels]{enumitem}
+\usepackage{kotex}
+\usepackage{fancyhdr}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+
+% Language selector
+\newif\ifEN
+\ENtrue % Change to false to export Korean
+%\ENfalse
+
+
+\ifEN
+{
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{conjecture}{Conjecture}
+}
+\else {
+\newtheorem{theorem}{정리}
+\newtheorem{lemma}{기본정리}
+\newtheorem{corollary}{따름정리}
+\newtheorem{proposition}{제의}
+\theoremstyle{definition}
+\newtheorem{example}{예}
+\newtheorem{definition}{정의}
+\newtheorem{assumption}{가정}
+\newtheorem{conjecture}{추측}
+}
+\fi
+
+%\ifEN {} \else \renewcommand*{\proofname}{증명\@}  \fi
+
+
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhf{}
+\rhead{Uncertainty in college admissions markets \\~}
+\lhead{Max Kapur \\ \date{\today}}
+\cfoot{\thepage}
+
+
+
+\ifEN{ \title{How to apply to college} }
+\else {\title{How to apply to college}} \fi
+\author{Max Kapur}
+\date{\today}                % Activate to display a given date or no date
+
+\begin{document}
+
+\maketitle
+\section*{Abstract}
+This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, we show that the problem is NP-complete. We provide two dynamic programs for this more general setup. The first produces an exact solution in pseudopolynomial time, and the second yields a fully polynomial-time approximation scheme. 
+\pagebreak
+
+\tableofcontents
+\pagebreak
+
+
+\ifEN \section{Introduction}  \else \section{서론} \fi
+This paper considers the optimization problem
+%\begin{definition}[Optimal college application portfolio] \label{generalproblemstatement}
+\begin{align}
+\begin{split}
+\text{maximize}\quad & \operatorname{E}\left[\max\bigr\{t_0,
+\max\{t_j Z_j : j \in \mathcal{X}\}\bigr\}\right] \\
+\text{subject to}\quad & \mathcal{X} \subseteq \mathcal{C}, ~~\sum_{j\in \mathcal{X}} g_j \leq H
+\end{split}
+\end{align}
+%\end{definition}
+where $\mathcal{C} = \{ 1 \dots m\}$ is an index set, $H$ is a budget parameter, and for $j = 1 \dots m$, $g_j > 0$ is a cost parameter, $Z_j$ is a random, independent Bernoulli variable with probability $f_j$, and $t_j  > 0$ is a utility parameter. Without loss of generality, we assume that the $t_j$-values are weakly increasing in $j$, that $0 \leq t_0 \leq t_1$, and that each $g_j \leq H$.
+
+We refer to this problem as the \emph{optimal college application portfolio,} as follows: Consider a college admissions market with $m$ college. The $j$th college is named $c_j$. Consider a single student, and let $f_j$ denote her probability of being admitted to $c_j$ if she applies, so that $Z_j$ equals one if she is admitted and zero if not. It is appropriate to assume that the $Z_j$ are probabilistically independent as long as $f_j$ are probabilities estimated specifically for this student (as opposed to generic acceptance rates). Each $t_j$-value indicates the utility associated with attending $c_j$, and $t_0$ gives the utility associated with not attending college, an option named $c_0$. The application fee for $c_j$ is $g_j$, and $H$ represents the student's total budget to spend on application fees. Then the student's objective is to maximize the expected utility associated with the best school she gets into, and her optimal college application strategy is given by the solution $\mathcal{X}$ to the problem above, where $\mathcal{X}$ represents the set of schools to which the student applies.
+
+As Chao (2014) remarked, this represents a somewhat subtle portfolio optimization problem. The traditional Markowitz model trades off the expected value across all assets with a risk term, obtaining a concave maximization problem with linear constraints. But college applicants maximize the observed value of their \emph{best} asset: If a student is admitted to her $j$th choice, then she is indifferent to whether or not she gets into her $(j+1)$th choice. As a result, the valuation function that students maximize is \emph{convex} in the expected utility associated with individual applications. Risk management is implicit in the college application problem because, in a typical admissions market, college preferability is negatively correlated with competitiveness. Thus, students must negotiate a tradeoff between highly attractive, selective “reach schools” and less preferable “safety schools” where admission is a safer bet. Finally, the combinatorial nature of the college application problem makes it difficult to solve using the gradient-based techniques used in continuous portfolio optimization. Chao estimated her model (which considers application as a \emph{cost} rather than a constraint) by clustering the schools so that $m=8$, a scale at which enumeration is possible. Our study pursues a more general solution.
+
+% Further references to nestedness and greedy approximation algos
+
+\subsection{Structure of this paper}
+Section \label{preliminaries} introduces some additional notation and assumptions that can be imposed with trivial loss of generality. 
+
+In section \ref{homogappcosts}, we solve the special case where each $g_j = 1$ and $H$ is an integer $h \leq m$. This case mirrors the centralized college application process in Korea, where there is no application fee, but students are allowed to apply to only three schools during the main admissions cycle. We show that an intuitive heuristic is in fact a $1/h$-approximation algorithm. Then, we show that the optimal portfolios are nested in the budget constraint, which yields an exact algorithm that runs in $O(hm)$-time.
+
+In section \ref{hetappcosts}, we turn to the scenario in which colleges differ in their application fees. We show that the decision form of the portfolio optimization problem is NP-complete through a reduction from the binary knapsack problem. We provide two dynamic programs for this more general setup. The first iterates on total expenditures and produces an exact solution in pseudopolynomial time, namely $O(Hm + m \log m)$. The second iterates on truncated portfolio valuations and yields a fully polynomial-time approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in $O(m^3 / \varepsilon)$ time.  
+% subject to certain assumptions on the quality of the data available to students in their decisionmaking process, an optimal application portfolio for a single student can be computed in time polynomial in $h$ and $m$, as we show presently.
+
+
+
+
+% \footnote{This assumption is appropriate when $f$ gives the admissions probabilities \emph{specifically} for Alma, as estimated from her academic abilities. It is inappropriate to take a school's overall acceptance rate, which reflects the admissions probability for a \emph{generic} student, as $f_j$.}
+
+
+% Nestedness property and paper
+
+\section{Notation and preliminaries} \label{preliminaries}
+Before discussing the optimal solution, we organize a few preliminary results. 
+
+The set $\mathcal{X} \subseteq \mathcal{C}$ of schools to which a student applies is called her \emph{application portfolio.} The expected utility the student receives from $\mathcal{X}$ is called its \emph{valuation}. %Let $x$ denote the same encoded as a binary vector, where $x_j=1 \iff j\in \mathcal{X}$ for $j=1\dots m$. 
+\begin{definition}[Portfolio valuation function]
+$v(\mathcal{X}) =  \operatorname{E}\left[\max\bigr\{t_0,
+\max\{t_j Z_j : j \in \mathcal{X}\}\bigr\}\right]$.
+\end{definition}
+It is helpful to define the random variable $X  = \max\{ t_j Z_j : j \in \mathcal{X}\}$ as the utility achieved by the schools in the portfolio, so that when $t_0 = 0$, $v(\mathcal{X}) = \operatorname{E}[X]$.
+
+Let $p_j(\mathcal{X})$ denote the probability that the student attends $c_j$. This occurs if and only if she \emph{applies} to $c_j$, is \emph{admitted} to $c_j$, and is \emph{rejected} from any school she prefers to $c_j$; that is, any school with higher index. Hence, for $j= 0\dots m$,
+\begin{align}
+p_j(\mathcal{X}) &= 
+\begin{cases}
+\displaystyle f_j  \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}), \quad & j \in \{0\}\cup\mathcal{X}\\
+0, \quad & \text{otherwise}
+\end{cases} 
+\end{align}
+where the empty product equals one. The following proposition follows immediately.
+
+\begin{proposition}[Closed form of portfolio valuation function]
+\begin{align}
+v(\mathcal{X}) &= \sum_{j\in\{0\}\cup\mathcal{X}} \Bigl( t_j f_j  \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}) \Bigr)  \label{closedformportfoliovaluationX}%, \quad \text{or equivalently,}\\
+%\qquad v(x) &= t_0 \prod_{j=1}^m (1 - f_{j} x_j) + \sum_{j=1}^m \Bigl( x_j t_j f_j \prod_{j’ = j+1}^m (1 - f_{j’} x_{j’}) \Bigr) \label{closedformportfoliovaluationx}
+\end{align}
+\end{proposition}
+%\begin{proof}Computing $v(\mathcal{X}) = \sum_{j=0}^m  t_j p_j(\mathcal{X})$ yields \eqref{closedformportfoliovaluationX}. Next, because $1 - f_j x_j = 1$ if $x_j = 0$, we may define $p_j$ equivalently as $p_j(x) = x_j  f_j \prod_{j’ = j+1}^m (1 - f_{j’} x_{j’})$ to obtain \eqref{closedformportfoliovaluationx}. 
+%\end{proof}
+
+Next, we show that without loss of generality, we may assume that $t_0 = 0$ (or any constant less than $t_1$).
+\begin{theorem} \label{assumetzerozero}
+Let $\bar t_j = t_j - \gamma$ for $j = 0 \dots m$. Then $v(\mathcal{X}; \bar t_j) = v(\mathcal{X};  t_j) -  \gamma$ regardless of $\mathcal{X}$. 
+\end{theorem}
+\begin{proof}
+By definition, $\sum_{j=0}^m p_j(\mathcal{X}) = \sum_{j \in \{0\}\cup\mathcal{X}} p_j(\mathcal{X}) = 1$. Therefore
+\begin{align}
+v(\mathcal{X}; \bar t_j) &= \sum_{j\in \{0\}\cup\mathcal{X}}  \bar t_j p_j(\mathcal{X})
+=\sum_{j\in \{0\}\cup\mathcal{X}} (t_j - \gamma) p_j(\mathcal{X}) \\
+&=\sum_{j\in \{0\}\cup\mathcal{X}} t_j p_j(\mathcal{X})  - \gamma 
+= v(\mathcal{X}; t_j) - \gamma
+\end{align}
+which completes the proof. 
+\end{proof}
+
+
+
+\ifEN \section{Homogeneous application costs}  \else \subsection{} \fi \label{homogappcosts}
+Let us consider the special case in which $g_j = 1$ and $H$ is a constant $h \leq m$. This case is similar to the centralized college admissions process in Korea, where there is no application fee, but by law, students are allowed to apply to no more than $h$ schools. (In the Korean case, $m=202$ and $h=3$.) Applying Theorem \ref{assumetzerozero}, we assume that $t_0 = 0$. 
+
+In this section, we will call the applicant Alma, and refer to the corresponding optimization problem as Alma's problem. 
+
+\begin{definition}[Alma’s problem]
+Alma's optimal college application portfolio is given by the solution to the following combinatorial optimization problem:
+\begin{align}
+\begin{split}
+\text{maximize}\quad &  v(\mathcal{X}) = \sum_{j\in
+%\{0\}\cup
+\mathcal{X}} \Bigl( t_j f_j  \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i})\\
+\text{subject to}\quad & \mathcal{X}\subseteq\mathcal{C}, \quad|\mathcal{X}| \leq h 
+\end{split}
+\end{align}
+\end{definition}
+%This problem can be formulated as an integer nonlinear program in $m$ binary variables .. 
+
+\ifEN \subsection{Approximation properties of a na\"ive solution}  \else \subsection{모형화} \fi
+The expected utility associated with a single school $c_j$ is simply $\operatorname{E}[t_j Z_j] = t_j f_j$. It is therefore tempting to adopt the following strategy, which turns out to be inoptimal.
+\begin{definition}[Na\"ive algorithm for Alma’s problem] \label{naivealgorithm}
+Apply to the $h$ schools having the highest expected utility $t_j f_j$.
+\end{definition}
+The basic error of this algorithm is that it maximizes $\operatorname{E}\left[\sum t_j Z_j \right]$ instead of $\operatorname{E}\left[\max \{t_j Z_j\} \right]$. The latter is what Alma is truly concerned with, since in the end she can attend only one school. The following example shows that the na\"ive algorithm can produce a suboptimal solution.
+\begin{example}
+Suppose $m=3$, $h=2$,  $ t= (70, 80, 90) $, and $f = (0.4, 0.4, 0.3)$. 
+%\implies t * f &= (28, 32, 27)
+%\begin{align*}
+%t &= (70, 80, 90) \\
+%f &= (0.4, 0.4, 0.3) \\
+%\implies t * f &= (28, 32, 27)
+%\end{align*}
+Then the na\"ive algorithm picks $\mathcal{T} = \{1, 2\}$ with 
+$v(\mathcal{T}) = 70(0.4)(1-0.4) + 80(0.4) = 48.8$.
+But $\mathcal{X} = \{2, 3\}$ with
+$v(\mathcal{X}) = 80(0.4)(1-0.3) + 90(0.3) = 49.4$
+is the optimal solution. 
+\end{example}
+
+In fact, the na\"ive algorithm is a $(1/h)$-approximation algorithm for Alma’s problem, as expressed in the following theorem.
+
+\begin{theorem} \label{oneoverhopt}
+When the application limit is $h$, let $\mathcal{X}_h$ denote the optimal portfolio, and $\mathcal{T}_h$ the set of the $h$ schools having the largest values of $t_j f_j$. Then $v(\mathcal{T}_h) / v(\mathcal{X}_h) \geq 1/h$. 
+\end{theorem}
+\begin{proof}
+Because $\mathcal{T}_h$ maximizes the quantity $\operatorname{E}\bigl[ \sum_{j \in \mathcal{T}_h}\{ t_j Z_j \}\bigr]$, we have
+\begin{align} \label{oneoverhopt}
+\begin{split}
+v(\mathcal{X}_h) &= \operatorname{E}\bigl[ \max_{j \in \mathcal{X}_h}\{ t_j Z_j \}\bigr] \leq \operatorname{E}\bigl[ \sum_{j \in \mathcal{X}_h}\{ t_j Z_j \}\bigr] \leq \operatorname{E}\bigl[ \sum_{j \in \mathcal{T}_h}\{ t_j Z_j \}\bigr] \\
+&= h  \operatorname{E}\bigl[ \tfrac{1}{h} \sum_{j \in \mathcal{T}_h}\{ t_j Z_j \}\bigr]
+\leq h  \operatorname{E}\bigl[ \max_{j \in \mathcal{T}_h}\{ t_j Z_j \}\bigr]
+= h\,v(\mathcal{T}_h)
+\end{split}
+\end{align}
+where the final inequality follows from the concavity of the $\max\{\}$ operator.
+\end{proof}
+
+The following example establishes the tightness of the approximation factor. 
+
+\begin{example} \label{tightexampleforoneoverhopt}
+Pick any $h$ and let $m = 2h$. For a small constant $\varepsilon \in (0, 1)$, let
+\begin{align*}
+t &= \Bigl(\,\underbrace{1,  \dots, 1}_{h},\;
+\underbrace{\varepsilon^{-1}, \varepsilon^{-2}, \dots, \varepsilon^{-(h-1)}, \varepsilon^{-h}}_{h}\,\Bigr) \\
+\text{and}\quad f &= \Bigl(\,\underbrace{1,  \dots, 1}_{h},\;
+\underbrace{\varepsilon^{1}, \varepsilon^{2}, \dots, \varepsilon^{h-1}, \varepsilon^{h}}_{h}\,\Bigr)
+\end{align*}
+Since all $t_j f_j = 1$, the na\"ive algorithm can choose $\mathcal{T}_h = \{1, \dots, h\}$, with $v(\mathcal{T}_h) = 1$. But the optimal solution is $\mathcal{X}_h = \{h+1, \dots, m\}$, with
+\begin{equation*}
+v(\mathcal{X}_h) = \sum_{j= h +1}^m \Bigl( t_j f_j \prod_{j' = j+1}^m (1 - f_{j'}) \Bigr) =  \sum_{j= 1}^h  (1 - \varepsilon)^{j} \approx h.
+\end{equation*}
+Thus, as $\epsilon$ approaches zero, we have $v(\mathcal{T}_h) / v(\mathcal{X}_h) \to 1/h$. (The optimality of $\mathcal{X}_h$ follows from the fact that it achieves the upper bound of Theorem \ref{oneoverhopt}.)
+\end{example}
+
+Hope is not lost. We can still find the optimal solution in time polynomial in $h$ and $m$, as we will now show.
+
+\ifEN \subsection{The nestedness property}  \else \subsection{풀이} \fi
+It turns out that the solution to Alma's problem possesses a special structure: An optimal portfolio of size $h+1$ includes an optimal portfolio of size $h$ as a subset.
+% Incl above
+%To show this result, we need to introduce some new notation. For an application portfolio $\mathcal{X}$, the random variable $X  = \max\{ t_j Z_j : j \in \mathcal{X}\}$ represents the utility achieved by the portfolio, so that $v(\mathcal{X}) = \operatorname{E}[X]$.
+
+% Unused
+%It is also helpful to define $\Delta v(\mathcal{X}, j)$ as the utility gained by adding $c_j$ to the portfolio $\mathcal{X}$. That is, 
+%\begin{align} \Delta v(\mathcal{X}, j) &= v(\mathcal{X} \cup \{j\})  - v(\mathcal{X}) \\
+%&= (1 - f_j) v(\mathcal{X}) + f_j \operatorname{E}[\max\{X, t_j\}] - v(\mathcal{X}) \\
+%&= f_j \operatorname{E}[\max\{0, t_j - X\}]  \label{emaxtjminusX}
+%\end{align}
+%
+%\begin{lemma}
+%For all $\mathcal{X}\subseteq \mathcal{C}$ and $i, j \in \mathcal{C}$, $\Delta v(\mathcal{X}, j) \geq \Delta v(\mathcal{X} \cup \{i\}, j)$. 
+%\end{lemma}
+%\begin{proof}
+%If a new school $i$ is added to $\mathcal{X}$, then the expected value of $X$ can only increase. Likewise, the probability that Alma is admitted to at least one school in $\mathcal{X}\cup\{i\}$ that she prefers to $j$ must be higher than in $\mathcal{X}$. Therefore, the maximum in \eqref{emaxtjminusX} is more likely to occur in the second entry, and achieves a lower value. 
+%\end{proof}
+%Now we may present the main result.
+
+\begin{theorem}[Nestedness of optimal application portfolios] \label{nestedapplication}
+There exists a sequence of portfolios $\{\mathcal{X}_h\}_{h=1}^m$ such that each $\mathcal{X}_h$ is an optimal application portfolio when the application limit is $h$, and the sequence satisfies the nestedness relation
+\begin{equation}
+\mathcal{X}_1 \subset \mathcal{X}_2\subset \dots \subset \mathcal{X}_m.
+\end{equation}
+\end{theorem}
+\begin{proof} By induction on $h$. Applying Theorem \ref{assumetzerozero}, we assume that $t_0 = 0$. 
+
+(Base case.) First, we will show that $\mathcal{X}_1 \subset \mathcal{X}_2$. To get a contradiction, suppose that the optima are $\mathcal{X}_1 = \{j\}$ and $\mathcal{X}_2 = \{k, l\}$, where we may assume that $t_k \leq t_l$. Optimality requires that
+\begin{equation}v(\mathcal{X}_1 )  = f_j t_j > v(\{k\}) = f_k t_k\end{equation}
+and
+\begin{align}
+v(\mathcal{X}_2) =  f_k (1- f_l) t_k + f_l t_l &> v(\{j, l\}) \\
+& = f_j (1- f_l) t_j + (1- f_j) f_l t_l + f_j f_l \max\{t_j, t_l\} \\
+&\geq  f_j (1- f_l) t_j + (1- f_j) f_l t_l + f_j f_l  t_l \\
+&= f_j (1- f_l) t_j + f_l t_l  \\
+&\geq f_k (1- f_l) t_k + f_l t_l  = v(\mathcal{X}_2)
+\end{align}
+which is a contradiction.
+
+(Inductive step.) Assume that $\mathcal{X}_1 \subset \cdots \subset \mathcal{X}_h$, and we will show $\mathcal{X}_h \subset \mathcal{X}_{h+1}$. Let $k = \argmax\{ t_k: k \in \mathcal{X}_{h+1}\}$ and write $\mathcal{X}_{h+1} = \mathcal{Y}_{h} \cup \{k\}$.
+
+Suppose $k \notin \mathcal{X}_h$.  To get a contradiction, assume that $v(\mathcal{Y}_h) < v(\mathcal{X}_h)$. Then
+\begin{align}
+\begin{split}
+v(\mathcal{X}_{h+1})&= v(\mathcal{Y}_{h} \cup \{k\}) \\
+&= (1 - f_k) v(\mathcal{Y}_h) + f_k t_k \\
+& < (1 - f_k) v(\mathcal{X}_h) + f_k \operatorname{E}\bigl[ \max\{t_k, X_h\}\bigr]\\
+&=  v(\mathcal{X}_h\cup \{k\})
+\end{split}
+\end{align}
+contradicts the optimality of $\mathcal{X}_{h+1}$.
+
+Now suppose that $k \in \mathcal{X}_h$. We can write $\mathcal{X}_h = \mathcal{Y}_{h-1} \cup \{k\}$, where $ \mathcal{Y}_{h-1}$ is some portfolio of size $h-1$. It suffices to show that $ \mathcal{Y}_{h-1} \subset \mathcal{Y}_h$. By definition, $\mathcal{Y}_{h-1}$ (respectively, $\mathcal{Y}_{h}$) maximizes the function $v(\mathcal{Y}\cup\{k\})$ over portfolios of size $h-1$ (respectively, $h$) that do not include $k$. That is, $\mathcal{Y}_{h-1}$ and $\mathcal{Y}_h$ are the optimal \emph{complements} to the singleton portfolio $\{k\}$.
+
+We will use the function $w(\mathcal{Y})$ to grade portfolios $\mathcal{Y} \subseteq \mathcal{C} \setminus \{k\}$ according to how well they complement $\{k\}$. To construct $w(\mathcal{Y})$, let $\tilde t_j$ denote the expected utility Alma receives from school $c_j$ \emph{given} that she has been admitted to $c_j$ and applied to $c_k$. For $j < k$, including $j = 0$, this is $\tilde t_j = t_j (1- f_k) + t_k f_k$; for $j > k $, this is $\tilde t_j = t_j$. This means that 
+\begin{equation}\label{Vyastildet}
+v(\mathcal{Y}\cup\{k\}) = \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y}).\end{equation}
+The transformation to $\tilde t$ does not change the order of the $t_j$-values. Therefore, the expression on the right side of \eqref{Vyastildet} is itself a portfolio valuation function. In the corresponding market, $t$ is replaced by $\tilde t$ and $\mathcal{C}$ is replaced by $\mathcal{C}\setminus\{k\}$. Now, we obtain $w(\mathcal{Y})$ through one more transformation: Define $\bar t_j = \tilde t_j - \tilde t_0$ so that $t_0 = 0$ and let
+\begin{equation}  \label{wYvXminusconst}
+w(\mathcal{Y})
+= \sum_{j \in \{0\} \cup \mathcal{Y}} \bar t_j p_j(\mathcal{Y})
+= \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y})- \tilde t_0
+= v(\mathcal{Y}\cup\{k\}) -  t_k f_k \end{equation}
+where the second equality follows from Theorem \ref{assumetzerozero}. This identity says that the optimal complements to $\{k\}$, given by $\mathcal{Y}_{h-1}$ and $\mathcal{Y}_h$, are themselves optimal portfolios of size $h-1$ and $h$ for the market whose objective function is $w(\mathcal{Y})$. Since $\bar t_0 = 0$ in the latter market, the inductive hypothesis implies that $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$, which completes the proof.\footnote{We thank Yim Seho for discovering this critical transformation.}
+\end{proof}
+
+\subsection{Polynomial-time solution}
+Applying the result above yields an efficient algorithm for the optimal portfolio: Start with the empty set and add schools one at a time, maximizing $v(\mathcal{X}\cup \{k\})$ at each addition. Sorting $t$ is  $O(m \log m)$.  At each of the $h$ iterations, there are $O(m)$ candidates for $k$, and computing $v(\mathcal{X}\cup \{k\})$ is $O(h)$ using \eqref{closedformportfoliovaluationX}; therefore, the time complexity of this algorithm is $O(h^2 m + m \log m)$. 
+%\begin{algorithm}[H] 
+%  %\DontPrintSemicolon
+%\caption{Optimal portfolio algorithm for Alma’s problem when $h$ is small.} \label{algorithmforsmallh}
+%\KwData{Utility values $t \in[0, \infty)^m$, admissions probabilities $f \in [0, 1]^m$, application limit $h \leq m$.}
+%Index schools in ascending order by $t$\;
+%$\mathcal{X} \gets \O$\;
+%\For{$i=1\dots h$}
+%{
+%    $j \gets \argmax_k\bigl\{v(\mathcal{X}\cup\{k\}) : k \notin \mathcal{X}\bigr\}$\;
+%    $\mathcal{X} \gets \mathcal{X}\cup\{j\}$ \;
+%}
+%\Return{$\mathcal{X}$}
+%\end{algorithm}
+%
+%\begin{theorem}[Validity of Algorithm \ref{algorithmforsmallh}]
+%Algorithm \ref{algorithmforsmallh} produces an optimal application portfolio in $O(h^2 m + m \log m)$ time.
+%\end{theorem}
+%\begin{proof}
+%Optimality follows from Theorem \ref{nestedapplication}. Sorting $t$ is  $O(m \log m)$. At each of the $h$ iterations, there are $O(m)$ candidates for $k$, and computing $v(\mathcal{X}\cup \{k\})$ is $O(h)$ using \eqref{closedformportfoliovaluationX}; therefore, the time complexity of the main loop is $O(h^2 m)$. 
+%\end{proof}
+
+We reduce the computation time to $O(hm)$ by taking advantage of the transformation from the inductive step in the proof of Theorem \ref{nestedapplication}. Once school $k$ is added to $\mathcal{X}$, we remove it from the set $\mathcal{C}\setminus \mathcal{X}$ of candidates, and update the $t_j$-values of the remaining schools according to the following transformation:
+\begin{align}\label{howtotransformfj}
+\bar t_j = 
+\begin{cases}
+t_j (1 - f_k), \quad & t_j \leq t_k \\
+t_j - t_k f_k, \quad& t_j > t_k
+\end{cases}
+\end{align}
+It is easy to verify that this is the composition of the two transformations (from $t$ to $\tilde t$, and from $\tilde t$ to $\bar t$) given in the proof. Now, the \emph{next} school added must be the optimal singleton portfolio in the modified market. But the optimal singleton portfolio consists simply of the school with the highest value of $f_j \bar t_j$. Therefore, by updating the $t_j$-values at each iteration according to \eqref{howtotransformfj}, we eliminate the need to compute $v(\mathcal{X})$ entirely. Moreover, this algorithm does not require the schools to be indexed in ascending order by $t_j$, which removes the $O(m\log m)$ sorting cost.
+ 
+The algorithm below outputs a list $\mathtt{X}$ of the $h$ schools to which Alma should apply. The schools appear in the order of entry such that when the algorithm is run with $h=m$, the optimal portfolio of size $h$ is given by $\mathcal{X}_h = \{\mathtt{X[1]}, \dots, \mathtt{X[h]}\}$. The entries of the list $\mathtt{V}$ give the valuation thereof. 
+
+\begin{algorithm}[H] 
+%\DontPrintSemicolon
+\caption{Optimal portfolio algorithm for Alma’s problem.} \label{algorithmforlargeh}
+\KwData{Utility values $t \in[0, \infty)^m$, admissions probabilities $f \in [0, 1]^m$, application limit $h \leq m$.}
+%Index schools in ascending order by $t$\;
+$\mathcal{C} \gets \{1 \dots m\}$\;
+$\mathtt{X, V} \gets $ empty lists\;
+%$\mathtt{L} \gets $, an empty heap of named tuples $\mathtt{C}$ ordered by $\mathtt{C.f}\cdot\mathtt{C.t}$\;
+%\lFor{$j=1\dots m$}
+%{$\operatorname{append!}\bigl(\mathtt{L}, (j, f_j, t_j)\bigr)$}
+\For{$i=1\dots h$}
+{
+    $k \gets \argmax_{j \in \mathcal{C}}\{f_j t_j\}$\;
+    $\mathcal{C} \gets \mathcal{C} \setminus \{k\}$\;
+    $\operatorname{append!}(\mathtt{X}, k)$\;
+     \lIfElse{$i=1$}{$\operatorname{append!}(\mathtt{V}, f_k t_k)$}
+     {$\operatorname{append!}(\mathtt{V}, \mathtt{V[i-1]} + f_k t_k)$}
+    \For{$j \in \mathcal{C}$}
+	{
+	\lIfElse{$t_j \leq t_k$}{$t_j \gets  t_j (1 -  f_k)$}{$t_j \gets  t_j -  f_k t_k$}
+	}
+%    \For{$\mathtt{E} \in \mathtt{H}: 1\leq \mathtt{E.j} < \mathtt{D.j}$}
+%	{
+%	Update $\mathtt{E.t} \gets  \mathtt{E.t} \cdot(1 -  \mathtt{D.f})$\;
+%    }
+%    \For{$\mathtt{E} \in \mathtt{H}:  \mathtt{D.j} <  \mathtt{E.j} \leq m$}
+%	{
+%	Update $\mathtt{E.t} \gets  \mathtt{E.t} -  \mathtt{D.f}\cdot\mathtt{D.t} $\;
+%    }
+}
+\Return{$\mathtt{X, V}$}
+\end{algorithm}
+
+
+\begin{theorem}[Validity of Algorithm \ref{algorithmforlargeh}]
+Algorithm \ref{algorithmforlargeh} produces an optimal application portfolio for Alma's problem in $O(h m)$ time.
+\end{theorem}
+\begin{proof}
+Optimality follows from the proof of Theorem \ref{nestedapplication}. Suppose $\mathcal{C}$ is stored as a list. Then at each of the $h$ iterations of the main loop, finding the top school costs $O(m)$, and the $t_j$-values of the remaining $O(m)$ schools are each updated in unit time. Therefore, the overall time complexity is $O(h m)$.
+\end{proof}
+
+In our numerical experiments, we found it effective to store $\mathcal{C}$ as a binary max heap rather than a list. The heap is ordered according to the criterion $i \geq j \iff f_i t_i \geq f_j t_j$. Nominally, using a heap increases the cost of the main loop from $O(h m)$ to $O(hm \log m)$ because the heap is rebalanced when each $t_j$-value is updated. However, typical problem instances do not achieve this upper bound because the order of the $f_j t_j$-values changes only slightly between iterations. The cost of updating each $t_j$-value can be reduced to unit time using a Fibonacci heap (Fredman and Tarjan 1987), yielding the same overall computation time. 
+%The computation time can be further reduced by observing that the school added at each iteration must be maximal in the tuple $(f_j, t_j)$. That is, if $f_j \geq f_k \wedge t_j \geq t_k$ holds for two candidate schools $j$ and $k$, then $k$ cannot be the uniquely optimal addition, since admission to $j$ is both weakly preferable and weakly more probable. Therefore, we may restrict our attention to the subset of schools \emph{not} dominated by another in this way.
+%\begin{proposition}[Efficient frontier for Alma's problem]
+%Given a set of schools $\mathcal{D}$, define the set
+%\begin{equation}
+%\operatorname{EF}(\mathcal{D})  = \{j \in \mathcal{D}: f_j \geq f_k \vee t_j \geq t_k, \forall k \in \mathcal{D}\}
+%\end{equation}
+%as the \emph{efficient frontier} of $\mathcal{D}$. Then
+%\begin{equation} l \in \operatorname{EF}(\mathcal{C}\setminus  \mathcal{X}_{h-1}) \end{equation}
+%where $l$ is the school added at iteration $h$ of Algorithm \ref{dynamicprogram}.
+%\end{proposition}
+
+
+\subsection{Properties of the optimal portfolios}
+The nestedness property implies that Alma's expected utility is a discretely concave function of $h$.
+
+\begin{theorem}[Optimal portfolio valuation concave in $h$] \label{concavityinh}
+For $h = 2 \dots (m-1)$, \begin{equation}v(\mathcal{X}_h) - v(\mathcal{X}_{h-1}) \geq v(\mathcal{X}_{h+1}) - v(\mathcal{X}_{h}).\end{equation} 
+\end{theorem}
+\begin{proof}
+We will prove the equivalent expression $2 v(\mathcal{X}_h) \geq v(\mathcal{X}_{h+1}) + v(\mathcal{X}_{h-1})$. Applying Theorem \ref{nestedapplication}, we write $\mathcal{X}_h = \mathcal{X}_{h-1} \cup\{j\}$ and $\mathcal{X}_{h+1} = \mathcal{X}_{h-1} \cup\{j, k\}$. Define the random variables $X_i$ as above. If $t_k \leq t_j$, then 
+\begin{align}
+\begin{split}
+2 v(\mathcal{X}_h) &= v(\mathcal{X}_{h-1} \cup\{j\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
+&\geq v(\mathcal{X}_{h-1} \cup\{k\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
+&= v(\mathcal{X}_{h-1} \cup\{k\}) + (1 - f_j) v(\mathcal{X}_{h-1}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}] \\
+&= v(\mathcal{X}_{h-1} \cup\{k\}) - f_j v(\mathcal{X}_{h-1}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}] + v(\mathcal{X}_{h-1})  \\
+&\geq v(\mathcal{X}_{h-1} \cup\{k\})  - f_j v(\mathcal{X}_{h-1}\cup\{k\}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}]+ v(\mathcal{X}_{h-1})\\
+&= (1 - f_j) v(\mathcal{X}_{h-1} \cup\{k\})  + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}]+ v(\mathcal{X}_{h-1})\\
+&=  v(\mathcal{X}_{h-1} \cup\{j, k\}) + v(\mathcal{X}_{h-1})\\
+&=  v(\mathcal{X}_{h+1}) + v(\mathcal{X}_{h-1}).
+\end{split} 
+\end{align}
+The first inequality follows from the optimality of $\mathcal{X}_h$, while the second follows from the fact that adding $k$ to $\mathcal{X}_{h-1}$ can only increase its valuation.
+
+If $t_k \geq t_j$, then the steps are analogous:
+\begin{align}
+\begin{split}
+2 v(\mathcal{X}_h) &= v(\mathcal{X}_{h-1} \cup\{j\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
+&\geq v(\mathcal{X}_{h-1} \cup\{k\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
+&= (1 - f_k) v(\mathcal{X}_{h-1}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
+&= v(\mathcal{X}_{h-1}) - f_k  v(\mathcal{X}_{h-1}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
+&\geq v(\mathcal{X}_{h-1}) - f_k  v(\mathcal{X}_{h-1}\cup\{j\}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
+&= v(\mathcal{X}_{h-1}) + (1 - f_k) v(\mathcal{X}_{h-1}\cup\{j\}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}]  \\
+&= v(\mathcal{X}_{h-1}) + v(\mathcal{X}_{h-1} \cup\{j, k\})
+\end{split}\\
+&= v(\mathcal{X}_{h-1})  + v(\mathcal{X}_{h+1}) \qedhere
+\end{align}
+\end{proof}
+
+It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio, for a given market, $v(\mathcal{X}_h)$ is $O(h)$. Example \ref{tightexampleforoneoverhopt}, in which $v(\mathcal{X}_h)$ can be made arbitrarily close to $h$, establishes the tightness of this bound.
+
+To wrap up, we provide an example showing that if the entries of $Z$ are dependent, then the optimal solution may violate the nestedness property of Theorem \ref{nestedapplication}.
+\begin{example}
+Let $t = (3, 3, 4)$, $Z_1 \sim \operatorname{Bernoulli}(0.5)$, $Z_2 = 1 - Z_1$,  and $Z_3 \sim \operatorname{Bernoulli}(0.5)$. Then it is easy to verify that the unique optimal portfolios are $\mathcal{X}_1 = \{3\}$ and $\mathcal{X}_2 = \{1, 2\}$. 
+\end{example}
+
+
+
+
+
+
+
+
+\section{Heterogeneous application costs}  \label{hetappcosts}
+In this section, we turn to the more general problem in which the constant $g_j$ represents the \emph{cost} of applying to $c_j$ and the student, whom we now call Ellis, has a \emph{budget} of $H$ to spend on college applications. Applying Theorem \ref{assumetzerozero}, we assume $t_0 = 0$ and disregard $c_0$ throughout.
+
+\begin{definition}[Ellis's problem]
+Ellis's optimal college application portfolio is given by the solution to the following combinatorial optimization problem.
+\begin{align}
+\begin{split}
+\text{maximize}\quad &  v(\mathcal{X}) = \sum_{j\in
+%\{0\}\cup
+\mathcal{X}} \Bigl( t_j f_j  \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}) \Bigr)\\
+\text{subject to}\quad & \mathcal{X}\subseteq\mathcal{C},~~\sum_{j \in \mathcal{X}} g_j \leq H 
+\end{split}
+\end{align}
+\end{definition}
+
+The optima for Ellis's problem are not necessarily nested, nor is the number of schools in the optimal portfolio necessarily increasing in $H$. For example, if
+$f = (0.5, 0.5, 0.5)$, $t = (1, 1, 1003)$, and $g = (1, 1, 3)$,
+then it is evident that the optimal portfolio for $H = 2$ is $\{1, 2\}$ while that for $H = 3$ is $\{3\}$. 
+
+\subsection{NP-completeness}
+In fact, Ellis’s problem is NP-complete, as we will show by a transformation from the binary knapsack problem, which is known to be NP-complete (Garey and Johnson 1979).
+
+\begin{definition}[Decision form of knapsack problem]
+An \emph{instance} consists of a set $\mathcal{B}$ of $m$ objects; utility values $u_j \in \mathbb{N}$ and weight $w_j \in \mathbb{N}$ for each $j \in \mathcal{B}$; and target utility $U\in \mathbb{N}$ and knapsack capacity $W\in \mathbb{N}$. The instance is called a \emph{yes-instance} if and only if there exists a set $\mathcal{B’} \subseteq \mathcal{B}$ having $\sum_{j \in \mathcal{B’}} u_j \geq U$ and  $\sum_{j \in \mathcal{B’}} w_j \leq W$.
+\end{definition}
+
+\begin{definition}[Decision form of Ellis’s problem]
+An \emph{instance} consists of an instance of Ellis’s problem and a target valuation $V$. The instance is called a \emph{yes-instance} if and only if there exists a portfolio $\mathcal{X} \subseteq \mathcal{C}$ having $v(\mathcal{X}) \geq V$ and  $\sum_{j \in \mathcal{X}} g_j \leq H$.
+\end{definition}
+
+\begin{theorem}
+The decision form of Ellis’s problem is NP-complete.
+\end{theorem}
+
+\begin{proof}It is obvious that the problem is in NP.
+
+Consider an instance of the knapsack problem, and we will construct an instance of Ellis’s problem that is a yes-instance if and only if the corresponding knapsack instance is a yes-instance. Without loss of generality, we may assume that the the objects in $\mathcal{B}$ are indexed in increasing order of $u_j$, that each $u_j >0$, and that the knapsack instance admits a feasible solution other than the empty set. 
+
+Let $U_{\mathrm{max}} = \sum_{j \in \mathcal{B}} u_j$ and $\delta = {1} /{m U_{\mathrm{max}}} > 0$, and construct an instance of Ellis’s problem with $\mathcal{C} = \mathcal{B}$, $H = W$, all $f_j = \delta$, and $t_j = u_j / \delta$ for all $j$. Clearly, $\mathcal{X} \subseteq \mathcal{C}$ is feasible for Ellis’s problem if and only if it is feasible for the knapsack instance. Now, we observe that for any nonempty $\mathcal{X}$,
+\begin{align}
+\begin{split}
+\sum_{j \in \mathcal{X}} u_j &=  \sum_{j \in \mathcal{X}} t_j f_j 
+> \sum_{j \in \mathcal{X}} \Bigl( t_j f_j  \prod_{\substack{j’ \in \mathcal{X}: \\ j' > j}} (1 - f_{j’}) \Bigr)
+%= \sum_{j \in \mathcal{X}} \Bigl( u_j  \prod_{\substack{j’ \in \mathcal{X}: \\ j' > j}} (1 - \delta) \Bigr)
+= v(\mathcal{X}) \\
+&= \sum_{j \in \mathcal{X}} \Bigl( u_j  \prod_{\substack{j’ \in \mathcal{X}: \\ j' > j}} (1 - \delta) \Bigr)
+\geq (1 - \delta)^m \sum_{j \in \mathcal{X}} u_j \\
+&\geq (1 - m\delta) \sum_{j \in \mathcal{X}} u_j 
+\geq \sum_{j \in \mathcal{X}} u_j  - m\delta U_{\mathrm{max}}
+= \sum_{j \in \mathcal{X}} u_j  - 1.
+\end{split}
+\end{align}
+This means that the value of an application portfolio $\mathcal{X}$ for the corresponding knapsack instance is the smallest integer greater than $v( \mathcal{X})$. That is, $\sum_{j \in \mathcal{X}} u_j \geq U$ if and only if $v(\mathcal{X}) \geq U -1$. Taking $V = U-1$ completes the transformation and concludes the proof.  \end{proof}
+
+An intuitive extension of the greedy algorithm for Alma's problem is to iteratively add to $\mathcal{X}$ the school $k$ for which $[ v(\mathcal{X}\cup\{k\}) - v(\mathcal{X}) ] / g_k$ is largest. However, this algorithm offers no guaranteed approximation ratio, as the following example shows.
+\begin{example}
+Let $t = (2, 2022)$, $f = (1, 1)$, $g = (1, 10000)$, and $H = 10000$. Then the greedy approximation algorithm produces a clearly inoptimal solution.
+\end{example} 
+% as the following example suggests ...The construction above shows that the objective function of Ellis's problem can approximate that of a knapsack problem with arbitrary precision, and this algorithm
+
+\subsection{Pseudopolynomial-time dynamic program}
+In this subsection, we assume, with a small loss of generality, that $g_j \in \mathbb{N}$ for $j = 1\dots m$ and $H \in\mathbb{N}$, and provide an algorithmic solution to Ellis's problem that runs in $O(Hm + m\log m)$ time and $O(Hm)$ space. The algorithm resembles a familiar dynamic programming algorithm for the binary knapsack problem (Dantzig 1957; \emph{Wikipedia}, s.v. ``Knapsack problem''). Because we cannot assume that $H \leq m$ (as was the case in Alma's problem), this represents a pseudopolynomial-time solution (Garey and Johnson 1979).
+
+For $j = 0 \dots m$ and $h = 0 \dots H$, let $\mathcal{X}[j, h]$ denote the optimal portfolio using only the schools $\{ 1, \dots, j\}$ and costing no more than $h$, and let $V[j,h] = v(\mathcal{X}[j, h])$.  It is clear that if $j=0$ or $h=0$, then $\mathcal{X}[j, h] = \O$ and $V[j, h] = 0$.  For convenience, we also define $V[j, h] = -\infty$ for all $h < 0$.
+
+For the remaining indices, $\mathcal{X}[j, h]$ either contains $j$ or not. If it does not contain $j$, then $\mathcal{X}[j, h] = \mathcal{X}[j-1, h]$. On the other hand, if  $\mathcal{X}[j, h]$ contains $j$, then its value is $(1 - f_j) v(\mathcal{X}[j, h]\setminus \{j\}) + f_j t_j$. This requires that $\mathcal{X}[j, h]\setminus \{j\}$ make optimal use of the remaining budget over the remaining schools; that is, $\mathcal{X}[j, h] = \mathcal{X}[j-1, h - g_j] \cup\{j\}$. From these observations, we obtain the following Bellman equation for $ j = 1\dots m$ and $h = 1\dots H$:
+\begin{align}
+V[j, h] = \max\bigl\{ V[j-1, h], (1 - f_j) V[j-1, h-g_j] + f_j t_j \bigr\}
+\end{align}
+with the convention that $ -\infty \cdot 0 = -\infty$. The corresponding optimal portfolios can be computed by observing that $\mathcal{X}[j, h]$ contains $j$ if and only if $V[j, h]> V[j-1, h]$. The optimal solution is given by $\mathcal{X}[m, H]$. The algorithm below performs these computations and outputs the optimal portfolio $\mathcal{X}$. 
+
+\begin{algorithm}[H] 
+%\DontPrintSemicolon
+\caption{Dynamic program for Ellis's problem with integral application costs.} \label{ellisDP1}
+\KwData{Utility values $t \in[0, \infty)^m$, admissions probabilities $f \in [0, 1]^m$, application costs $g \in \mathbb{N}^m$, budget $H \in\mathbb{N}$.}
+Index schools in ascending order by $t$\;
+\SetKwProg{Fn}{function}{ do}{end}
+\Fn{$V(j, h)$}{
+	\lIf{$h < g_j$}{\Return{$-\infty$}}
+	\lElseIf{$j = 0$ or $h=0$}{\Return{$0$}}
+	\lElse{\Return{$\max\bigl\{ V(j-1, h), (1 - f_j) V(j-1, h-g_j) + f_j t_j \bigr\}$}}
+}
+%\lFor{$j=1\dots m$}
+%{$\operatorname{push!}\bigl(\mathtt{H}, (j, f_j, t_j)\bigr)$}
+%\For{$i=1\dots h$}
+%{
+%    $\mathtt{D} \gets \operatorname{pop!}(\mathtt{H})$\;
+%    $\operatorname{append!}(\mathtt{X}, \mathtt{D.j})$\;
+%     \lIfElse{$i=1$}{$\operatorname{append!}(\mathtt{V}, \mathtt{D.f}\cdot\mathtt{D.t})$}
+%     {$\operatorname{append!}(\mathtt{V}, \mathtt{V[i-1]} + \mathtt{D.f}\cdot\mathtt{D.t})$}
+%    \For{$\mathtt{E} \in \mathtt{H}$}
+%	{
+%	\lIfElse{$\mathtt{E.j} < \mathtt{D.j}$}{$\mathtt{E.t} \gets  \mathtt{E.t} \cdot(1 -  \mathtt{D.f})$}{$\mathtt{E.t} \gets  \mathtt{E.t} -  \mathtt{D.f}\cdot\mathtt{D.t}$}
+%	}
+%}
+$h \gets H$\;
+$\mathcal{X} \gets \O$\;
+\For{$j = m, m-1, \dots, 1$}{
+	\If{$V(j-1, h) < V(j, h)$}{
+		$\mathcal{X} \gets \mathcal{X}\cup\{j\}$\; 
+		$h \gets h - g_j$\;
+	}
+}
+\Return{$\mathcal{X}$}
+\end{algorithm}
+
+\begin{theorem}[Validity of Algorithm \ref{ellisDP1}]
+Algorithm \ref{ellisDP1} produces an optimal application portfolio for Ellis's problem in $O(H m + m \log m)$ time and $O(H m)$ space.
+\end{theorem}
+
+\begin{proof}
+Optimality follows from the foregoing discussion. Sorting $t$ is $O(m \log m)$.  The number of indices at which $V(j, h)$ is nontrivially defined is $O(Hm)$. To prevent redundant calls in the recursive function $V(j, h)$, its values must be stored in a dictionary as they are computed; this dictionary’s size is $O(Hm)$. 
+\end{proof}
+
+
+
+%\subsubsection{Dynamic program based on portfolio valuations}
+%
+%With minimal loss of generality, we assume that all $t_j\in \mathbb{N}$ and $f_j \in (0, 1] \cap \mathbb{Q}$. Let $D$ denote the product of the denominators of the $f_j$-values. Since $v(\mathcal{X})$ is linear in $t_j$, by rescaling the $t_j$-values, we may assume that each $t_j$ is divisible by $D$. Therefore, for any portfolio $\mathcal{X}\subseteq\mathcal{X}$, $v(\mathcal{X})$ is a natural number between zero and $t_m$. %Mention size of t_m
+%
+%For integers $0 \leq j \leq m$ and $v \leq t_m$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio using only the schools $\{ 1, \dots, j\}$ and having value at least $v$, if such a portfolio exists. Let $G[j, v] = v(\mathcal{W}[j, v])$ denote the corresponding value, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$. If $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
+%\begin{align} \label{recursionrelationforcostmindp}
+%G[j, v] &=
+%\begin{cases}
+%\infty, \quad & t_j < v \\
+%\min\bigl\{G[j-1, v], g_j + G[j-1, v - \Delta] \bigr\}, \quad & t_j \geq v 
+%%\begin{cases}
+%%\min\bigl\{G[j-1, v], g_j + G[j-1, v - \Delta] \bigr\}, \quad &f_j < 1 \\
+%%\min\bigl\{G[j-1, v], g_j \bigr\}, \quad &f_j = 1 \text{ and } f_j t_j \geq v\\
+%%G[j-1, v], \quad &f_j = 1 \text{ and } f_j t_j < v
+%\end{cases}\\
+%\text{where}\qquad
+%\Delta &= 
+%\begin{cases}
+%\lfloor \frac{f_j}{1 - f_j} (t_j - v)\rfloor, \quad & f_j < 1\\
+%\infty, &f_j = 1
+%\end{cases}
+%\end{align}
+%In the $t_j < v$ case, any feasible portfolio must be composed of schools with utility less than $v$, and therefore its valuation can not equal $v$, meaning that $\mathcal{W}[j, v]$ is undefined. In the $t_j \geq v$ case, the first argument to $\min\{\}$ says simply that omitting $j$ and choosing $\mathcal{W}[j-1, v]$ is a feasible choice for $\mathcal{W}[j, v]$. If, on the other hand, $j \in \mathcal{W}[j, v]$, then
+%\begin{equation}v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j\end{equation}
+%Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a value of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. This value may not be an integer; however, because $v(\mathcal{X})$ can take only integer values, if some portfolio has $v(\mathcal{X})\geq v - \Delta$, then $v(\mathcal{X})\geq \lceil v - \Delta \rceil$ as well, which allows us to apply the floor operator to $\Delta$. When $f_j = 1$, then the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
+%\begin{equation}G[j, v] = \min\bigl\{G[j-1, v], g_j \bigr\}\end{equation}
+%Defining $\Delta = \infty$ in this case ensures that $G[j-1, v-\Delta] = 0$ as required.
+%%we have $t_j < v$, and since no portfolio can be more valueable than the largest $t_j$ value of its elements, we must have $G[j, v] =\infty$. Defining $\Delta$ as zero in this guess automatically chooses $G[j, v] = G[j-1, v] = \infty$ for the same reason.
+%%
+%%In the $f_j t_j \geq v$ case, the singleton $\{j\}$ is feasible for $j$ and $v$, so $\mathcal{W}[j, v]$ is simply the cheaper of $\{j\}$ and $.\mathcal{W}[j-1, v]$.
+%
+%Once $G[j, v]$ has been calculated at each index, the corresponding portfolio can be found by applying the observation that $
+%\mathcal{W}[j, v]$ contains $j$ if and only if $G[j, v] < G[j-1, v]$. Then solution to Ellis's problem is obtained by applying this observation to the optimal objective value $\max\{ w: G[m, w] \leq H\}$. 
+%
+%
+%
+%\begin{algorithm}[H] 
+%%\DontPrintSemicolon
+%\caption{Dynamic program for Ellis's problem with integral utility parameters and rational admissions probabilities.} \label{ellisDP2}
+%\KwData{Utility values $t \in \mathbb{N}^m$, admissions probabilities $f \in \bigl((0, 1] \cap \mathbb{Q}\bigr)^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$.}
+%Index schools in ascending order by $t$\;
+%Multiply each $t_j$ by $D$, the product of the denominators of the $f_j$\;
+%\SetKwProg{Fn}{function}{ do}{end}
+%\Fn{$G(j, v)$}{
+%	\lIf{$v \leq 0$}{\Return{$0$}}
+%	\lElseIf{$j=0$ or $t_j < v$}{\Return{$\infty$}}
+%	\Else {\Return{$\min\bigl\{ G(j-1, v), g_j + G(j-1, v -  \Delta) \bigr\}$}}
+%}
+%%	\uIf{$f_j < 1$}{\Return{$\min\bigl\{ G(j-1, v), g_j + G(j-1, v -  \lfloor \frac{f_j}{1 - f_j} (t_j - v)\rfloor ) \bigr\}$}}
+%%	\uElseIf{$f_j = 1$ and $f_j t_j \geq v$}{\Return{$\min\bigl\{G[j-1, v], g_j \bigr\}$}}
+%%	\lElse{\Return{$G(j-1, v)$}}
+%%	}
+%%\lFor{$j=1\dots m$}
+%%{$\operatorname{push!}\bigl(\mathtt{H}, (j, f_j, t_j)\bigr)$}
+%%\For{$i=1\dots h$}
+%%{
+%%    $\mathtt{D} \gets \operatorname{pop!}(\mathtt{H})$\;
+%%    $\operatorname{append!}(\mathtt{X}, \mathtt{D.j})$\;
+%%     \lIfElse{$i=1$}{$\operatorname{append!}(\mathtt{V}, \mathtt{D.f}\cdot\mathtt{D.t})$}
+%%     {$\operatorname{append!}(\mathtt{V}, \mathtt{V[i-1]} + \mathtt{D.f}\cdot\mathtt{D.t})$}
+%%    \For{$\mathtt{E} \in \mathtt{H}$}
+%%	{
+%%	\lIfElse{$\mathtt{E.j} < \mathtt{D.j}$}{$\mathtt{E.t} \gets  \mathtt{E.t} \cdot(1 -  \mathtt{D.f})$}{$\mathtt{E.t} \gets  \mathtt{E.t} -  \mathtt{D.f}\cdot\mathtt{D.t}$}
+%%	}
+%%}
+%$v \gets  \max\{ w: G(m, w) \leq H\}$\;
+%$\mathcal{X} \gets \O$\;
+%\For{$j = m, m-1, \dots, 1$}{
+%	\If{$G(j, v)< \infty$ and $G(j, v) < G(j-1, v)$}{
+%		$\mathcal{X} \gets \mathcal{X}\cup\{j\}$\; 
+%		$v \gets v - \Delta$\;
+%	}
+%}
+%\Return{$\mathcal{X}$}
+%\end{algorithm}
+%
+%\begin{theorem}[Validity of Algorithm \ref{ellisDP2}]
+%Algorithm \ref{ellisDP2} produces an optimal application portfolio for Ellis's problem in $O(D m + m \log m)$ time and $O(D m)$ space, where $D$ is the product of the denominators of the $f_j$-values.
+%\end{theorem}
+%
+%\begin{proof}
+%Optimality follows from the foregoing discussion. The computational complexity follows by symmetry with Algorithm \ref{ellisDP1}. 
+%\end{proof}
+
+
+\subsection{Fully polynomial-time approximation scheme}
+As with the knapsack problem, Ellis's problem admits a complementary dynamic program that iterates on the value of the cheapest portfolio instead of on the cost of the most valuable portfolio. We will use this algorithm as the basis for a fully polynomial-time approximation scheme for Ellis's problem that uses $O(m^3 / \varepsilon)$ time and space. Here we assume, with a small loss of generality, that each $t_j$ is a natural number.
+%Now, we modify Algorithm \ref{ellisDP2} into a fully polynomial-time approximation scheme for Ellis's problem.
+
+We will represent the approximate value of portfolios using a fixed-point decimal with a precision of $P$, where $P$ is the number of digits to retain after the decimal point. Let $r[x] = \lfloor 10^P x \rfloor 10^{-P}$ denote the value of $x$ rounded down to its nearest fixed-point representation. Since $\bar U = \sum_{j\in \mathcal{C}} f_j t_j$ is an upper bound on the value of any portfolio, and since we will ensure that each fixed-point approximation is an underestimate of the portfolio's true value, the set $\mathcal{V}$ of possible valuations possible in the fixed-point framework is finite:
+\begin{equation}
+\mathcal{V} = \Bigl\{0, 1\times 10^{-P}, 2\times 10^{-P}, \dots, r\bigl[\bar U- 1\times 10^{-P}\bigr], r\bigl[\bar U\bigr], r\bigl[\bar U+ 1\times 10^{-P}\bigr]\Bigr\}
+\end{equation}
+Then $|\mathcal{V} | = \bar U \times 10^P + 2$.
+
+For the remainder of this subsection, unless otherwise specified, the word \emph{value} refers to a portfolio’s value within the fixed-point framework, with the understanding that this is an approximation. We will account for the approximation error below when we prove the dynamic program’s validity. 
+
+For integers $0 \leq j \leq m$ and $v \in [-\infty, 0) \cup \mathcal{V}$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio that uses only schools $\{ 1, \dots, j\}$ and has value at least $v$, if such a portfolio exists. Denote its value by $G[j, v]$, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$, and that if $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
+\begin{align} \label{recursionrelationforcostmindp}
+G[j, v] &=
+\begin{cases}
+\infty, \quad & t_j < v \\
+\min\bigl\{G[j-1, v], g_j + G[j-1, v - \Delta_j(v)] \bigr\}, \quad & t_j \geq v 
+%\begin{cases}
+%\min\bigl\{G[j-1, v], g_j + G[j-1, v - \Delta] \bigr\}, \quad &f_j < 1 \\
+%\min\bigl\{G[j-1, v], g_j \bigr\}, \quad &f_j = 1 \text{ and } f_j t_j \geq v\\
+%G[j-1, v], \quad &f_j = 1 \text{ and } f_j t_j < v
+\end{cases}\\
+\text{where}\qquad
+\Delta_j (v) &= 
+\begin{cases}
+r\left[\frac{f_j}{1 - f_j} (t_j - v)\right], \quad & f_j < 1\\
+\infty, &f_j = 1
+\end{cases} \label{deltajvdef}
+\end{align}
+In the $t_j < v$ case, any feasible portfolio must be composed of schools with utility less than $v$, and therefore its valuation can not equal $v$, meaning that $\mathcal{W}[j, v]$ is undefined. In the $t_j \geq v$ case, the first argument to $\min\{\}$ says simply that omitting $j$ and choosing $\mathcal{W}[j-1, v]$ is a permissible choice for $\mathcal{W}[j, v]$. If, on the other hand, $j \in \mathcal{W}[j, v]$, then
+\begin{equation} \label{solvemeforvwjvminusj}
+v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j.\end{equation}
+Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a value of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. By rounding this value down, we ensure that the true valuation of $\mathcal{W}[j, v]$ is \emph{at least} $v - \Delta$. 
+
+When $f_j = 1$, then the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
+\begin{equation}G[j, v] = \min\bigl\{G[j-1, v], g_j \bigr\}.\end{equation}
+Defining $\Delta = \infty$ in this case ensures that $G[j-1, v-\infty] = 0$ as required.
+%we have $t_j < v$, and since no portfolio can be more valueable than the largest $t_j$ value of its elements, we must have $G[j, v] =\infty$. Defining $\Delta$ as zero in this guess automatically chooses $G[j, v] = G[j-1, v] = \infty$ for the same reason.
+%
+%In the $f_j t_j \geq v$ case, the singleton $\{j\}$ is feasible for $j$ and $v$, so $\mathcal{W}[j, v]$ is simply the cheaper of $\{j\}$ and $.\mathcal{W}[j-1, v]$.
+
+Once $G[j, v]$ has been calculated at each index, the associated portfolio can be found by applying the observation that $\mathcal{W}[j, v]$ contains $j$ if and only if $G[j, v] < G[j-1, v]$. Then an approximate solution to Ellis's problem is obtained by computing the optimal objective value $\max\{ w: G[m, w] \leq H\}$ and corresponding portfolio.
+
+\begin{algorithm}[H] 
+%\DontPrintSemicolon
+\caption{Fully polynomial-time approximation scheme for Ellis's problem.} \label{ellisDP3}
+\KwData{Utility values $t \in \mathbb{N}^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$, tolerance $\varepsilon \in (0, 1)$.}
+Index schools in ascending order by $t$\;
+Set precision $P \gets \bigl\lceil\log_{10}\left(m^2 / \varepsilon \bar U\right)\bigr\rceil$\;
+\SetKwProg{Fn}{function}{ do}{end}
+\Fn{$G(j, v)$}{
+	\lIf{$v \leq 0$}{\Return{$0$}}
+	\lElseIf{$j=0$ or $t_j < v$}{\Return{$\infty$}}
+	\lElse {\Return{$\min\bigl\{ G(j-1, v), g_j + G\bigl(j-1, v -  \Delta_j(v)\bigr) \bigr\}$}}
+}
+$v\gets  \max\{ w \in \mathcal{V} : G(m, w) \leq H\}$\; \label{vrecordedhere}
+$\mathcal{X} \gets \O$\;
+\For{$j = m, m-1, \dots, 1$}{
+	\If{$G(j, v)< \infty$ and $G(j, v) < G(j-1, v)$}{
+		$\mathcal{X} \gets \mathcal{X}\cup\{j\}$\; 
+		$v \gets v -  \Delta_j(v)$\;
+	}
+}
+\Return{$\mathcal{X}$}
+\end{algorithm}
+
+\begin{theorem}[Validity of Algorithm \ref{ellisDP3}]
+Algorithm \ref{ellisDP3} produces a $(1 - \varepsilon)$-optimal application portfolio for Ellis's problem. It uses $O(m^3 /\varepsilon)$ time and $O(m^3/\varepsilon)$ space.
+% in $O(D m + m \log m)$ time and $O(D m)$ space, where $D$ is the product of the denominators of the $f_j$-values.
+\end{theorem}
+
+\begin{proof}
+(Optimality.) Let $\mathcal{W}$ denote the output of Algorithm \ref{ellisDP3} and $\mathcal{X}$ the true optimum. We know that $v(\mathcal{X}) \leq \bar U$, and because each singleton portfolio is feasible, $\mathcal{X}$ must be more valuable than the average singleton portfolio; that is, $v(\mathcal{X}) \geq \bar U / m$. 
+
+% In the main loop, each time the target valuation $v$ is updated using
+Because $\Delta_j(v)$ is rounded down in the recursion relation defined by \eqref{recursionrelationforcostmindp} and \eqref{deltajvdef}, if $j \in \mathcal{W}[j, v]$, then the true value of $(1 - f_j) v\bigl(\mathcal{W}[j-1, v- \Delta_j(v)]\bigr) + f_j t_j$ may exceed the fixed-point value $v$ of $\mathcal{W}[j, v]$, but not by more than $10^{-P}$. This error accumulates with each school added to $\mathcal{W}$, but the number of additions is at most $m$. Therefore, where $v'(\mathcal{W})$ denotes the fixed-point valuation of $\mathcal{W}$ recorded in line \ref{vrecordedhere} of the algorithm, 
+$v(\mathcal{W}) - v'(\mathcal{W}) \leq m 10^{-P}$.
+
+We can define $v'(\mathcal{X})$ analogously as the fixed-point valuation of $\mathcal{X}$ when its elements are added in index order and its value is updated and rounded down at each addition in accordance with \eqref{solvemeforvwjvminusj}. By the same logic, 
+$v(\mathcal{X}) - v'(\mathcal{X}) \leq m 10^{-P}$. The optimality of $\mathcal{W}$ in the fixed-point environment implies that $v'(\mathcal{W}) \geq v'(\mathcal{X})$. 
+
+Applying these observations, we have
+%the fact that $\bar U / m \leq v(\mathcal{X} \leq \bar U$, we have
+\begin{equation}
+\begin{split}
+v(\mathcal{W}) &\geq v'(\mathcal{W}) \geq v'(\mathcal{X})
+\geq v(\mathcal{X}) - m 10^{-P}
+%\\&
+\geq \left(1 - \frac{m^2 10^{-P}}{\bar U}\right) v(\mathcal{X})
+\geq \left(1 - \varepsilon\right) v(\mathcal{X})
+\end{split}
+\end{equation}
+which establishes the approximation bound. 
+
+(Computational resources.) In the worst case, the number of indices at which $G(j, v)$ is evaluated is $O(|\mathcal{V}| m)$. Since
+\begin{equation}
+|\mathcal{V}| = \bar U \times 10^{P} + 2 = \bar U \times 10^ { \bigl\lceil\log_{10}\left(m ^2/ \varepsilon \bar U\right)\bigr\rceil} + 2
+\leq\frac{m^2}{\varepsilon} \times \text{const.}
+\end{equation}
+is $O(m^2/ \varepsilon)$, the time complexity is as promised. To prevent redundant recursive calls to $G(j, v)$, we need to record its values in a dictionary as they are computed; the space required by the dictionary is $O(|\mathcal{V}| m) = O(m^3 / \varepsilon)$.
+\end{proof}
+
+Since these bounds are polynomial in $m$ and $1 / \varepsilon$, Algorithm \ref{ellisDP3} is a fully polynomial-time approximation scheme for Ellis's problem. 
+
+
+
+
+\pagebreak
+\ifEN \section{References} \else \section{참고문헌} \fi
+\noindent
+
+\parskip 0em
+\leftskip 2em
+\parindent -2em
+Budish, Eric. 2011. ``The Combinatorial Assignment Problem: Approximate Competitive Equilibrium from Equal Incomes.'' \emph{Journal of Political Economy} 119 (6): 1061--1103. \url{https://doi.org/10.1086/664613}. 
+
+Dantzig, George B. 1957. ``Discrete-Variable Extremum Problems.'' \emph{Operations Research} 5 (2): 266--88.
+
+Fisher, Marshall, George Nemhauser, and Laurence Wolsey. 1978. ``An analysis of approximations for maximizing submodular set functions—I.'' \emph{Mathematical Programming} 14: 265--94. 
+
+Fredman, Michael Lawrence and Robert Tarjan. 1987. ``Fibonacci heaps and their uses in improved network optimization algorithms.'' \emph{Journal of the Association for Computing Machinery} 34 (3): 596--615.
+
+Fu, Chao. 2014. ``Equilibrium Tuition, Applications, Admissions, and Enrollment in the College Market.'' \emph{Journal of Political Economy} 122 (2): 225--81. \url{https://doi.org/10.1086/675503}. 
+
+Garey, Michael and David Johnson. 1979. \emph{Computers and Intractability: A Guide to the Theory of NP-Completeness.} New York: W. H. Freeman and Company. 
+
+Othman, Abraham, Eric Budish, and Tuomas Sandholm. 2010. ``Finding Approximate Competitive Equilibria: Efficient and Fair
+Course Allocation.'' In \emph{Proceedings of 9th International Conference on Autonomous Agents and Multiagent Systems.} New York: ACM. \url{https://dl.acm.org/doi/abs/10.5555/1838206.1838323}.
+
+Rozanov, Mark and Arie Tamir. 2020. ``The nestedness property of the convex ordered median location problem on a tree.'' \emph{Discrete Optimization} 36: 100581. \url{https://doi.org/10.1016/j.disopt.2020.100581}.
+
+% p. 70: FPTAS for knapsack, should work for Ellis's problem
+Vazirani, Vijay. 2001. \emph{Approximation Algorithms.} Berlin: Springer. 
+
+\end{document}  
+

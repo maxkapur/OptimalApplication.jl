@@ -1,0 +1,21 @@
+about name = "OptimalApplication"
+uuid = "3e920f78-0eb2-4966-9e73-7442414dae3e"
+authors = ["Max Kapur <maxkapur@gmail.com> and contributors"]
+version = "0.1.0"
+
+[deps]
+Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+FixedPointNumbers = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
+
+[compat]
+julia = "1"
+Combinatorics = "1"
+DataStructures = "0.18"
+FixedPointNumbers = "0.8"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
