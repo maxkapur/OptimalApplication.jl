@@ -338,7 +338,7 @@ function optimalportfolio_fptas(
     P = ceil(Int64, log2(m^2 / (ε * Ū)))
     infty = sumg + 1
 
-    T1 = IntTypes[findfirst(Ū * 2^P < typemax(T) for T in IntTypes)]
+    T1 = IntTypes[findfirst(4 * Ū * 2^P < typemax(T) for T in IntTypes)]
     T2 = IntTypes[findfirst(m < typemax(T) for T in IntTypes)]
     T3 = IntTypes[findfirst(infty < typemax(T) for T in IntTypes)]
 
