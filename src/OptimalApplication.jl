@@ -7,7 +7,7 @@ using FixedPointNumbers
 import Base.isless
 
 
-export 
+export
     valuation,
     applicationorder,
     optimalportfolio_dynamicprogram,
@@ -15,6 +15,8 @@ export
     optimalportfolio_valuationtable,
     optimalportfolio_fptas
 
+
+const IntTypes = [Int8, Int16, Int32, Int64]
 
 
 """
@@ -42,10 +44,10 @@ Produce the optimal order of application for the market defined by admissions pr
 and utility values `t`. Stores college data in a binary `:heap` or as a `:dict`. 
 """
 function applicationorder(
-        f::Vector{Float64},
-        t::Vector{<:Real},
-        h = nothing::Union{Int64,Nothing};
-        datastructure = :heap::Symbol)::Tuple{Vector{Int64}, Vector{Float64}}
+    f::Vector{Float64},
+    t::Vector{<:Real},
+    h = nothing::Union{Int64,Nothing};
+    datastructure = :heap::Symbol)::Tuple{Vector{Int64},Vector{Float64}}
     m = length(f)
     @assert m == length(t)
     @assert issorted(t)
@@ -116,9 +118,9 @@ Returns the expected value of the portfolio `X`, a vector of school indices, on 
 the market defined by admissions probabilities `f` and utility values `t`. 
 """
 function valuation(
-        X::Vector{Int64},
-        f::Vector{<:Real},
-        t::Vector{<:Real})::Float64
+    X::Vector{Int64},
+    f::Vector{<:Real},
+    t::Vector{<:Real})::Float64
     @assert issorted(t)
     sort!(X)
     h = length(X)
@@ -147,9 +149,9 @@ Produce the optimal portfolio of size `h` on the market defined by admissions pr
 and utility values `t`. Solves by enumeration. 
 """
 function optimalportfolio_enumerate(
-        f::Vector{<:Real},
-        t::Vector{<:Real},
-        h::Int64)::Tuple{Vector{Int64},Float64}
+    f::Vector{<:Real},
+    t::Vector{<:Real},
+    h::Int64)::Tuple{Vector{Int64},Float64}
     m = length(t)
     X = zeros(Int64, h)
     v = 0.0
@@ -172,10 +174,10 @@ Produce the optimal portfolio of cost `H` on the market defined by admissions pr
 utility values `t`, and application costs `g`. Solves by enumeration. 
 """
 function optimalportfolio_enumerate(
-        f::Vector{<:Real},
-        t::Vector{<:Real},
-        g::Vector{<:Real},
-        H::Real)::Tuple{Vector{Int64}, Float64}
+    f::Vector{<:Real},
+    t::Vector{<:Real},
+    g::Vector{<:Real},
+    H::Real)::Tuple{Vector{Int64},Float64}
     m = length(t)
 
     let
@@ -201,10 +203,10 @@ budget `H`, uses a dynamic program to produce the optimal portfolio `X` and asso
 valuation table `V`.
 """
 function optimalportfolio_valuationtable(
-        f::Vector{Float64},
-        t::Vector{<:Real},
-        g::Vector{Int64},
-        H::Int64)::Tuple{Vector{Int64},Matrix{Float64}}
+    f::Vector{Float64},
+    t::Vector{<:Real},
+    g::Vector{Int64},
+    H::Int64)::Tuple{Vector{Int64},Matrix{Float64}}
     m = length(f)
     @assert m == length(t) == length(g)
     @assert issorted(t)
@@ -244,18 +246,21 @@ budget `H`, uses a dynamic program to produce the optimal portfolio `X` and asso
 value `v`. Set `memoize=false` to (unwisely) use blind recursion.
 """
 function optimalportfolio_dynamicprogram(
-        f::Vector{Float64},
-        t::Vector{<:Real},
-        g::Vector{Int64},
-        H::Int64,
-        memoize = true)::Tuple{Vector{Int64}, Float64}
+    f::Vector{Float64},
+    t::Vector{<:Real},
+    g::Vector{Int64},
+    H::Int64,
+    memoize = true)::Tuple{Vector{Int64},Float64}
     m = length(f)
     @assert m == length(t) == length(g)
     @assert issorted(t)
     @assert 0 < H ≤ sum(g)
 
+    T2 = IntTypes[findfirst(m < typemax(T) for T in IntTypes)]
+    T3 = IntTypes[findfirst(H < typemax(T) for T in IntTypes)]
+
     if memoize
-        V_dict = Dict{Tuple{Int64,Int64},Float64}()
+        V_dict = Dict{Tuple{T2,T3},Float64}()
     end
 
     function V(j, h)
@@ -318,27 +323,31 @@ budget `H`, uses the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio.
 """
 function optimalportfolio_fptas(
-        f::Vector{Float64},
-        t::Vector{Int64},
-        g::Vector{Int64},
-        H::Int64,
-        ε::Float64)::Tuple{Vector{Int64},Float64}
+    f::Vector{Float64},
+    t::Vector{Int64},
+    g::Vector{Int64},
+    H::Int64,
+    ε::Float64)::Tuple{Vector{Int64},Float64}
     m = length(f)
+    sumg = sum(g)
     @assert m == length(t) == length(g)
     @assert issorted(t)
-    @assert 0 < H ≤ sum(g)
+    @assert 0 < H ≤ sumg
 
     Ū = sum(f .* t)
     P = ceil(Int64, log2(m^2 / (ε * Ū)))
+    infty = sumg + 1
 
-    FP = Fixed{Int64,P}
+    T1 = IntTypes[findfirst(Ū * 2^P < typemax(T) for T in IntTypes)]
+    T2 = IntTypes[findfirst(m < typemax(T) for T in IntTypes)]
+    T3 = IntTypes[findfirst(infty < typemax(T) for T in IntTypes)]
 
-    infty = 2 * sum(g)
+    FP = Fixed{T1,P}
 
-    G_dict = Dict{Tuple{Int64,FP},Int64}()
+    G_dict = Dict{Tuple{T2,FP},T3}()
 
     # Want to assert v::FP here but gives a strange error
-    function G(j::Int64, v::Real)::Int64
+    function G(j::Int, v::Real)
         haskey(G_dict, (j, v)) && return G_dict[(j, v)]
 
         if v ≤ 0
