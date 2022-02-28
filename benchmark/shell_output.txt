@@ -1,0 +1,5 @@
+== Homogeneous cost algorithms ==
+Timing with dictionary
+  i = 1 of 50
+  i = 2 of 50
+  i = 3 of 50

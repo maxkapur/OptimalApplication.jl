@@ -25,10 +25,10 @@ and their product `ft`.
 """
 struct College
     f::Float64
-    t::Float64
+    t::Real
     ft::Float64
 
-    College(f::Float64, t::Float64) = new(f, t, f * t)
+    College(f::Float64, t::Real) = new(f, t, f * t)
 end
 
 # Overload isless() so that the heap is ordered by expected utility.
@@ -42,10 +42,10 @@ Produce the optimal order of application for the market defined by admissions pr
 and utility values `t`. Stores college data in a binary `:heap` or as a `:dict`. 
 """
 function applicationorder(
-    f::Vector{Float64},
-    t::Vector{Float64},
-    h = nothing::Union{Int64,Nothing};
-    datastructure = :heap::Symbol)
+        f::Vector{Float64},
+        t::Vector{<:Real},
+        h = nothing::Union{Int64,Nothing};
+        datastructure = :heap::Symbol)::Tuple{Vector{Int64}, Vector{Float64}}
     m = length(f)
     @assert m == length(t)
     @assert issorted(t)
@@ -61,7 +61,7 @@ function applicationorder(
             push!(mkt, College(f[j], t[j]))
         end
 
-        onheap = trues(m)
+        onheap = Set(1:m)
         apporder = zeros(Int, h)
         v = zeros(h)
         for j in 1:h
@@ -71,12 +71,13 @@ function applicationorder(
             pop!(mkt)
 
             apporder[j] = k
-            onheap[k] = false
-            for i in 1:k-1
-                onheap[i] && update!(mkt, i, College(mkt[i].f, mkt[i].t * (1 - c_k.f)))
-            end
-            for i in k+1:m
-                onheap[i] && update!(mkt, i, College(mkt[i].f, mkt[i].t - c_k.ft))
+            delete!(onheap, k)
+            for i in onheap
+                if i < k
+                    update!(mkt, i, College(mkt[i].f, mkt[i].t * (1 - c_k.f)))
+                else
+                    update!(mkt, i, College(mkt[i].f, mkt[i].t - c_k.ft))
+                end
             end
         end
     else
@@ -85,7 +86,6 @@ function applicationorder(
             push!(mkt, j => College(f[j], t[j]))
         end
 
-        indict = trues(m)
         apporder = zeros(Int, h)
         v = zeros(h)
         for j in 1:h
@@ -95,14 +95,10 @@ function applicationorder(
             delete!(mkt, k)
 
             apporder[j] = k
-            indict[k] = false
-            for i in 1:k-1
-                if indict[i]
+            for i in keys(mkt)
+                if i < k
                     mkt[i] = College(mkt[i].f, mkt[i].t * (1 - c_k.f))
-                end
-            end
-            for i in k+1:m
-                if indict[i]
+                else
                     mkt[i] = College(mkt[i].f, mkt[i].t - c_k.ft)
                 end
             end
@@ -119,7 +115,10 @@ end
 Returns the expected value of the portfolio `X`, a vector of school indices, on the
 the market defined by admissions probabilities `f` and utility values `t`. 
 """
-function valuation(X::Vector{Int64}, f, t)
+function valuation(
+        X::Vector{Int64},
+        f::Vector{<:Real},
+        t::Vector{<:Real})::Float64
     @assert issorted(t)
     sort!(X)
     h = length(X)
@@ -147,7 +146,10 @@ end
 Produce the optimal portfolio of size `h` on the market defined by admissions probabilities `f`
 and utility values `t`. Solves by enumeration. 
 """
-function optimalportfolio_enumerate(f::Vector{Float64}, t::Vector{Float64}, h)
+function optimalportfolio_enumerate(
+        f::Vector{<:Real},
+        t::Vector{<:Real},
+        h::Int64)::Tuple{Vector{Int64},Float64}
     m = length(t)
     X = zeros(Int64, h)
     v = 0.0
@@ -169,7 +171,11 @@ end
 Produce the optimal portfolio of cost `H` on the market defined by admissions probabilities `f`,
 utility values `t`, and application costs `g`. Solves by enumeration. 
 """
-function optimalportfolio_enumerate(f::Vector{<:Real}, t::Vector{<:Real}, g::Vector{<:Real}, H)
+function optimalportfolio_enumerate(
+        f::Vector{<:Real},
+        t::Vector{<:Real},
+        g::Vector{<:Real},
+        H::Real)::Tuple{Vector{Int64}, Float64}
     m = length(t)
 
     let
@@ -195,18 +201,14 @@ budget `H`, uses a dynamic program to produce the optimal portfolio `X` and asso
 valuation table `V`.
 """
 function optimalportfolio_valuationtable(
-    f::Vector{Float64},
-    t::Vector{Float64},
-    g::Vector{Int64},
-    H = nothing::Union{Int64,Nothing})
+        f::Vector{Float64},
+        t::Vector{<:Real},
+        g::Vector{Int64},
+        H::Int64)::Tuple{Vector{Int64},Matrix{Float64}}
     m = length(f)
     @assert m == length(t) == length(g)
     @assert issorted(t)
-    if isnothing(H)
-        H = sum(g)
-    else
-        @assert 0 < H
-    end
+    @assert 0 < H ≤ sum(g)
 
     V = zeros(m, H)
     #     U = falses(m, H)
@@ -242,15 +244,15 @@ budget `H`, uses a dynamic program to produce the optimal portfolio `X` and asso
 value `v`. Set `memoize=false` to (unwisely) use blind recursion.
 """
 function optimalportfolio_dynamicprogram(
-    f::Vector{Float64},
-    t::Vector{<:Real},
-    g::Vector{Int64},
-    H::Int64,
-    memoize = true)
+        f::Vector{Float64},
+        t::Vector{<:Real},
+        g::Vector{Int64},
+        H::Int64,
+        memoize = true)::Tuple{Vector{Int64}, Float64}
     m = length(f)
     @assert m == length(t) == length(g)
     @assert issorted(t)
-    @assert 0 < H
+    @assert 0 < H ≤ sum(g)
 
     if memoize
         V_dict = Dict{Tuple{Int64,Int64},Float64}()
@@ -316,19 +318,15 @@ budget `H`, uses the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio.
 """
 function optimalportfolio_fptas(
-    f::Vector{Float64},
-    t::Vector{Int64},
-    g::Vector{Int64},
-    H::Int64,
-    ε::Float64)
+        f::Vector{Float64},
+        t::Vector{Int64},
+        g::Vector{Int64},
+        H::Int64,
+        ε::Float64)::Tuple{Vector{Int64},Float64}
     m = length(f)
     @assert m == length(t) == length(g)
     @assert issorted(t)
-    if isnothing(H)
-        H = sum(g)
-    else
-        @assert 0 < H
-    end
+    @assert 0 < H ≤ sum(g)
 
     Ū = sum(f .* t)
     P = ceil(Int64, log2(m^2 / (ε * Ū)))
@@ -363,8 +361,24 @@ function optimalportfolio_fptas(
         end
     end
 
-    # Should be binary search instead
-    v = findlast(g -> g ≤ H, G(m, w) for w in eps(FP):eps(FP):FP(Ū)) * eps(FP)
+    # Binary search below is equivalent to the following linear search:
+    # v = findlast(g -> g ≤ H, G(m, w) for w in eps(FP):eps(FP):FP(Ū)) * eps(FP)
+
+    v = eps(FP)
+    v_UB = FP(Ū)
+    while v + eps(FP) < v_UB
+        mid = (v + v_UB) / 2
+        if G(m, mid) > H
+            v_UB = mid
+        else
+            v = mid
+            if G(m, v + eps(FP)) > H
+                @goto foundit
+            end
+        end
+    end
+    @label foundit
+
     X = Int64[]
 
     for j in m:-1:1

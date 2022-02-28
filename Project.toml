@@ -1,4 +1,4 @@
-about name = "OptimalApplication"
+name = "OptimalApplication"
 uuid = "3e920f78-0eb2-4966-9e73-7442414dae3e"
 authors = ["Max Kapur <maxkapur@gmail.com> and contributors"]
 version = "0.1.0"
