@@ -91,7 +91,7 @@ end
         @test !isnothing(X)
     end
 
-    @testset verbose = true "Trivial and malformed markets" begin
+    @testset verbose = true "Bad markets" begin
         # Dim mismatch
         f = [0.1, 0.1]
         t = [1, 2, 4]

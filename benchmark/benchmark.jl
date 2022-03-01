@@ -2,8 +2,9 @@ using OptimalApplication
 using DataFrames
 using Random
 using Statistics
+using Base.Threads
 
-fullscale = false
+fullscale = true
 
 # An all-day benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -12,7 +13,7 @@ fullscale = false
 n_reps = fullscale ? 3 : 1
 
 function printheader(s)
-    printstyled(s*"\n", bold=true, color=80)
+    printstyled(s*"\n", bold=true, color=222)
 end
 
 function make_correlated_market(m)
@@ -26,59 +27,59 @@ function make_correlated_market(m)
 end
 
 function samecosts(ds, M, n_markets)
-    sizes = Int64[]
-    times = Float64[]
+    sizes = zeros(Int64, n_markets, length(M))
+    times = zeros(Float64, n_markets, length(M))
 
-    for i in 1:n_markets
+    @threads for i in 1:n_markets
         println("  i = $i of $n_markets")
-        for m in M
+        for (j, m) in enumerate(M)
             f, t, = make_correlated_market(m)
-            push!(sizes, m)
-            push!(times, 1000 * minimum(@elapsed applicationorder(f, t; datastructure = ds) for r in 1:n_reps))
+            sizes[i, j] = m
+            times[i, j] = 1000 * minimum(@elapsed applicationorder(f, t; datastructure = ds) for r in 1:n_reps)
         end
     end
 
-    return DataFrame("m" => sizes, "time" => times)
+    return DataFrame("m" => sizes[:], "time" => times[:])
 end
 
 
 function dp_H(M, n_markets)
-    sizes = Int64[]
-    times = Float64[]
+    sizes = zeros(Int64, n_markets, length(M))
+    times = zeros(Float64, n_markets, length(M))
 
-    for i in 1:n_markets
+    @threads for i in 1:n_markets
         println("  i = $i of $n_markets")
-        for m in M
+        for (j, m) in enumerate(M)
             f, t, g, H = make_correlated_market(m)
-            push!(sizes, m)
-            push!(times, 1000 * minimum(@elapsed optimalportfolio_dynamicprogram(f, t, g, H) for r in 1:n_reps))
+            sizes[i, j] = m
+            times[i, j] = 1000 * minimum(@elapsed optimalportfolio_dynamicprogram(f, t, g, H) for r in 1:n_reps)
         end
     end
 
-    return DataFrame("m" => sizes, "time" => times)
+    return DataFrame("m" => sizes[:], "time" => times[:])
 end
 
 
 function fptas(epsilon, M, n_markets)
-    sizes = Int64[]
-    times = Float64[]
+    sizes = zeros(Int64, n_markets, length(M))
+    times = zeros(Float64, n_markets, length(M))
 
-    for i in 1:n_markets
+    @threads for i in 1:n_markets
         println("  i = $i of $n_markets")
-        for m in M
+        for (j, m) in enumerate(M)
             f, t, g, H = make_correlated_market(m)
-            push!(sizes, m)
-            push!(times, 1000 * minimum(@elapsed optimalportfolio_fptas(f, t, g, H, epsilon) for r in 1:n_reps))
+            sizes[i, j] = m
+            times[i, j] = 1000 * minimum(@elapsed optimalportfolio_fptas(f, t, g, H, epsilon) for r in 1:n_reps)
         end
     end
 
-    return DataFrame("m" => sizes, "time" => times)
+    return DataFrame("m" => sizes[:], "time" => times[:])
 end
 
 
 
 function table1()
-    printheader("Homogeneous-cost algorithms")
+    printheader("Benchmark 1: Homogeneous-cost algorithms")
     M = fullscale ? [5, 50, 500, 5000] : [5, 10]
     n_markets = fullscale ? 50 : 10
 
@@ -97,7 +98,7 @@ end
 
 
 function table2()
-    printheader("Heterogeneous-cost algorithms")
+    printheader("Benchmark 2: Heterogeneous-cost algorithms")
     M = fullscale ? [5, 50, 500] : [5, 10]
     n_markets = fullscale ? 50 : 10
     epsilons = [0.5, 0.05]
@@ -115,6 +116,7 @@ function table2()
         ["fptas_$(epsilons[i])_$f" => combine(fptas_times[i], :time => f)[!, Symbol("time_$f")] for f in [mean, std], i in 1:length(epsilons)]...)
 end
 
+println()
 display(table1())
 println("\n")
 display(table2())

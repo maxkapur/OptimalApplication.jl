@@ -2,7 +2,6 @@ module OptimalApplication
 
 using Combinatorics: combinations, multiset_combinations
 using DataStructures
-using FixedPointNumbers
 import Base.isless
 
 
@@ -365,38 +364,38 @@ function optimalportfolio_fptas(
     isnontrivialmarket(f, t, g, H)
     @assert 0 < ε < 1
     m = length(f)
-    infty = sum(g) + 1
 
-    ft = f .* t
+    P = ceil(Int, log2(m^2 / (ε * sum(f .* t))))
+
     omf = 1 .- f
 
-    Ū = sum(ft)
-    P = ceil(Int64, log2(m^2 / (ε * Ū)))
+    t *= 2^P
+    ft = f .* t
 
-    # Avoid DomainError for Fixed{Int8, 8}, Fixed{Int16, 16} etc
-    T1 = IntTypes[findfirst(2^(P-1) < typemax(T) && Ū + eps(Fixed{T, P}) < typemax(Fixed{T, P}) for T in IntTypes)]
-    T2 = IntTypes[findfirst(m < typemax(T) for T in IntTypes)]
-    T3 = IntTypes[findfirst(infty < typemax(T) for T in IntTypes)]
+    Ū = ceil(Int, sum(ft))
 
-    FP = Fixed{T1,P}
-    Ū = FP(Ū + eps(FP))
-    G_dict = Dict{Tuple{T2,FP},T3}()
+    infty = sum(g) + 1
 
-    # Want to assert v::FP here but gives a strange error
-    function G(j::Int, v::Real)
+    vType = IntTypes[findfirst(Ū < typemax(T) for T in IntTypes)] # Ū + 1 ?
+    jType = IntTypes[findfirst(m < typemax(T) for T in IntTypes)]
+    gType = IntTypes[findfirst(infty < typemax(T) for T in IntTypes)]
+
+    Ū = vType(Ū)
+    G_dict = Dict{Tuple{jType,vType},gType}()
+
+    function G(j::Integer, v::Integer)
         haskey(G_dict, (j, v)) && return G_dict[(j, v)]
 
         if v ≤ 0
             return 0
-        elseif j == 0 || t[j] < floor(Int, v) || v ≥ Ū
-            # push!(G_dict, (j, v::FP) => infty)
-            return infty # G_dict[(j, v)]
+        elseif j == 0 || t[j] < v || v ≥ Ū
+            return infty
         else
             if f[j] < 1
                 # Clamping prevents over/underflow: for any v≤0 or v>Ū the function
                 # is trivially defined, so recording any more extreme number is meaningless
-                v_minus_Δ = FP(clamp((v - ft[j]) / omf[j], -1, Ū))
-                
+                v_minus_Δ = floor(vType, clamp((v - ft[j]) / omf[j], -1, Ū))
+
                 push!(G_dict, (j, v) => min(
                     G(j - 1, v),
                     g[j] + G(j - 1, v_minus_Δ)
@@ -412,19 +411,19 @@ function optimalportfolio_fptas(
     # Binary search below is equivalent to the following linear search:
     # v = findlast(g -> g ≤ H, G(m, w) for w in eps(FP):eps(FP):FP(Ū)) * eps(FP)
 
-    v = eps(FP)
+    v = vType(0)
     v_UB = Ū
 
     nit = 0
-    while nit < 500 && v + eps(FP) < v_UB
+    while nit < 500 && v + 1 < v_UB
         nit += 1
-        mid = (v + v_UB) / 2
+        mid = (v + v_UB) ÷ 2
 
         if G(m, mid) > H
             v_UB = mid
         else
             v = mid
-            if G(m, v + eps(FP)) > H
+            if G(m, v + 1) > H
                 @goto foundit
             end
         end
@@ -436,7 +435,7 @@ function optimalportfolio_fptas(
     for j in m:-1:1
         if G(j, v) < infty && G(j, v) < G(j - 1, v)
             push!(X, j)
-            v = FP(clamp((v - ft[j]) / omf[j], -1, Ū))
+            v = floor(vType, clamp((v - ft[j]) / omf[j], -1, Ū))
         end
     end
 
