@@ -2,7 +2,6 @@ module OptimalApplication
 
 using Combinatorics: combinations, multiset_combinations
 using DataStructures
-# For implementing the FPTAS for Ellis's problem
 using FixedPointNumbers
 import Base.isless
 
@@ -37,6 +36,73 @@ end
 isless(c1::College, c2::College) = isless(c1.ft, c2.ft)
 
 
+function iscoherentmarket(f::Vector{<:Real}, t::Vector{<:Real})
+    @assert length(f) == length(t)
+    @assert all(0 .< f .≤ 1)
+    @assert issorted(t)
+end
+
+
+function iscoherentmarket(f::Vector{<:Real}, t::Vector{<:Real}, g::Vector{<:Real})
+    @assert length(f) == length(t)
+    @assert length(f) == length(g)
+    @assert all(0 .< f .≤ 1)
+    @assert issorted(t)
+end
+
+
+
+function isnontrivialmarket(f::Vector{<:Real}, t::Vector{<:Real}, h::Int)
+    iscoherentmarket(f, t)
+    @assert 0 < h ≤ length(t)
+end
+
+
+function isnontrivialmarket(
+        f::Vector{<:Real},
+        t::Vector{<:Real},
+        g::Vector{<:Real},
+        H::Real)
+    iscoherentmarket(f, t, g)
+    @assert 0 < H ≤ sum(g)
+    @assert all(0 .< g .≤ H)
+end
+
+
+
+"""
+    valuation(X, f, t)
+
+Returns the expected value of the portfolio `X`, a vector of school indices, on the
+the market defined by admissions probabilities `f` and utility values `t`. 
+"""
+function valuation(
+        X::Vector{Int64},
+        f::Vector{<:Real},
+        t::Vector{<:Real})::Float64
+    isempty(X) && return 0.0
+    iscoherentmarket(f, t)
+
+    sort!(X)
+    h = length(X)
+
+    if h > 1
+        res = 0.0
+        cp = reverse(cumprod(1 .- reverse(f[X[2:end]])))
+
+        for j in 1:h-1
+            res += t[X[j]] * f[X[j]] * cp[j]
+        end
+
+        res += t[X[end]] * f[X[end]]
+
+        return res
+    else
+        return f[X[1]] * t[X[1]]
+    end
+end
+
+
 """
     applicationorder(f, t, h=m; datastructure=:heap)
 
@@ -44,18 +110,17 @@ Produce the optimal order of application for the market defined by admissions pr
 and utility values `t`. Stores college data in a binary `:heap` or as a `:dict`. 
 """
 function applicationorder(
-    f::Vector{Float64},
-    t::Vector{<:Real},
-    h = nothing::Union{Int64,Nothing};
-    datastructure = :heap::Symbol)::Tuple{Vector{Int64},Vector{Float64}}
+        f::Vector{Float64},
+        t::Vector{<:Real},
+        h = nothing::Union{Int64,Nothing};
+        datastructure = :heap::Symbol)::Tuple{Vector{Int64},Vector{Float64}}
     m = length(f)
-    @assert m == length(t)
-    @assert issorted(t)
+
     if isnothing(h)
         h = m
-    else
-        @assert 0 < h ≤ m
     end
+
+    isnontrivialmarket(f, t, h)
 
     if datastructure == :heap
         mkt = MutableBinaryMaxHeap{College}()
@@ -112,46 +177,16 @@ end
 
 
 """
-    valuation(X, f, t)
-
-Returns the expected value of the portfolio `X`, a vector of school indices, on the
-the market defined by admissions probabilities `f` and utility values `t`. 
-"""
-function valuation(
-    X::Vector{Int64},
-    f::Vector{<:Real},
-    t::Vector{<:Real})::Float64
-    @assert issorted(t)
-    sort!(X)
-    h = length(X)
-
-    if h > 1
-        res = 0.0
-        cp = reverse(cumprod(1 .- reverse(f[X[2:end]])))
-
-        for j in 1:h-1
-            res += t[X[j]] * f[X[j]] * cp[j]
-        end
-
-        res += t[X[end]] * f[X[end]]
-
-        return res
-    else
-        return f[X[1]] * t[X[1]]
-    end
-end
-
-
-"""
     optimalportfolio_enumerate(f, t, h)
 
 Produce the optimal portfolio of size `h` on the market defined by admissions probabilities `f`
 and utility values `t`. Solves by enumeration. 
 """
 function optimalportfolio_enumerate(
-    f::Vector{<:Real},
-    t::Vector{<:Real},
-    h::Int64)::Tuple{Vector{Int64},Float64}
+        f::Vector{<:Real},
+        t::Vector{<:Real},
+        h::Int)::Tuple{Vector{Int64},Float64}
+    isnontrivialmarket(f, t, h)
     m = length(t)
     X = zeros(Int64, h)
     v = 0.0
@@ -174,10 +209,11 @@ Produce the optimal portfolio of cost `H` on the market defined by admissions pr
 utility values `t`, and application costs `g`. Solves by enumeration. 
 """
 function optimalportfolio_enumerate(
-    f::Vector{<:Real},
-    t::Vector{<:Real},
-    g::Vector{<:Real},
-    H::Real)::Tuple{Vector{Int64},Float64}
+        f::Vector{<:Real},
+        t::Vector{<:Real},
+        g::Vector{<:Real},
+        H::Real)::Tuple{Vector{Int64},Float64}
+    isnontrivialmarket(f, t, g, H)
     m = length(t)
 
     let
@@ -203,17 +239,14 @@ budget `H`, uses a dynamic program to produce the optimal portfolio `X` and asso
 valuation table `V`.
 """
 function optimalportfolio_valuationtable(
-    f::Vector{Float64},
-    t::Vector{<:Real},
-    g::Vector{Int64},
-    H::Int64)::Tuple{Vector{Int64},Matrix{Float64}}
+        f::Vector{Float64},
+        t::Vector{<:Real},
+        g::Vector{Int64},
+        H::Int64)::Tuple{Vector{Int64},Matrix{Float64}}
+    isnontrivialmarket(f, t, g, H)
     m = length(f)
-    @assert m == length(t) == length(g)
-    @assert issorted(t)
-    @assert 0 < H ≤ sum(g)
 
     V = zeros(m, H)
-    #     U = falses(m, H)
     for j in 1:m, h in 1:H
         if h < g[j]
             V[j, h] = get(V, (j - 1, h), 0)
@@ -246,15 +279,16 @@ budget `H`, uses a dynamic program to produce the optimal portfolio `X` and asso
 value `v`. Set `memoize=false` to (unwisely) use blind recursion.
 """
 function optimalportfolio_dynamicprogram(
-    f::Vector{Float64},
-    t::Vector{<:Real},
-    g::Vector{Int64},
-    H::Int64,
-    memoize = true)::Tuple{Vector{Int64},Float64}
+        f::Vector{Float64},
+        t::Vector{<:Real},
+        g::Vector{Int64},
+        H::Int64,
+        memoize = true)::Tuple{Vector{Int64},Float64}
+    isnontrivialmarket(f, t, g, H)
     m = length(f)
-    @assert m == length(t) == length(g)
-    @assert issorted(t)
-    @assert 0 < H ≤ sum(g)
+    
+    ft = f .* t
+    omf = 1 .- f
 
     T2 = IntTypes[findfirst(m < typemax(T) for T in IntTypes)]
     T3 = IntTypes[findfirst(H < typemax(T) for T in IntTypes)]
@@ -281,13 +315,13 @@ function optimalportfolio_dynamicprogram(
             if memoize
                 push!(V_dict, (j, h) => max(
                     V(j - 1, h),
-                    (1 - f[j]) * V(j - 1, h - g[j]) + f[j] * t[j]
+                    omf[j] * V(j - 1, h - g[j]) + ft[j]
                 ))
                 return V_dict[(j, h)]
             else
                 return max(
                     V(j - 1, h),
-                    (1 - f[j]) * V(j - 1, h - g[j]) + f[j] * t[j]
+                    omf[j] * V(j - 1, h - g[j]) + ft[j]
                 )
             end
         end
@@ -323,27 +357,29 @@ budget `H`, uses the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio.
 """
 function optimalportfolio_fptas(
-    f::Vector{Float64},
-    t::Vector{Int64},
-    g::Vector{Int64},
-    H::Int64,
-    ε::Float64)::Tuple{Vector{Int64},Float64}
+        f::Vector{Float64},
+        t::Vector{Int64},
+        g::Vector{Int64},
+        H::Int64,
+        ε::Float64)::Tuple{Vector{Int64},Float64}
+    isnontrivialmarket(f, t, g, H)
+    @assert 0 < ε < 1
     m = length(f)
-    sumg = sum(g)
-    @assert m == length(t) == length(g)
-    @assert issorted(t)
-    @assert 0 < H ≤ sumg
+    infty = sum(g) + 1
 
-    Ū = sum(f .* t)
+    ft = f .* t
+    omf = 1 .- f
+
+    Ū = sum(ft)
     P = ceil(Int64, log2(m^2 / (ε * Ū)))
-    infty = sumg + 1
 
-    T1 = IntTypes[findfirst(4 * Ū * 2^P < typemax(T) for T in IntTypes)]
+    # Avoid DomainError for Fixed{Int8, 8}, Fixed{Int16, 16} etc
+    T1 = IntTypes[findfirst(2^(P-1) < typemax(T) && Ū + eps(Fixed{T, P}) < typemax(Fixed{T, P}) for T in IntTypes)]
     T2 = IntTypes[findfirst(m < typemax(T) for T in IntTypes)]
     T3 = IntTypes[findfirst(infty < typemax(T) for T in IntTypes)]
 
     FP = Fixed{T1,P}
-
+    Ū = FP(Ū + eps(FP))
     G_dict = Dict{Tuple{T2,FP},T3}()
 
     # Want to assert v::FP here but gives a strange error
@@ -352,12 +388,15 @@ function optimalportfolio_fptas(
 
         if v ≤ 0
             return 0
-        elseif j == 0 || t[j] < v
-            push!(G_dict, (j, v) => infty)
+        elseif j == 0 || t[j] < floor(Int, v) || v ≥ Ū
+            # push!(G_dict, (j, v::FP) => infty)
             return infty # G_dict[(j, v)]
         else
             if f[j] < 1
-                v_minus_Δ = FP(v - f[j] * (t[j] - v) / (1 - f[j]))
+                # Clamping prevents over/underflow: for any v≤0 or v>Ū the function
+                # is trivially defined, so recording any more extreme number is meaningless
+                v_minus_Δ = FP(clamp((v - ft[j]) / omf[j], -1, Ū))
+                
                 push!(G_dict, (j, v) => min(
                     G(j - 1, v),
                     g[j] + G(j - 1, v_minus_Δ)
@@ -374,9 +413,13 @@ function optimalportfolio_fptas(
     # v = findlast(g -> g ≤ H, G(m, w) for w in eps(FP):eps(FP):FP(Ū)) * eps(FP)
 
     v = eps(FP)
-    v_UB = FP(Ū)
-    while v + eps(FP) < v_UB
+    v_UB = Ū
+
+    nit = 0
+    while nit < 500 && v + eps(FP) < v_UB
+        nit += 1
         mid = (v + v_UB) / 2
+
         if G(m, mid) > H
             v_UB = mid
         else
@@ -393,7 +436,7 @@ function optimalportfolio_fptas(
     for j in m:-1:1
         if G(j, v) < infty && G(j, v) < G(j - 1, v)
             push!(X, j)
-            v = FP(v - f[j] * (t[j] - v) / (1 - f[j]))
+            v = FP(clamp((v - ft[j]) / omf[j], -1, Ū))
         end
     end
 

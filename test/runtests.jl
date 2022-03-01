@@ -77,4 +77,53 @@ end
             end
         end
     end
+
+    @testset verbose = true "Large problems" begin
+        f, t, g, H = make_correlated_market(500)
+
+        W, vW = optimalportfolio_fptas(f, t, g, H, 0.5)
+        Y, vY = optimalportfolio_dynamicprogram(f, t, g, H)
+        @test vW / vY ≥ 0.5
+
+        f, t, g, H = make_correlated_market(5000)
+
+        X, V = applicationorder(f, t, 2500)
+        @test !isnothing(X)
+    end
+
+    @testset verbose = true "Trivial and malformed markets" begin
+        # Dim mismatch
+        f = [0.1, 0.1]
+        t = [1, 2, 4]
+        g = [2, 2]
+        H = 3
+
+        @test_throws AssertionError optimalportfolio_enumerate(f, t, 1)
+        @test_throws AssertionError optimalportfolio_enumerate(f, t, g, H)
+
+        # t not sorted
+        f = [0.1, 0.1]
+        t = [7.0, 4.0]
+        g = [2, 2]
+        H = 3
+
+        @test_throws AssertionError optimalportfolio_enumerate(f, t, 1)
+        @test_throws AssertionError optimalportfolio_enumerate(f, t, g, H)
+
+        # f not in (0, 1]
+        f = [5, 1]
+        t = [4, 7]
+
+        @test_throws AssertionError optimalportfolio_enumerate(f, t, 1)
+        @test_throws AssertionError optimalportfolio_enumerate(f, t, g, H)
+
+        # Some g[j] > H
+        f = [0.1, 0.1]
+        t = [4, 7]
+        g = [10, 10]
+        H = 5
+
+        @test_throws AssertionError optimalportfolio_fptas(f, t, g, H, 0.5)
+        @test_throws AssertionError optimalportfolio_dynamicprogram(f, t, g, H)
+    end
 end

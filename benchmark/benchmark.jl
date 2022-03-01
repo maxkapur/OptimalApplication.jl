@@ -3,10 +3,17 @@ using DataFrames
 using Random
 using Statistics
 
-# An all-day benchmark; tweak parameters of run with caution.
+fullscale = false
+
+# An all-day benchmark; tweak parameters with caution.
+# Set fullscale = false to run a smaller benchmark to check formatting etc.
 
 # Number of times to repeat each computation, where min of these is reported as time
-n_reps = 3
+n_reps = fullscale ? 3 : 1
+
+function printheader(s)
+    printstyled(s*"\n", bold=true, color=80)
+end
 
 function make_correlated_market(m)
     A = 10
@@ -71,9 +78,9 @@ end
 
 
 function table1()
-    println("== Homogeneous cost algorithms ==")
-    M = [5, 50, 500, 5000]
-    n_markets = 50
+    printheader("Homogeneous-cost algorithms")
+    M = fullscale ? [5, 50, 500, 5000] : [5, 10]
+    n_markets = fullscale ? 50 : 10
 
     println("Timing with dictionary")
     grouped_het_dict = groupby(samecosts(:dict, M, n_markets), :m)
@@ -90,9 +97,9 @@ end
 
 
 function table2()
-    println("== Heterogeneous cost algorithms ==")
-    M = [5, 50, 500]
-    n_markets = 50
+    printheader("Heterogeneous-cost algorithms")
+    M = fullscale ? [5, 50, 500] : [5, 10]
+    n_markets = fullscale ? 50 : 10
     epsilons = [0.5, 0.05]
 
     println("Timing dynamic program")
@@ -109,5 +116,5 @@ function table2()
 end
 
 display(table1())
-println()
+println("\n")
 display(table2())
