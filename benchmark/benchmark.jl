@@ -116,7 +116,9 @@ function table2()
         ["fptas_$(epsilons[i])_$f" => combine(fptas_times[i], :time => f)[!, Symbol("time_$f")] for f in [mean, std], i in 1:length(epsilons)]...)
 end
 
-println()
-display(table1())
-println("\n")
-display(table2())
+@time begin
+    println()
+    display(table1())
+    println("\n")
+    display(table2())
+end
