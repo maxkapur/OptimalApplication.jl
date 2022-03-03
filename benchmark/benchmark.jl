@@ -2,9 +2,10 @@ using OptimalApplication
 using DataFrames
 using Random
 using StatsBase
+using Statistics
 using Base.Threads
 
-fullscale = false
+fullscale = true
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -25,6 +26,7 @@ function make_correlated_market(m)
     H = sum(g) ÷ 2
     return f, t, g, H
 end
+
 
 function benchmark1()
     printheader("Benchmark 1: Homogeneous-cost algorithms")
@@ -56,7 +58,6 @@ function benchmark1()
     end
     return combine(groupby(df, :m), kv_pairs...), df
 end
-
 
 
 function benchmark2()
@@ -98,10 +99,10 @@ function benchmark2()
 end
 
 
-
 @time begin
     println()
     display(benchmark1()[1])
     println("\n")
     display(benchmark2()[1])
+    println("\n")
 end

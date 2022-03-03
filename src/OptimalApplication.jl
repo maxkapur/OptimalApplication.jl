@@ -414,9 +414,7 @@ function optimalportfolio_fptas(
     v = vType(0)
     v_UB = Ū
 
-    nit = 0
-    while nit < 500 && v + 1 < v_UB
-        nit += 1
+    while v + 1 < v_UB
         mid = (v + v_UB) ÷ 2
 
         if G(m, mid) > H
