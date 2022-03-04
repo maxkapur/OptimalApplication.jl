@@ -55,31 +55,26 @@ With respect to the data in `mkt`, generates the child(ren) of node `nd` and wri
 their hashes to `nd.children`.
 """
 function generatechildren!(nd::Node, mkt::VariedCostsMarket)
-    newI = copy(nd.I)
-    newN = copy(nd.N)
-
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
     if isempty(fltr)
-        child = Node(newI, Set{eltype(nd.I)}(), nd.t̄, nd.H̄, nd.v_I, mkt)
+        child = Node(nd.I, Set{eltype(nd.I)}(), nd.t̄, nd.H̄, nd.v_I, mkt)
         push!(nd.children, hash(child))
         return (child,)
     end
 
-    # School we will branch on.
-    # You may be tempted to divide by g[j] here, but this is unwise, 
-    # because the optimal addition on this branch is always the affordable
-    # school with highest ft[j]. Different from knapsack.
-    i = argmax(j -> mkt.f[j] * nd.t̄[j], fltr)
+    # School we will branch on. In principle it can by any school in fltr.
+    i = argmax(j -> mkt.f[j] * nd.t̄[j] / mkt.g[j], fltr)
 
-    delete!(newN, i)
+
+    newN = setdiff(nd.N, i)
 
     # Node without i
     t̄2 = copy(nd.t̄)
     delete!(t̄2, i)
 
-    child2 = Node(newI, newN, t̄2, nd.H̄, nd.v_I, mkt)
+    child2 = Node(nd.I, newN, t̄2, nd.H̄, nd.v_I, mkt)
 
     if mkt.g[i] < nd.H̄
         # Node with i
@@ -93,7 +88,7 @@ function generatechildren!(nd::Node, mkt::VariedCostsMarket)
         end
         delete!(t̄1, i)
 
-        child1 = Node(union(newI, i), newN, t̄1, nd.H̄ - mkt.g[i],
+        child1 = Node(union(nd.I, i), newN, t̄1, nd.H̄ - mkt.g[i],
             nd.v_I + mkt.f[i] * nd.t̄[i],
             mkt)
 
@@ -112,7 +107,7 @@ function generatechildren!(nd::Node, mkt::VariedCostsMarket)
         end
         delete!(t̄1, i)
 
-        child1 = Node(union(newI, i), Set{eltype(nd.I)}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
+        child1 = Node(union(nd.I, i), Set{eltype(nd.I)}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
 
         push!(nd.children, hash(child1), hash(child2))
         return child1, child2
@@ -168,20 +163,24 @@ function optimalportfolio_branchbound(mkt; maxit = 10000::Integer, verbose = fal
 
         children = generatechildren!(tree[thisnodehash], mkt)
 
+        newLB = false
         for child in children
             childhash = hash(child)
-
+        
             push!(tree, childhash => child)
             if child.v_I > LB
+                newLB = true
                 LB = child.v_I
-                LB_hash = childhash
+                LB_hash = childhash        
             end
-
+        end
+        
+        if newLB
             fathomhash = findfirst(nd -> nd.v_LP < LB, tree)
             while !isnothing(fathomhash)
                 verbose && println("Fathoming node $fathomhash")
                 fathom!(tree, fathomhash)
-
+        
                 fathomhash = findfirst(nd -> nd.v_LP < LB, tree)
             end
         end

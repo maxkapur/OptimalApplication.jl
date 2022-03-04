@@ -39,7 +39,7 @@ end
 
 function benchmark1()
     printheader("Benchmark 1: Homogeneous-cost algorithms")
-    M = fullscale ? [5, 50, 500, 5000] : [5, 10]
+    M = fullscale ? 4 .^ (2:6) : [5, 10]
 
     sizes = zeros(Int64, n_markets, length(M))
     times_dict = zeros(Float64, n_markets, length(M))
@@ -70,8 +70,8 @@ end
 
 function benchmark2()
     printheader("Benchmark 2: Heterogeneous-cost algorithms")
-    M = fullscale ? [5, 50, 500] : [5, 10]
-    bnbcutoff = fullscale ? 32 : 6
+    M = fullscale ? 2 .^ (4:9) : [5, 10]
+    bnbcutoff = fullscale ? 33 : 6
     epsilons = [0.5, 0.05]
 
     dtype = Union{Float64,Missing}

@@ -40,6 +40,7 @@
 \theoremstyle{definition}
 \newtheorem{example}{Example}
 \newtheorem{definition}{Definition}
+\newtheorem{problem}{Problem}
 \newtheorem{assumption}{Assumption}
 \newtheorem{conjecture}{Conjecture}
 }
@@ -51,6 +52,7 @@
 \theoremstyle{definition}
 \newtheorem{example}{예}
 \newtheorem{definition}{정의}
+\newtheorem{problem}{문제}
 \newtheorem{assumption}{가정}
 \newtheorem{conjecture}{추측}
 }
@@ -79,10 +81,10 @@
 \maketitle
 
 \section*{Abstract}
-This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, we show that the problem is NP-complete. We provide two dynamic programs for this more general setup. The first produces an exact solution in pseudopolynomial time, and the second yields a fully polynomial-time approximation scheme. 
+This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, we show that the problem is NP-complete. We provide three algorithms for this more general setup. The first is a branch-and-bound routine. The second is an dynamic program that produces an exact solution in pseudopolynomial time. The third is a fully polynomial-time approximation scheme. 
 
 \section*{요약}
-본 논문은 다수의 확률 변수로 구성된 포트폴리오의 기대 최적값을 예산 조건 하에서 최대화하는 문제를 고려한다. 이를 최적 대학 지원 문제라고 부른다. 각 확률 변수의 비용, 즉 각 대학의 지원비가 동일한 경우, 최적 포트폴리오는 예산 제약식으로 결정된 포함 사슬 관계를 가짐을 보이고 이에 따라 다항 시간 해법을 제시한다. 대학의 지원비가 서로 다른 경우, 문제가 NP-complete함을 증명한다. 일반적인 상황을 위해 두 가지 동적 계획 해법을 도출한다. 첫째는 의사 다항 시간 안에 정확한 해를 출력하며 둘째는 전체 다항 시간 근사 해법이다.
+본 논문은 다수의 확률 변수로 구성된 포트폴리오의 기대 최적값을 예산 조건 하에서 최대화하는 문제를 고려한다. 이를 최적 대학 지원 문제라고 부른다. 각 확률 변수의 비용, 즉 각 대학의 지원비가 동일한 경우, 최적 포트폴리오는 예산 제약식으로 결정된 포함 사슬 관계를 가짐을 보이고 이에 따라 다항 시간 해법을 제시한다. 대학의 지원비가 서로 다른 경우, 문제가 NP-complete함을 증명한다. 일반적인 상황을 위해 세 가지 해법을 도출한다. 첫째는 분지한계 기반 해법이다. 둘째는 의사 다항 시간 안에 정확한 해를 출력하는 동적 계획이다. 셋째는 전체 다항 시간 근사 해법이다.
 
 \pagebreak
 
@@ -108,25 +110,25 @@ This paper considers the maximization of the expected maximum value of a portfol
 \else 단,  $\mathcal{C} = \{ 1 \dots m\}$은 지표 집합이며 $H$는 예산 모수이다. 각 $j = 1 \dots m$에 대해 $g_j > 0$는 비용 모수이며 $Z_j$는 확률 $f_j$를 가지는 서로 독립적인 Bernoulli 변수이다.\fi
 
 \ifen
-We refer to this problem as the \emph{optimal college application portfolio,} as follows: Consider a college market with $m$ colleges. The $j$th college is named $c_j$. Consider a single prospective student in this market, and let each $t_j$-value indicate the utility she associates with attending $c_j$, where her utility is $t_0$ if she does not attend college. Let $g_j$ denote the application fee for $c_j$ and $H$ the student's total budget to spend on application fees. Lastly, let $f_j$ denote her probability of being admitted to $c_j$ if she applies, so that $Z_j$ equals one if she is admitted and zero if not. It is appropriate to assume that the $Z_j$ are probabilistically independent as long as $f_j$ are probabilities estimated specifically for this student (as opposed to generic acceptance rates). Then the student's objective is to maximize the expected utility associated with the best school she gets into within this budget. Her optimal college application strategy is given by the solution $\mathcal{X}$ to the problem above, where $\mathcal{X}$ represents the set of schools to which she applies.
+We refer to this problem as the \emph{optimal college application portfolio,} as follows: Consider a college market with $m$ colleges. The $j$th college is named $c_j$. Consider a single prospective student in this market, and let each $t_j$-value indicate the utility she associates with attending $c_j$, where her utility is $t_0$ if she does not attend college. Let $g_j$ denote the application fee for $c_j$ and $H$ the student's total budget to spend on application fees. Lastly, let $f_j$ denote the student's probability of being admitted to $c_j$ if she applies, so that $Z_j$ equals one if she is admitted and zero if not. It is appropriate to assume that the $Z_j$ are statistically independent as long as $f_j$ are probabilities estimated specifically for this student (as opposed to generic acceptance rates). Then the student's objective is to maximize the expected utility associated with the best school she gets into within this budget. Therefore, her optimal college application strategy is given by the solution $\mathcal{X}$ to the problem above, where $\mathcal{X}$ represents the set of schools to which she applies.
 \else
 다음 해석에 따라 이를 `최적 대학 지원 포트폴리오 문제'라고 부른다. $m$개의 대학교를 가지는 입학 시장을 고려하자. $j$번째 학교의 이름은 $c_j$이다. 이 시장에 참여하는 한 학생을 고려해서 그가 $c_j$에 진학하면 $t_j$ 단위의 효용이 발생한다고 하자. 단, 어떤 대학에도 진학하지 않는 경우 그의 효용은 $t_0$이다. $c_j$의 지원비가 $g_j$이며 학생이 지원비에 쓸 수 있는 예산이 $H$라고 하자. 마지막, $c_j$에 지원하면 학생이 합격할 확률이 $f_j$이라고 하자. 따라서 합격하면 $Z_j = 1$, 합격 안 하면 $Z_j = 0$이 된다. $f_j$가 (학교의 전체적인 합격률이 아니라) 바로 이 학생의 합격 확률일 때 $Z_j$의 확률적 독립성을 적절한 가정이다. 그러면 학생의 목표는 주어진 예산 안에서 학생이 합격하는 가장 좋은 학교의 기대 효용을 최대화하는 것이다. 위 문제의 최적해가 $\mathcal{X}$일 때, 학생의 최적 대학 지원 전략은 $\mathcal{X}$에 지원하는 것이다.
 \fi
 
 \ifen
-As Chao (2014) remarked, college application represents a somewhat subtle portfolio optimization problem. In computational finance, traditional portfolio optimization models weigh the expected profit across all assets against a risk term, yielding a concave maximization problem with linear constraints (Meucci 2005). But college applicants maximize the value of their \emph{best} asset: If a student is admitted to her $j$th choice, then she is indifferent as to whether she gets into her $(j+1)$th choice. As a result, the valuation function that students maximize is \emph{convex} in the expected utility associated with individual applications. Risk management is implicit in the college application problem because, in a typical admissions market, college preferability is negatively correlated with competitiveness. That is, students negotiate a tradeoff between highly attractive, selective “reach schools” and less preferable “safety schools” where admission is a safer bet (Kim 2015). Finally, the combinatorial nature of the college application problem makes it difficult to solve using the gradient-based techniques used in continuous portfolio optimization. Chao estimated her model (which considers application as a \emph{cost} rather than a constraint) by clustering the schools so that $m=8$, a scale at which enumeration is tractable. Our study pursues a more general solution.
+As Chao (2014) remarked, college application represents a somewhat subtle portfolio optimization problem. In computational finance, traditional portfolio optimization models weigh the sum of expected profit across all assets against a risk term, yielding a concave maximization problem with linear constraints (Meucci 2005). But college applicants maximize the value of their \emph{best} asset: If a student is admitted to her $j$th choice, then she is indifferent as to whether she gets into her $(j+1)$th choice. As a result, the valuation function that students maximize is \emph{convex} in the expected utility associated with individual applications. Risk management is implicit in the college application problem because, in a typical admissions market, college preferability is negatively correlated with competitiveness. That is, students negotiate a tradeoff between highly attractive, selective “reach schools” and less preferable “safety schools” where admission is a safer bet (Kim 2015). Finally, the combinatorial nature of the college application problem makes it difficult to solve using the gradient-based techniques used in continuous portfolio optimization. Chao estimated her model (which considers application as a \emph{cost} rather than a constraint) by clustering the schools so that $m=8$, a scale at which enumeration is tractable. Our study pursues a more general solution.
 \else
-Chao (2014)가 주장한 바처럼 대학 지원 전략은 약간 미묘한 포트폴리오 최적화 문제이다. 재정학 분야에서 고전적 포트폴리오 최적화 모형은 전체 자산의 총이익에서 위험회피 항을 뺌으로 선형식으로 제약된 오목 최대화 문제를 이룬다 (Meucci 2005). 그러나 대학 지원자는 가치가 제일 높을 단 한 자산의 가치를 최대화하고자 한다. 어떤 학생이 자신의 $j$위 학교에 합격하면, $(j+1)$위 학교에 합격하든 불합격하든 무관심하기 때문이다. 이에 따라 학생이 최대화하려는 함수는 각 지원의 기대 효용에 대해 오목이 아닌 볼록 함수이다. 또한 전형적인 입학 시장에서 대학의 효용과 합격 확률이 서로 반비례하므로 대학 지원 문제에 위험 관리가 내포 되어 있다. 선호도가 높으며 붙기 어려운 “상향학교”(reach school)와 선호도가 낮으며 붙기 쉬운 “안정학교”(safety school) 사이의 균형을 고려해야 하기 때문이다 (김민희 2015). 마지막, 대학 지원의 조합적인 본성 때문에 연속적인 포트폴리오 최적화 문제에서 흔히 사용하는 기울기 방법으로 풀기가 어렵다. Chao는 지원을 제약 조건 대신 비용으로 모형화했으며 모형을 추정하기 위해 $m=8$이 되도록 학교를 먼저 클러스터로 모았다. 이는 열거법을 통해 문제를 쉽게 풀 수 있는 규모이었지만 본 연구는 더 일반적인 해법을 목표로서 추구한다.
+Chao (2014)가 주장한 바처럼 대학 지원 전략은 약간 미묘한 포트폴리오 최적화 문제이다. 재정학 분야에서 고전적 포트폴리오 최적화 모형은 전체 자산에 대한 기대 총이익에서 위험회피 항을 뺌으로 선형식으로 제약된 오목 최대화 문제를 이룬다 (Meucci 2005). 그러나 대학 지원자는 가치가 제일 높을 단 한 자산의 가치를 최대화하고자 한다. 어떤 학생이 자신의 $j$위 학교에 합격하면, $(j+1)$위 학교에 합격하든 불합격하든 무관심하기 때문에 다른 상황이다. 이에 따라 학생이 최대화하려는 함수는 각 지원의 기대 효용에 대해 오목이 아닌 볼록 함수다. 또한 전형적인 입학 시장에서 대학의 효용과 합격 확률이 서로 반비례하므로 대학 지원 문제에 위험 관리가 내포되어 있다. 특히 선호도가 높으며 붙기 어려운 “상향학교”(reach school)와 선호도가 낮으며 붙기 쉬운 “안정학교”(safety school) 사이의 균형을 고려해야 한다 (김민희 2015). 마지막, 대학 지원의 조합적인 본성으로 인해 연속적인 포트폴리오 최적화 문제에서 흔히 사용하는 기울기 방법으로는 풀기가 어렵다. Chao는 지원을 제약 조건 대신 비용으로 모형화했으며 모형을 추정하기 위해 $m=8$이 되도록 학교를 먼저 클러스터로 모았다. 이는 열거법을 통해 문제를 쉽게 풀 수 있는 규모이지만 본 연구는 더 일반적인 해법을 목표로서 추구한다.
 \fi
 
 \ifen
 We take special interest in the validity of greedy solution algorithms, such as that that iteratively adds the asset that yields the greatest increase in the objective function until the budget is exhausted. Greedy algorithms produce a \emph{nested} family of solutions, parameterized by the budget $H$: If $H \leq H'$, then the greedy solution for budget $H$ is a subset of the greedy solution for budget $H'$. As Rozanov and Tamir (2020) remark, the knowledge that the optima are nested aids not only in computing the optimal solution, but in the implementation thereof under uncertain information. For example, in the United States, many college applications are due at the beginning of November, and it is typical for students to begin working on their applications during the prior summer because colleges expect students to tailor their essays to the target school. However, students may not know how many schools they can afford to apply to until late October. The nestedness property---or equivalently, the validity of a greedy algorithm---implies that even in the absence of complete budget information, students can begin to carry out the optimal application strategy by writing essays for schools in the order that they enter the maximal portfolio.
 \else
-본 연구에서 특히 탐욕 해법의 타당성에 관심을 기울인다. 예를 들어 예산이 다 소비될 때까지 목적 함수를 가장 빨리 증가시키는 학교를 차례대로 선택하는 알고리즘은 일종의 탐욕 해법이다. 탐욕 해법 예산 $H$으로 모수화된 해의 순서를 유도하며 `포함 사슬 관계` (nestedness) 성질로 연결된다. $H \leq H'$일 때, 예산 $H$에 해당하는 탐욕 해는 예산 $H'$에 해당하는 탐욕 해의 부분집합이다. Rozanov과 Tamir (2020)이 주장하듯, 최적해가 포함 사슬 관계를 가짐을 알면 최적해를 구하는 데일 뿐더러 정보가 불확실한 상황에서 최적해를 이행하는 데에도 유용하다. 가령 많은 미국 대학의 지원 기한은 11월 초인데 지원 에세이를 학교의 취향을 맞춰서 작성해야 하므로 여름부터 원서를 작성하는 학생이 많다. 그러나 시간이나 지원비에 대한 예산을 10월 말까지 모를 수도 있다. 포함 사슬 관계 성질, 또는 탐욕 해법의 타당성은 완전한 예산 정보가 없음에도 학교가 최적 포트폴리오에 진입하는 순서대로 원서를 작성하는 식으로 최적 전략을 이행할 수 있다고 의미한다.
+본 연구에서 특히 탐욕 해법의 타당성에 관심을 기울인다. 예를 들어 예산이 다 소비될 때까지 목적 함수를 가장 크게 증가시키는 학교를 차례대로 선택하는 알고리즘은 일종의 탐욕 해법이다. 탐욕 해법은 예산 $H$으로 모수화된 해의 순서를 유도하며 해는 `포함 사슬 관계'(nestedness) 성질에 따라 서로에 연결된다. 즉 $H \leq H'$일 때, 예산 $H$에 해당하는 탐욕 해는 예산 예산 $H'$에 해당하는 탐욕 해의 부분집합이다. Rozanov과 Tamir (2020)가 주장하듯, 최적해가 포함 사슬 관계를 가짐을 알면 최적해를 구하는 데일 뿐더러 정보가 불확실한 상황에서 최적해를 이행하는 데에도 유용하다. 가령, 많은 미국 대학의 지원 기한은 11월 초인데 지원 에세이를 학교의 취향을 맞춰서 작성해야 하므로 여름부터 원서를 작성하는 학생이 많다. 그러나 시간이나 지원비에 대한 예산을 10월 말까지 모를 수도 있다. 포함 사슬 관계 성질, 또는 탐욕 해법의 타당성은 완전한 예산 정보가 없음에도 학교가 최적 포트폴리오에 진입하는 순서대로 원서를 작성하는 식으로 최적 전략을 이행해 낼 수 있다고 의미한다.
 \fi
 
 
-For certain classes of optimization problems, such as maximizing a submodular set function over a cardinality constraint, a greedy algorithm is known to be a good approximate solution and exact under certain additional assumptions (Fisher et al. 1978). For other problems, notably the binary knapsack problem, the most intuitive greedy algorithm can be made to perform arbitrarily poorly (Vazirani 2001). We show analogous results for the college application problem: In the special case where each $g_j = 1$, the optimal portfolio satisfy a nestedness property that is equivalent to the validity of the greedy algorithm. This case mirrors the centralized college application process in Korea, where there is no application fee, but students are allowed to apply to only three schools during the main admissions cycle. Unfortunately, the nestedness property does not hold in the general case, nor does the greedy algorithm offers any performance guarantee. Instead, we offer a pseudopolynomial-time algorithm that is tractable for typical college market instances, as well as an approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in fully polynomial time. 
+For certain classes of optimization problems, such as maximizing a submodular set function over a cardinality constraint, a greedy algorithm is known to be a good approximate solution and exact under certain additional assumptions (Fisher et al. 1978). For other problems, notably the binary knapsack problem, the most intuitive greedy algorithm can be made to perform arbitrarily poorly (Vazirani 2001). We show that the college application problem that the college application problem is analogous to the knapsack problem in many respects: In the special case where each $g_j = 1$, the optimal portfolio satisfy a nestedness property that is equivalent to the validity of the greedy algorithm. This case mirrors the centralized college application process in Korea, where there is no application fee, but students are allowed to apply to only three schools during the main admissions cycle. Unfortunately, the nestedness property does not hold in the general case, nor does the greedy algorithm offers any performance guarantee. Instead, we offer a pseudopolynomial-time algorithm that is tractable for typical college market instances, as well as an approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in fully polynomial time. 
 
 
 \ifen \subsection{Structure of this paper} \else \subsection{본 논문의 구성}\fi
@@ -134,7 +136,7 @@ Section \ref{preliminaries} introduces some additional notation and assumptions 
 
 In section \ref{homogappcosts}, we solve the special case where each $g_j = 1$ and $H$ is an integer $h \leq m$.  We show that an intuitive heuristic is in fact a $1/h$-approximation algorithm. Then, we show that the optimal portfolios are nested in the budget constraint, which yields an exact algorithm that runs in $O(hm)$-time.
 
-In section \ref{hetappcosts}, we turn to the scenario in which colleges differ in their application fees. We show that the decision form of the portfolio optimization problem is NP-complete through a reduction from the binary knapsack problem. We provide two dynamic programs for this more general setup. The first iterates on total expenditures and produces an exact solution in pseudopolynomial time, namely $O(Hm + m \log m)$. The second iterates on truncated portfolio valuations and yields a fully polynomial-time approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in $O(m^3 / \varepsilon)$ time.  
+In section \ref{hetappcosts}, we turn to the scenario in which colleges differ in their application fees. We show that the decision form of the portfolio optimization problem is NP-complete through a reduction from the binary knapsack problem. We provide three algorithms for this more general setup. The first is a branch-and-bound routine. The second is a dynamic program that iterates on total expenditures and produces an exact solution in pseudopolynomial time, namely $O(Hm + m \log m)$. The third is a dynamic program that iterates on truncated portfolio valuations. It yields a fully polynomial-time approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in $O(m^3 / \varepsilon)$ time.  
 % subject to certain assumptions on the quality of the data available to students in their decisionmaking process, an optimal application portfolio for a single student can be computed in time polynomial in $h$ and $m$, as we show presently.
 
 In section \ref{numericalexperiments}, we present the results of computational experiments that confirm the validity and time complexity results established in the previous two sections.
@@ -201,7 +203,7 @@ which completes the proof.
 \ifen \section{Homogeneous application costs}  \else \subsection{동일한 지원 비용} \fi \label{homogappcosts}
 In this section, we derive a polynomial-time algorithm for the special case in which $g_j = 1$ and $H$ is a constant $h \leq m$. This case is similar to the centralized college admissions process in Korea, where there is no application fee, but by law, students are allowed to apply to no more than $h$ schools. (In the Korean case, $m=202$ and $h=3$.) Applying Theorem \ref{assumetzerozero}, we assume that $t_0 = 0$ unless otherwise noted. Throughout this section, we will call the applicant Alma, and refer to the corresponding optimization problem as Alma's problem. 
 
-\begin{definition}[Alma’s problem]
+\begin{problem}[Alma’s problem]
 Alma's optimal college application portfolio is given by the solution to the following combinatorial optimization problem:
 \begin{align}
 \begin{split}
@@ -211,7 +213,7 @@ Alma's optimal college application portfolio is given by the solution to the fol
 \text{subject to}\quad & \mathcal{X}\subseteq\mathcal{C}, \quad|\mathcal{X}| \leq h 
 \end{split}
 \end{align}
-\end{definition}
+\end{problem}
 %This problem can be formulated as an integer nonlinear program in $m$ binary variables .. 
 
 \ifen \subsection{Approximation properties of a na\"ive solution}  \else \subsection{Na\"ive 해법의 근사 성질} \fi
@@ -482,9 +484,9 @@ It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio, for a given m
 
 \pagebreak
 \ifen \section{Heterogeneous application costs} \else\section{다양한 지원 비용} \fi\label{hetappcosts}
-In this section, we turn to the more general problem in which the constant $g_j$ represents the \emph{cost} of applying to $c_j$ and the student, whom we now call Ellis, has a \emph{budget} of $H$ to spend on college applications. Applying Theorem \ref{assumetzerozero}, we assume $t_0 = 0$ and disregard $c_0$ throughout.
+Now we turn to the more general problem in which the constant $g_j$ represents the \emph{cost} of applying to $c_j$ and the student, whom we now call Ellis, has a \emph{budget} of $H$ to spend on college applications.  Applying Theorem \ref{assumetzerozero}, we assume $t_0 = 0$ and disregard the outside option throughout.
 
-\begin{definition}[Ellis's problem]
+\begin{problem}[Ellis's problem]
 Ellis's optimal college application portfolio is given by the solution to the following combinatorial optimization problem.
 \begin{align}
 \begin{split}
@@ -494,22 +496,22 @@ Ellis's optimal college application portfolio is given by the solution to the fo
 \text{subject to}\quad & \mathcal{X}\subseteq\mathcal{C},~~\sum_{j \in \mathcal{X}} g_j \leq H 
 \end{split}
 \end{align}
-\end{definition}
+\end{problem}
 
-The optima for Ellis's problem are not necessarily nested, nor is the number of schools in the optimal portfolio necessarily increasing in $H$. For example, if
-$f = (0.5, 0.5, 0.5)$, $t = (1, 1, 219)$, and $g = (1, 1, 3)$,
-then it is evident that the optimal portfolio for $H = 2$ is $\{1, 2\}$ while that for $H = 3$ is $\{3\}$. 
+In this section, we show that this problem is NP-complete, then provide three algorithmic solutions: an exact branch-and-bound routine, an exact dynamic program, and a fully polynomial-time approximation scheme.
 
 \ifen \subsection{NP-completeness} \else \subsection{NP-completeness}\fi
-In fact, Ellis’s problem is NP-complete, as we will show by a transformation from the binary knapsack problem, which is known to be NP-complete (Garey and Johnson 1979).
+The optima for Ellis's problem are not necessarily nested, nor is the number of schools in the optimal portfolio necessarily increasing in $H$. For example, if
+$f = (0.5, 0.5, 0.5)$, $t = (1, 1, 219)$, and $g = (1, 1, 3)$,
+then it is evident that the optimal portfolio for $H = 2$ is $\{1, 2\}$ while that for $H = 3$ is $\{3\}$. In fact, Ellis’s problem is NP-complete, as we will show by a transformation from the binary knapsack problem, which is known to be NP-complete (Garey and Johnson 1979).
 
-\begin{definition}[Decision form of knapsack problem]
-An \emph{instance} consists of a set $\mathcal{B}$ of $m$ objects; utility values $u_j \in \mathbb{N}$ and weight $w_j \in \mathbb{N}$ for each $j \in \mathcal{B}$; and target utility $U\in \mathbb{N}$ and knapsack capacity $W\in \mathbb{N}$. The instance is called a \emph{yes-instance} if and only if there exists a set $\mathcal{B’} \subseteq \mathcal{B}$ having $\sum_{j \in \mathcal{B’}} u_j \geq U$ and  $\sum_{j \in \mathcal{B’}} w_j \leq W$.
-\end{definition}
+\begin{problem}[Decision form of knapsack problem]
+An \emph{instance} consists of a set $\mathcal{B}$ of $m$ objects, utility values $u_j \in \mathbb{N}$ and weight $w_j \in \mathbb{N}$ for each $j \in \mathcal{B}$, and target utility $U\in \mathbb{N}$ and knapsack capacity $W\in \mathbb{N}$. The instance is called a \emph{yes-instance} if and only if there exists a set $\mathcal{B’} \subseteq \mathcal{B}$ having $\sum_{j \in \mathcal{B’}} u_j \geq U$ and  $\sum_{j \in \mathcal{B’}} w_j \leq W$.
+\end{problem}
 
-\begin{definition}[Decision form of Ellis’s problem]
+\begin{problem}[Decision form of Ellis’s problem]
 An \emph{instance} consists of an instance of Ellis’s problem and a target valuation $V$. The instance is called a \emph{yes-instance} if and only if there exists a portfolio $\mathcal{X} \subseteq \mathcal{C}$ having $v(\mathcal{X}) \geq V$ and  $\sum_{j \in \mathcal{X}} g_j \leq H$.
-\end{definition}
+\end{problem}
 
 \begin{theorem}
 The decision form of Ellis’s problem is NP-complete.
@@ -532,7 +534,7 @@ Let $U_{\mathrm{max}} = \sum_{j \in \mathcal{B}} u_j$ and $\delta = {1} /{m U_{\
 = \sum_{j \in \mathcal{X}} u_j  - 1.
 \end{split}
 \end{align}
-This means that the value of an application portfolio $\mathcal{X}$ for the corresponding knapsack instance is the smallest integer greater than $v( \mathcal{X})$. That is, $\sum_{j \in \mathcal{X}} u_j \geq U$ if and only if $v(\mathcal{X}) \geq U -1$. Taking $V = U-1$ completes the transformation and concludes the proof.  \end{proof}
+This means that the utility of an application portfolio $\mathcal{X}$ in the corresponding knapsack instance is the smallest integer greater than $v( \mathcal{X})$. That is, $\sum_{j \in \mathcal{X}} u_j \geq U$ if and only if $v(\mathcal{X}) \geq U -1$. Taking $V = U-1$ completes the transformation and concludes the proof.  \end{proof}
 
 An intuitive extension of the greedy algorithm for Alma's problem is to iteratively add to $\mathcal{X}$ the school $k$ for which $[ v(\mathcal{X}\cup\{k\}) - v(\mathcal{X}) ] / g_k$ is largest. However, the construction above shows that the objective function of Ellis's problem can approximate that of a knapsack problem with arbitrary precision. Therefore, in pathological examples such as the following, the greedy algorithm can achieve an arbitrarily poor approximation ratio. 
 \begin{example}
@@ -540,12 +542,107 @@ Let $t = (10, 2021)$, $f = (1, 1)$, $g = (1, 500)$, and $H = 500$. Then the gree
 \end{example} 
 % as the following example suggests ...The construction above shows that the objective function of Ellis's problem can approximate that of a knapsack problem with arbitrary precision, and this algorithm
 
+\ifen \subsection{Branch-and-bound algorithm} \else \subsection{분지한계법} \fi
+A traditional approach to knapsack problems is the branch-and-bound framework, which generates subproblems in which the values of one or more decision variables are fixed and uses an upper bound on the objective function to exclude, or \emph{fathom,} branches of the tree of subproblems that cannot yield a solution better than the best solution on hand (Martello and Toth 1990; Kellerer et al. 2004). In this subsection, we present an integer formulation of Ellis's problem and a linear program (LP) that bounds the objective value from above. We tighten the LP bound for specific subproblems by reusing the conditional transformation of the $t_j$-values from Algorithm \ref{algorithmforlargeh}. A branch-and-bound routine emerges naturally from these ingredients.
+
+To begin, let us characterize the portfolio $\mathcal{X}$ as the binary vector $x \in \{0, 1\}^m$, where $x_j = 1 $ if and only if $j \in \mathcal\{X\}$. Then it is not difficult to see that Ellis's problem is equivalent to the following integer nonlinear program. 
+\begin{problem}[Integer NLP for Ellis's problem] \label{integernlp}
+\begin{align}
+\begin{split}
+\text{maximize}\quad &  v(x) = \sum_{j=1}^m \Bigl( t_j f_j  x_j \prod_{i > j} (1 - f_{i} x_i) \Bigr)\\
+\text{subject to}\quad & \sum_{j=1}^m g_j x_j \leq H, ~~ x_i \in \{0, 1\}^m
+\end{split}
+\end{align}
+\end{problem}
+Since the product in $v(x)$ does not exceed one, the following LP relaxation is an upper bound on the valuation of the optimal portfolio.
+\begin{problem}[LP relaxation for Ellis's problem] \label{LPrelaxation}
+\begin{align}
+\begin{split}
+\text{maximize}\quad &  v_{\mathrm{LP}}(x) = \sum_{j=1}^m  t_j f_j  x_j \\
+\text{subject to}\quad & \sum_{j=1}^m g_j x_j \leq H, ~~ x \in [0, 1]^m
+\end{split}
+\end{align}
+\end{problem}
+Problem \ref{LPrelaxation} is a continuous knapsack problem, which is easily solved in $O(m \log m)$ time by the following greedy algorithm: Start with $x = \mathbf{0}$. While $H > 0$, select the school $k$ for which $t_j f_j / g_j$ is highest, set $x_k \gets \min\{1, H / g_k\}$, and set $H \gets H - g_k$ (Dantzig 1957).  
+
+In our branch-and-bound architecture, a \emph{node} is characterized by a three-way partition of schools $\mathcal{C}= \mathcal{I} \cup \mathcal{O} \cup \mathcal{N}$ satisfying $\sum_{j \in \mathcal{I}} g_j \leq H$. $\mathcal{I}$ consists of schools that are ``in'' the application portfolio, $\mathcal{O}$ consists of those that are ``out,'' and $\mathcal{N}$ consists of those that are ``negotiable.'' 
+%This partition induces a constant $\gamma$, transformed $t_j$-values $\bar t$, the residual budget $\mathcal{H}$, and a set $\mathcal{L}$ of pointers to the node's children, if any.
+The choice of partition induces a pair of subproblems. The first subproblem is an instance of Problem \ref{integernlp}, namely
+\begin{align} \label{nodenlpsubproblem}
+\begin{split}
+\text{maximize}\quad &  w(y) = \gamma + \sum_{j \in \mathcal{N}} \Bigl( \bar t_j f_j  y_j \prod_{\substack{i \in \mathcal{N}:\\i > j}} (1 - f_{i} y_i) \Bigr)\\
+\text{subject to}\quad & \sum_{j \in \mathcal{N}} g_j y_j \leq \bar H; ~~ y_j \in \{0, 1\},~~j \in \mathcal{N}.
+\end{split}
+\end{align}
+The second is the corresponding instance of Problem \ref{LPrelaxation}:
+\begin{align} \label{nodelprelaxation}
+\begin{split}
+\text{maximize}\quad &  w_{\mathrm{LP}}(y)= \gamma + \sum_{j \in \mathcal{N}}  \bar t_j f_j  y_j \\
+\text{subject to}\quad & \sum_{j \in \mathcal{N}} g_j y_j \leq \bar H; ~~ y_j \in [0, 1],~~j \in \mathcal{N}
+\end{split}
+\end{align}
+In both subproblems, $\bar H = H - \sum_{j\in \mathcal{I}} g_j$ denotes the residual budget. The parameters $\gamma$ and $\bar t$ are obtained by iteratively applying the transformation \eqref{howtotransformfj} to the schools in $\mathcal{I}$. For each $j\in \mathcal{I}$,  we increment $\gamma$ by the current value of $f_j \bar t_j$, eliminate $j$ from the market, and update the remaining $\bar t_j$-values using \eqref{howtotransformfj}.
+
+Given a node $n  = (\mathcal{I}, \mathcal{O}, \mathcal{N})$, its children are generated as follows. Every node has zero, one, or two children. In the typical case, we select a school $j \in \mathcal{N}$ for which $g_j \leq \bar H$ and generate one child by moving $j$ to $\mathcal{I}$, and another child by moving $j$ it to $\mathcal{O}$. Equivalently, we set $x_j = 1$ in one child and $x_j = 0$ in the other. In principle, any school in $\mathcal{N}$ can be chosen for $j$, but as a greedy heuristic, we choose the school for which the ratio $t_j f_j / g_j$ is highest.  Notice that this method of generating children ensures that each node's $\mathcal{I}$-set differs from its parent's by at most a single school, so the constant $\gamma$ and transformed $\bar t_j$-values for the new node can be obtained by a single application of \eqref{howtotransformfj}. 
+
+There are two atypical cases. First, if every school in $\mathcal{N}$ has $g_j > \bar H$, then there is no school that can be added to $\mathcal{I}$ in a feasible portfolio, and the optimal portfolio on this branch is $\mathcal{I}$ itself. In this case, we generate only one child by moving all the schools from $\mathcal{N}$ to $\mathcal{O}$. Second, if $\mathcal{N} = \O$, then the node has zero children, and as no further branching is possible, the node is called a \emph{leaf.}
+
+In the branch-and-bound algorithm, we store nodes in a tree $\mathfrak{T}$, which contains nodes alongside pointers to their children. Each time a node $n= (\mathcal{I}, \mathcal{O}, \mathcal{N})$ is generated, we record the values $v_{\mathcal{I}}[n] = v(\mathcal{I})$ and $v^*_{\mathrm{LP}}[n]$, the optimal objective value of the LP relaxation \eqref{nodelprelaxation}. Because $\mathcal{I}$ is a feasible portfolio, $v_{\mathcal{I}}[n]$ is a lower bound on the optimal objective value. Moreover, by the argument given in the proof of Theorem \ref{nestedapplication}, the objective function of  \eqref{nodenlpsubproblem} is identical to the function $v(\mathcal{I} \cup \mathcal{Y})$, where $\mathcal{Y} = \{ j: y_j = 1\}$. This means that the optimal objective value $v_{\mathrm{LP}}^*$  is an upper bound on the valuation of any portfolio that contains $\mathcal{I}$ as a subset and does not include any school in $\mathcal{O}$, and hence on the valuation of any portfolio on this branch. Therefore, if upon generating a new node $n_2$, we discover that its objective value $v_{\mathcal{I}}[n_2]$ is greater than $v_{\mathrm{LP}}^*[n_1]$ for some other node $n_1$, then $n_1$ and all its descendants can be eliminated from consideration.
+
+The algorithm is initialized by populating $\mathfrak{T}$ with the root node $n_0 = (\O, \O, \mathcal{C})$. The algorithm terminates when all the nodes that remain on the tree are either leaf nodes, or have had their children explored. 
+
+
+
+
+\begin{algorithm}[H] 
+%\DontPrintSemicolon
+\caption{Branch and bound for Ellis's problem.} \label{ellisbnb}
+\KwData{Utility values $t \in(0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)$.}
+Root node $n_0 \gets (\O, \O, \mathcal{C})$\;
+Current lower bound $L \gets 0$\;
+Initialize tree $\mathfrak{T} \gets \{ n_0\}$\;
+\While{not finished}{
+	$\mathfrak{S} \gets$ the set of non-leaf nodes whose children have not yet been generated\;
+	\uIf{$\mathfrak{S} = \O$}{
+		$\mathcal{X} \gets \mathcal{I}$ from node associated with current value of $L$\;
+		\Return{$\mathcal{X}, L$}
+	}
+	\Else{
+		$n \gets \argmax\{ v_{\mathrm{LP}}^*[n] : n \in \mathfrak{S}\}$\;
+		Generate children of $n$\;
+		\For{each child $n'$ of $n$}{
+			$L \gets \max\{L, v_{\mathcal{I}}[n']\}$\;
+		}
+	}
+	\For{$n''$ in $\mathfrak{T}$} {
+		\lIf{$L >  v_{\mathrm{LP}}^*[n'']$}{fathom $n''$}
+	}
+}
+\end{algorithm}
+
+\begin{theorem}[Validity of Algorithm \ref{ellisbnb}]
+Algorithm \ref{ellisbnb} produces an optimal application portfolio for Ellis's problem.
+\end{theorem}
+
+\begin{proof}
+The discussion above implies that the algorithm only fathoms branches when justified; therefore, if the algorithm terminates, then an optimal solution exists among the leaves of the tree, and it is therefore returned.
+
+To show that the algorithm does not cycle, it suffices to show that no node is generated twice. Suppose not: that two distinct nodes $n_1$ and $n_2$ share the same partition $(\mathcal{I}_{12}, \mathcal{O}_{12}, \mathcal{N}_{12})$. Trace each node's lineage up the tree and let $n$ denote the \emph{first} node at which the lineages meet. $n$ must have two children, or else its sole child is a common ancestor of $n_1$ and $n_2$, and one of these children, say $n_3$, must be an ancestor of $n_1$ while the other, say $n_4$, is an ancestor of $n_2$.  Write $n_3 = (\mathcal{I}_{3}, \mathcal{O}_{3}, \mathcal{N}_{3})$ and $n_4 = (\mathcal{I}_{4}, \mathcal{O}_{4}, \mathcal{N}_{4})$. By the node-generation rule, there is a school $j$ in $\mathcal{I}_3 \cap \mathcal{O}_4$, and the $\mathcal{I}$-set (respectively, $\mathcal{O}$-set) for any descendant of $\mathcal{I}_3$ (respectively, $\mathcal{O}_4$) is a superset of  $\mathcal{I}_3$ (respectively, $\mathcal{O}_4$). Therefore, $j \in \mathcal{I}_{12} \cap \mathcal{O}_{12}$, meaning that $(\mathcal{I}_{12}, \mathcal{O}_{12}, \mathcal{N}_{12})$ is not a partition of $\mathcal{C}$, a contradiction. 
+\end{proof}
+
+The branch-and-bound algorithm is an interesting benchmark, but as a kind of enumeration algorithm, its computation time grows rapidly in the problem size, and unlike the approximation scheme we propose later on, there is no guaranteed bound on the approximation error after a fixed number of iterations. In our numerical experiments, Algorithm \ref{ellisbnb} was impractical for instances containing more than about $m=40$ schools. 
+
+
+
+
+
+
 \ifen \subsection{Pseudopolynomial-time dynamic program} \else\subsection{의사 다항 시간 동적 계획} \fi
 In this subsection, we assume, with a small loss of generality, that $g_j \in \mathbb{N}$ for $j = 1\dots m$ and $H \in\mathbb{N}$, and provide an algorithmic solution to Ellis's problem that runs in $O(Hm + m\log m)$ time and $O(Hm)$ space. The algorithm resembles a familiar dynamic programming algorithm for the binary knapsack problem (Dantzig 1957; \emph{Wikipedia}, s.v. ``Knapsack problem''). Because we cannot assume that $H \leq m$ (as was the case in Alma's problem), this represents a pseudopolynomial-time solution (Garey and Johnson 1979).
 
 For $j = 0 \dots m$ and $h = 0 \dots H$, let $\mathcal{X}[j, h]$ denote the optimal portfolio using only the schools $\{ 1, \dots, j\}$ and costing no more than $h$, and let $V[j,h] = v(\mathcal{X}[j, h])$.  It is clear that if $j=0$ or $h=0$, then $\mathcal{X}[j, h] = \O$ and $V[j, h] = 0$.  For convenience, we also define $V[j, h] = -\infty$ for all $h < 0$.
 
-For the remaining indices, $\mathcal{X}[j, h]$ either contains $j$ or not. If it does not contain $j$, then $\mathcal{X}[j, h] = \mathcal{X}[j-1, h]$. On the other hand, if  $\mathcal{X}[j, h]$ contains $j$, then its value is $(1 - f_j) v(\mathcal{X}[j, h]\setminus \{j\}) + f_j t_j$. This requires that $\mathcal{X}[j, h]\setminus \{j\}$ make optimal use of the remaining budget over the remaining schools; that is, $\mathcal{X}[j, h] = \mathcal{X}[j-1, h - g_j] \cup\{j\}$. From these observations, we obtain the following Bellman equation for $ j = 1\dots m$ and $h = 1\dots H$:
+For the remaining indices, $\mathcal{X}[j, h]$ either contains $j$ or not. If it does not contain $j$, then $\mathcal{X}[j, h] = \mathcal{X}[j-1, h]$. On the other hand, if  $\mathcal{X}[j, h]$ contains $j$, then its valuation is $(1 - f_j) v(\mathcal{X}[j, h]\setminus \{j\}) + f_j t_j$. This requires that $\mathcal{X}[j, h]\setminus \{j\}$ make optimal use of the remaining budget over the remaining schools; that is, $\mathcal{X}[j, h] = \mathcal{X}[j-1, h - g_j] \cup\{j\}$. From these observations, we obtain the following Bellman equation for $ j = 1\dots m$ and $h = 1\dots H$:
 \begin{align}
 V[j, h] = \max\bigl\{ V[j-1, h], (1 - f_j) V[j-1, h-g_j] + f_j t_j \bigr\}
 \end{align}
@@ -554,7 +651,7 @@ with the convention that $ -\infty \cdot 0 = -\infty$. The corresponding optimal
 \begin{algorithm}[H] 
 %\DontPrintSemicolon
 \caption{Dynamic program for Ellis's problem with integral application costs.} \label{ellisDP1}
-\KwData{Utility values $t \in[0, \infty)^m$, admissions probabilities $f \in [0, 1]^m$, application costs $g \in \mathbb{N}^m$, budget $H \in\mathbb{N}$.}
+\KwData{Utility values $t \in[0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in \mathbb{N}^m$, budget $H \in\mathbb{N}$.}
 Index schools in ascending order by $t$\;
 %\SetKwProg{Fn}{function}{ do}{end}
 %\Fn{$V(j, h)$}{
@@ -673,15 +770,15 @@ Optimality follows from the foregoing discussion. Sorting $t$ is $O(m \log m)$. 
 As with the knapsack problem, Ellis's problem admits a complementary dynamic program that iterates on the value of the cheapest portfolio instead of on the cost of the most valuable portfolio. We will use this algorithm as the basis for a fully polynomial-time approximation scheme for Ellis's problem that uses $O(m^3 / \varepsilon)$ time and space. Here we assume, with a small loss of generality, that each $t_j$ is a natural number.
 %Now, we modify Algorithm \ref{ellisDP2} into a fully polynomial-time approximation scheme for Ellis's problem.
 
-We will represent the approximate value of portfolios using a fixed-point decimal with a precision of $P$, where $P$ is the number of digits to retain after the decimal point. Let $r[x] = \lfloor 10^P x \rfloor 10^{-P}$ denote the value of $x$ rounded down to its nearest fixed-point representation. Since $\bar U = \sum_{j\in \mathcal{C}} f_j t_j$ is an upper bound on the value of any portfolio, and since we will ensure that each fixed-point approximation is an underestimate of the portfolio's true value, the set $\mathcal{V}$ of possible valuations possible in the fixed-point framework is finite:
+We will represent approximate portfolio valuations using a fixed-point decimal with a precision of $P$, where $P$ is the number of digits to retain after the decimal point. Let $r[x] = \lfloor 10^P x \rfloor 10^{-P}$ denote the value of $x$ rounded down to its nearest fixed-point representation. Since $\bar U = \sum_{j\in \mathcal{C}} f_j t_j$ is an upper bound on the valuation of any portfolio, and since we will ensure that each fixed-point approximation is an underestimate of the portfolio's true valuation, the set $\mathcal{V}$ of possible valuations possible in the fixed-point framework is finite:
 \begin{equation}
 \mathcal{V} = \Bigl\{0, 1\times 10^{-P}, 2\times 10^{-P}, \dots, r\bigl[\bar U- 1\times 10^{-P}\bigr], r\bigl[\bar U\bigr]\Bigr\}
 \end{equation}
 Then $|\mathcal{V} | = \bar U \times 10^P + 1$.
 
-For the remainder of this subsection, unless otherwise specified, the word \emph{value} refers to a portfolio’s value within the fixed-point framework, with the understanding that this is an approximation. We will account for the approximation error below when we prove the dynamic program’s validity. 
+For the remainder of this subsection, unless otherwise specified, the word \emph{valuation} refers to a portfolio’s valuation within the fixed-point framework, with the understanding that this is an approximation. We will account for the approximation error below when we prove the dynamic program’s validity. 
 
-For integers $0 \leq j \leq m$ and $v \in [-\infty, 0) \cup \mathcal{V}$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio that uses only schools $\{ 1, \dots, j\}$ and has value at least $v$, if such a portfolio exists. Denote its value by $G[j, v]$, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$, and that if $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
+For integers $0 \leq j \leq m$ and $v \in [-\infty, 0) \cup \mathcal{V}$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio that uses only schools $\{ 1, \dots, j\}$ and has valuation at least $v$, if such a portfolio exists. Denote its cost by $G[j, v]$, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$, and that if $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
 \begin{align} \label{recursionrelationforcostmindp}
 G[j, v] &=
 \begin{cases}
@@ -702,7 +799,7 @@ r\left[\frac{f_j}{1 - f_j} (t_j - v)\right], \quad & f_j < 1\\
 In the $t_j < v$ case, any feasible portfolio must be composed of schools with utility less than $v$, and therefore its valuation can not equal $v$, meaning that $\mathcal{W}[j, v]$ is undefined. In the $t_j \geq v$ case, the first argument to $\min\{\}$ says simply that omitting $j$ and choosing $\mathcal{W}[j-1, v]$ is a permissible choice for $\mathcal{W}[j, v]$. If, on the other hand, $j \in \mathcal{W}[j, v]$, then
 \begin{equation} \label{solvemeforvwjvminusj}
 v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j.\end{equation}
-Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a value of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. By rounding this value down, we ensure that the true valuation of $\mathcal{W}[j, v]$ is \emph{at least} $v - \Delta$. When $t_j \geq v$ and $f_j = 1$, the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
+Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a valuation of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. By rounding this value down, we ensure that the true valuation of $\mathcal{W}[j, v]$ is \emph{at least} $v - \Delta$. When $t_j \geq v$ and $f_j = 1$, the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
 \begin{equation}G[j, v] = \min\bigl\{G[j-1, v], g_j \bigr\}.\end{equation}
 Defining $\Delta_j(v) = \infty$ in this case ensures that $g_j + G[j-1, v-\Delta_j(v)] = g_j+ G[j-1, v-\infty] = g_j $ as required.
 %we have $t_j < v$, and since no portfolio can be more valueable than the largest $t_j$ value of its elements, we must have $G[j, v] =\infty$. Defining $\Delta$ as zero in this guess automatically chooses $G[j, v] = G[j-1, v] = \infty$ for the same reason.
@@ -744,10 +841,10 @@ Algorithm \ref{ellisDP3} produces a $(1 - \varepsilon)$-optimal application port
 (Optimality.) Let $\mathcal{W}$ denote the output of Algorithm \ref{ellisDP3} and $\mathcal{X}$ the true optimum. We know that $v(\mathcal{X}) \leq \bar U$, and because each singleton portfolio is feasible, $\mathcal{X}$ must be more valuable than the average singleton portfolio; that is, $v(\mathcal{X}) \geq \bar U / m$. 
 
 % In the main loop, each time the target valuation $v$ is updated using
-Because $\Delta_j(v)$ is rounded down in the recursion relation defined by \eqref{recursionrelationforcostmindp} and \eqref{deltajvdef}, if $j \in \mathcal{W}[j, v]$, then the true value of $(1 - f_j) v\bigl(\mathcal{W}[j-1, v- \Delta_j(v)]\bigr) + f_j t_j$ may exceed the fixed-point value $v$ of $\mathcal{W}[j, v]$, but not by more than $10^{-P}$. This error accumulates with each school added to $\mathcal{W}$, but the number of additions is at most $m$. Therefore, where $v'(\mathcal{W})$ denotes the fixed-point valuation of $\mathcal{W}$ recorded in line \ref{vrecordedhere} of the algorithm, 
+Because $\Delta_j(v)$ is rounded down in the recursion relation defined by \eqref{recursionrelationforcostmindp} and \eqref{deltajvdef}, if $j \in \mathcal{W}[j, v]$, then the true value of $(1 - f_j) v\bigl(\mathcal{W}[j-1, v- \Delta_j(v)]\bigr) + f_j t_j$ may exceed the fixed-point valuation $v$ of $\mathcal{W}[j, v]$, but not by more than $10^{-P}$. This error accumulates with each school added to $\mathcal{W}$, but the number of additions is at most $m$. Therefore, where $v'(\mathcal{W})$ denotes the fixed-point valuation of $\mathcal{W}$ recorded in line \ref{vrecordedhere} of the algorithm, 
 $v(\mathcal{W}) - v'(\mathcal{W}) \leq m 10^{-P}$.
 
-We can define $v'(\mathcal{X})$ analogously as the fixed-point valuation of $\mathcal{X}$ when its elements are added in index order and its value is updated and rounded down to the nearest multiple of $10^{-P}$ at each addition in accordance with \eqref{solvemeforvwjvminusj}. By the same logic, 
+We can define $v'(\mathcal{X})$ analogously as the fixed-point valuation of $\mathcal{X}$ when its elements are added in index order and its valuation is updated and rounded down to the nearest multiple of $10^{-P}$ at each addition in accordance with \eqref{solvemeforvwjvminusj}. By the same logic, 
 $v(\mathcal{X}) - v'(\mathcal{X}) \leq m 10^{-P}$. The optimality of $\mathcal{W}$ in the fixed-point environment implies that $v'(\mathcal{W}) \geq v'(\mathcal{X})$. 
 
 Applying these observations, we have
@@ -809,6 +906,8 @@ Budish, Eric. 2011. ``The Combinatorial Assignment Problem: Approximate Competit
 
 Dantzig, George B. 1957. ``Discrete-Variable Extremum Problems.'' \emph{Operations Research} 5 (2): 266--88.
 
+Kellerer, Hans, Ulrich Pferschy, and David Pisinger. 2004. \emph{Knapsack Problems.} Berlin: Springer.
+
 \ifen Kim, Minhee. 2015. ``[College application strategy] Six chances total\dots divide applications across reach, target, and safety schools'' (in Korean). Jungang Ilbo, Aug. 26. \url{https://doi.org/10.1086/664613}\fi
 
 Fisher, Marshall, George Nemhauser, and Laurence Wolsey. 1978. ``An analysis of approximations for maximizing submodular set functions—I.'' \emph{Mathematical Programming} 14: 265--94. 
@@ -818,6 +917,8 @@ Fredman, Michael Lawrence and Robert Tarjan. 1987. ``Fibonacci heaps and their u
 Fu, Chao. 2014. ``Equilibrium Tuition, Applications, Admissions, and Enrollment in the College Market.'' \emph{Journal of Political Economy} 122 (2): 225--81. \url{https://doi.org/10.1086/675503}. 
 
 Garey, Michael and David Johnson. 1979. \emph{Computers and Intractability: A Guide to the Theory of NP-Completeness.} New York: W. H. Freeman and Company. 
+
+Martello, Silvano and Paolo Toth. 1990. \emph{Knapsack Problems: Algorithms and Computer Implementations.} New York: John Wiley \& Sons. 
 
 Meucci, Attilio. 2005. \emph{Risk and Asset Allocation.} Berlin: Springer-Verlag, 2005. 
 
