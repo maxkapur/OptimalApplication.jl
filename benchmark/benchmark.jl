@@ -11,7 +11,10 @@ fullscale = false
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
 
 # Number of times to repeat each computation, where min of these is reported as time
-n_reps = fullscale ? 3 : 1
+n_reps = fullscale ? 3 : 2
+
+# Number of markets to test at each intersection of the experimental variables
+n_markets = fullscale ? 10 : 2
 
 function printheader(s)
     printstyled(s * "\n", bold = true, color = 222)
@@ -37,7 +40,6 @@ end
 function benchmark1()
     printheader("Benchmark 1: Homogeneous-cost algorithms")
     M = fullscale ? [5, 50, 500, 5000] : [5, 10]
-    n_markets = fullscale ? 50 : 10
 
     sizes = zeros(Int64, n_markets, length(M))
     times_dict = zeros(Float64, n_markets, length(M))
@@ -69,11 +71,10 @@ end
 function benchmark2()
     printheader("Benchmark 2: Heterogeneous-cost algorithms")
     M = fullscale ? [5, 50, 500] : [5, 10]
-    n_markets = fullscale ? 50 : 10
     bnbcutoff = fullscale ? 32 : 6
     epsilons = [0.5, 0.05]
 
-    dtype = Union{Float64, Missing}
+    dtype = Union{Float64,Missing}
 
     sizes = zeros(Int64, n_markets, length(M))
     times_bnb = zeros(dtype, n_markets, length(M))
@@ -92,7 +93,7 @@ function benchmark2()
                 times_bnb[i, j] = 1000 * minimum(@elapsed optimalportfolio_branchbound(mkt) for r in 1:n_reps)
             end
             times_dp[i, j] = 1000 * minimum(@elapsed optimalportfolio_dynamicprogram(mkt) for r in 1:n_reps)
-        
+
             for (k, epsilon) in enumerate(epsilons)
                 times_fptas[k][i, j] = 1000 * minimum(@elapsed optimalportfolio_fptas(mkt, epsilon) for r in 1:n_reps)
             end

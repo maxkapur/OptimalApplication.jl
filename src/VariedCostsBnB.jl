@@ -1,3 +1,8 @@
+"""
+Contains information about a subproblem in the branch and bound scheme.
+`I` is a set of schools that are "in" the portfolio and `N` is a set that 
+are "negotiable" and used to generate an LP upper bound and child nodes.
+"""
 mutable struct Node{jType<:Integer}
     I::Set{jType}
     N::Set{jType}
@@ -7,6 +12,7 @@ mutable struct Node{jType<:Integer}
     v_LP::AbstractFloat
     children::Set{UInt64}
     isleaf::Bool
+    # isleaf flag is actually superfluous: Can just check isempty(N)
 
     function Node(I::Set, N::Set, t̄::Dict, H̄::Real, v_I::Real, mkt::VariedCostsMarket)
         # For generating a new node with its LP relaxation value and empty child set
@@ -114,16 +120,27 @@ function generatechildren!(nd::Node, mkt::VariedCostsMarket)
 end
 
 
-function fathom!(tree, fathomhash, LB_hash)
+"""
+    fathom!(tree, fathomhash)
+
+Removes the node with key `fathomhash` and all its descendants from `tree`.
+"""
+function fathom!(tree::Dict{UInt64,Node}, fathomhash::UInt64)
     for ndhash_ in tree[fathomhash].children
         # Need to check if it has a key since we might have fathomed it somewhere else
-        haskey(tree, ndhash_) && fathom!(tree, ndhash_, LB_hash) # && !tree[ndhash_].isleaf
+        haskey(tree, ndhash_) && fathom!(tree, ndhash_)f
     end
 
     delete!(tree, fathomhash)
 end
 
 
+"""
+    optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit=10000, verbose=false)
+
+Use the branch-and-bound algorithm to produce the optimal portfolio for the
+market `mkt` with varying application costs. Intractable for large markets. 
+"""
 function optimalportfolio_branchbound(mkt; maxit = 10000::Integer, verbose = false::Bool)
     mkt.m > 32 && @warn "Branch and bound is slow for large markets"
 
@@ -163,7 +180,7 @@ function optimalportfolio_branchbound(mkt; maxit = 10000::Integer, verbose = fal
             fathomhash = findfirst(nd -> nd.v_LP < LB, tree)
             while !isnothing(fathomhash)
                 verbose && println("Fathoming node $fathomhash")
-                fathom!(tree, fathomhash, LB_hash)
+                fathom!(tree, fathomhash)
 
                 fathomhash = findfirst(nd -> nd.v_LP < LB, tree)
             end
@@ -171,6 +188,6 @@ function optimalportfolio_branchbound(mkt; maxit = 10000::Integer, verbose = fal
     end
 
     @warn "Unable to find optimum in $maxit iterations; returning best so far.\n" *
-        "         Worst-case optimality ratio: $(tree[LB_hash].v_I/rootnode.v_LP)"
+          "         Worst-case optimality ratio: $(tree[LB_hash].v_I/rootnode.v_LP)"
     return collect(tree[LB_hash].I), tree[LB_hash].v_I
 end
