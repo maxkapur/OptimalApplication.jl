@@ -1,40 +1,3 @@
-using Random
-using OptimalApplication
-import Base.hash
-import Base.isless
-
-function make_correlated_market(m)
-    A = 10
-    t = ceil.(Int, 10 * randexp(m))
-    sort!(t)
-    f = inv.(t .+ 10 * rand(m))
-    g = rand(5:10, m)
-    H = sum(g) ÷ 2
-    return f, t, g, H
-end
-
-
-struct VariedCostsMarket
-    f::Vector{<:Real}
-    t::Vector{<:Real}
-    g::Vector{<:Real}
-    H::Real
-    ft::Vector{<:Real}      # = f .* t
-    omf::Vector{<:Real}     # = 1 .- f
-
-    function VariedCostsMarket(
-        f::Vector{<:Real},
-        t::Vector{<:Real},
-        g::Vector{<:Real},
-        H::Real)
-
-        return new(f, t, g, H,
-            f .* t,
-            1 .- f)
-    end
-end
-
-
 mutable struct Node{jType<:Integer}
     I::Set{jType}
     N::Set{jType}
@@ -89,20 +52,19 @@ function generatechildren!(nd::Node, mkt::VariedCostsMarket)
     newI = copy(nd.I)
     newN = copy(nd.N)
 
-    # You may be tempted to divide by g[j] here, but this is unwise, 
-    # because the optimal addition on this branch is always the affordable
-    # school with highest ft[j]. Different from knapsack.
-
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
     if isempty(fltr)
         child = Node(newI, Set{eltype(nd.I)}(), nd.t̄, nd.H̄, nd.v_I, mkt)
         push!(nd.children, hash(child))
-        return (child, )
+        return (child,)
     end
 
-    # School we will branch on
+    # School we will branch on.
+    # You may be tempted to divide by g[j] here, but this is unwise, 
+    # because the optimal addition on this branch is always the affordable
+    # school with highest ft[j]. Different from knapsack.
     i = argmax(j -> mkt.f[j] * nd.t̄[j], fltr)
 
     delete!(newN, i)
@@ -131,7 +93,7 @@ function generatechildren!(nd::Node, mkt::VariedCostsMarket)
 
         push!(nd.children, hash(child1), hash(child2))
         return child1, child2
-    else 
+    else
         # Then mkt.g[i] == nd.H̄
         # Leaf node with i
         t̄1 = copy(nd.t̄)
@@ -162,18 +124,20 @@ function fathom!(tree, fathomhash, LB_hash)
 end
 
 
-function optimalportfolio_branchbound(mkt; maxit = 1000)
+function optimalportfolio_branchbound(mkt; maxit = 10000::Integer, verbose = false::Bool)
+    mkt.m > 32 && @warn "Branch and bound is slow for large markets"
+
     tree = Dict{UInt64,Node}()
 
     C = Set(1:length(mkt.t))
 
-    rootnode = Node(Set{eltype(C)}(), C, Dict(zip(1:m, Float64.(mkt.t))), mkt.H, 0, mkt)
+    rootnode = Node(Set{eltype(C)}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0, mkt)
     LB = 0
     LB_hash = hash(rootnode)
     push!(tree, LB_hash => rootnode)
 
     for k in 1:maxit
-        @show k, LB, length(tree)
+        verbose && @show k, LB, length(tree)
 
         fltr = filter(hash_nd -> !hash_nd[2].isleaf && isempty(hash_nd[2].children), tree)
 
@@ -195,30 +159,18 @@ function optimalportfolio_branchbound(mkt; maxit = 1000)
                 LB = child.v_I
                 LB_hash = childhash
             end
-        
+
             fathomhash = findfirst(nd -> nd.v_LP < LB, tree)
             while !isnothing(fathomhash)
-                println("Fathoming node $fathomhash")
+                verbose && println("Fathoming node $fathomhash")
                 fathom!(tree, fathomhash, LB_hash)
-        
+
                 fathomhash = findfirst(nd -> nd.v_LP < LB, tree)
             end
         end
     end
 
+    @warn "Unable to find optimum in $maxit iterations; returning best so far.\n" *
+        "         Worst-case optimality ratio: $(tree[LB_hash].v_I/rootnode.v_LP)"
     return collect(tree[LB_hash].I), tree[LB_hash].v_I
 end
-
-m = 20
-mkt = VariedCostsMarket(make_correlated_market(m)...)
-
-Y, w = optimalportfolio_enumerate(mkt.f, mkt.t, mkt.g, mkt.H)
-X, v = optimalportfolio_branchbound(mkt; maxit=1000)
-@assert Y == sort(X)
-# for (hash, nd) in tree
-#     if !isempty(nd.children)
-#         for chash in nd.children
-#             @show tree[chash].v_I ≤ tree[chash].v_LP ≤ nd.v_LP
-#         end
-#     end
-# end
