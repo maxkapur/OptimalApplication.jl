@@ -128,10 +128,16 @@ function optimalportfolio_branchbound(mkt; maxit = 1000000::Integer, verbose = f
     LB = 0
     LB_node = rootnode
 
-    tree = MutableBinaryMaxHeap{Node{eltype(C)}}()
-    treekeys = Set{Int64}()
+    # Commented out is an implementation that stores tree as a heap. The dict is faster because
+    # fathoming nodes is slow on the heap. 
 
-    push!(treekeys, push!(tree, rootnode))
+    # tree = MutableBinaryMaxHeap{Node{eltype(C)}}()        
+    # treekeys = Set{Int64}()
+
+    # push!(treekeys, push!(tree, rootnode))
+
+    tree = Dict{UInt64,Node}()
+    push!(tree, hash(rootnode) => rootnode)
 
     for k in 1:maxit
         verbose && @show k, LB, length(tree)
@@ -141,9 +147,12 @@ function optimalportfolio_branchbound(mkt; maxit = 1000000::Integer, verbose = f
             return collect(LB_node.I), LB
         else
             # Select the node with the highest UB
-            thisnode, thisnodehandle = top_with_handle(tree)
-            pop!(tree)
-            delete!(treekeys, thisnodehandle)
+            # thisnode, thisnodehandle = top_with_handle(tree)
+            # pop!(tree)
+            # delete!(treekeys, thisnodehandle)
+        
+            thisnode, thisnodehandle = findmax(tree)
+            delete!(tree, thisnodehandle)
         end
 
         children = generatechildren(thisnode, mkt)
@@ -156,15 +165,17 @@ function optimalportfolio_branchbound(mkt; maxit = 1000000::Integer, verbose = f
                 LB = child.v_I
             end
 
-            isempty(child.N) || push!(treekeys, push!(tree, child))
+            # isempty(child.N) || push!(treekeys, push!(tree, child))
+            isempty(child.N) || push!(tree, hash(child) => child)
         end
 
         if newLB
-            for k in treekeys
+            # for k in treekeys
+            for k in keys(tree)
                 if tree[k].v_LP < LB
                     verbose && println("Fathoming node $k")
                     delete!(tree, k)
-                    delete!(treekeys, k)
+                    # delete!(treekeys, k)
                 end
             end
         end

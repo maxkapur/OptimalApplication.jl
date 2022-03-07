@@ -1,4 +1,3 @@
-
 """
     College(f, t, ft, omf)
 
@@ -32,7 +31,7 @@ application costs and the corresponding portfolio valuations.
 """
 function applicationorder(
     mkt::SameCostsMarket;
-    datastructure = :heap::Symbol)::Tuple{Vector{Int64},Vector{Float64}}
+    datastructure = :heap::Symbol, verbose=false::Bool)::Tuple{Vector{Int64},Vector{Float64}}
 
     apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
@@ -43,7 +42,16 @@ function applicationorder(
         end
 
         onheap = Set(1:mkt.m)
+    
         for j in 1:mkt.h
+            if verbose
+                K = sort(collect(onheap))
+                println("C = ", K)
+                println("f = ", [mkt_heap[j].f for j in K])
+                println("t = ", [mkt_heap[j].t for j in K])
+                println("ft= ", [mkt_heap[j].ft for j in K])
+            end
+
             c_k, k = top_with_handle(mkt_heap)
             v[j] = get(v, j - 1, 0) + c_k.ft
 
@@ -64,8 +72,16 @@ function applicationorder(
         for j in 1:mkt.m
             push!(mkt_dict, j => College(mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]))
         end
-
+        
         for j in 1:mkt.h
+            if verbose
+                K = sort(collect(keys(mkt_dict)))
+                println("C = ", K)
+                println("f = ", [mkt_dict[j].f for j in K])
+                println("t = ", [mkt_dict[j].t for j in K])
+                println("ft= ", [mkt_dict[j].ft for j in K])
+            end
+
             c_k, k = findmax(mkt_dict)
             v[j] = get(v, j - 1, 0) + c_k.ft
 
