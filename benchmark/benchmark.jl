@@ -70,8 +70,8 @@ end
 
 function benchmark2()
     printheader("Benchmark 2: Heterogeneous-cost algorithms")
-    M = fullscale ? 2 .^ (4:9) : [5, 10]
-    bnbcutoff = fullscale ? 33 : 6
+    M = fullscale ? 2 .^ (3:9) : [5, 10]
+    bnbcutoff = fullscale ? 20 : 6
     epsilons = [0.5, 0.05]
 
     dtype = Union{Float64,Missing}
@@ -90,7 +90,7 @@ function benchmark2()
             mkt = randVCM(m)
             sizes[i, j] = m
             if m ≤ bnbcutoff
-                times_bnb[i, j] = 1000 * minimum(@elapsed optimalportfolio_branchbound(mkt) for r in 1:n_reps)
+                times_bnb[i, j] = 1000 * minimum(@elapsed optimalportfolio_branchbound(mkt; maxit=40000) for r in 1:n_reps)
             end
             times_dp[i, j] = 1000 * minimum(@elapsed optimalportfolio_dynamicprogram(mkt) for r in 1:n_reps)
 

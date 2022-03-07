@@ -1,6 +1,6 @@
 """
 Contains information about a subproblem in the branch and bound scheme.
-`I` is a set of schools that are "in" the portfolio and `N` is a set that 
+`I` is a set of schools that are "in" the portfolio and `N` is the set that 
 are "negotiable" and used to generate an LP upper bound and child nodes.
 """
 mutable struct Node{jType<:Integer}
@@ -10,8 +10,6 @@ mutable struct Node{jType<:Integer}
     H̄::Real
     v_I::AbstractFloat
     v_LP::AbstractFloat
-    children::Set{UInt64}
-    isleaf::Bool
     # isleaf flag is actually superfluous: Can just check isempty(N)
 
     function Node(I::Set, N::Set, t̄::Dict, H̄::Real, v_I::Real, mkt::VariedCostsMarket)
@@ -19,7 +17,7 @@ mutable struct Node{jType<:Integer}
 
         # Leaf node
         if isempty(N)
-            return new{eltype(I)}(I, N, t̄, H̄, v_I, v_I, Set{UInt64}(), true)
+            return new{eltype(I)}(I, N, t̄, H̄, v_I, v_I)
         end
 
         j_order = collect(N)
@@ -39,28 +37,30 @@ mutable struct Node{jType<:Integer}
         # Need to use goto here for the case in which all of N fits within H̄
         @label done
 
-        return new{eltype(I)}(I, N, t̄, H̄, v_I, v_LP, Set{UInt64}(), false)
+        return new{eltype(I)}(I, N, t̄, H̄, v_I, v_LP)
     end
 end
 
 hash(nd::Node) = hash((nd.I, nd.N))
+# Depth-first strategy:
+# isless(nd1::Node, nd2::Node) = isless(nd1.v_I, nd2.v_I)
+# Breadth-first strategy:
 isless(nd1::Node, nd2::Node) = isless(nd1.v_LP, nd2.v_LP)
 
 
 
 """
-    generatechildren!(nd, mkt)
+    generatechildren(nd, mkt)
 
 With respect to the data in `mkt`, generates the child(ren) of node `nd` and writes 
 their hashes to `nd.children`.
 """
-function generatechildren!(nd::Node, mkt::VariedCostsMarket)
+function generatechildren(nd::Node, mkt::VariedCostsMarket)
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
     if isempty(fltr)
         child = Node(nd.I, Set{eltype(nd.I)}(), nd.t̄, nd.H̄, nd.v_I, mkt)
-        push!(nd.children, hash(child))
         return (child,)
     end
 
@@ -92,7 +92,6 @@ function generatechildren!(nd::Node, mkt::VariedCostsMarket)
             nd.v_I + mkt.f[i] * nd.t̄[i],
             mkt)
 
-        push!(nd.children, hash(child1), hash(child2))
         return child1, child2
     else
         # Then mkt.g[i] == nd.H̄
@@ -109,24 +108,8 @@ function generatechildren!(nd::Node, mkt::VariedCostsMarket)
 
         child1 = Node(union(nd.I, i), Set{eltype(nd.I)}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
 
-        push!(nd.children, hash(child1), hash(child2))
         return child1, child2
     end
-end
-
-
-"""
-    fathom!(tree, fathomhash)
-
-Removes the node with key `fathomhash` and all its descendants from `tree`.
-"""
-function fathom!(tree::Dict{UInt64,Node}, fathomhash::UInt64)
-    for ndhash_ in tree[fathomhash].children
-        # Need to check if it has a key since we might have fathomed it somewhere else
-        haskey(tree, ndhash_) && fathom!(tree, ndhash_)f
-    end
-
-    delete!(tree, fathomhash)
 end
 
 
@@ -136,57 +119,58 @@ end
 Use the branch-and-bound algorithm to produce the optimal portfolio for the
 market `mkt` with varying application costs. Intractable for large markets. 
 """
-function optimalportfolio_branchbound(mkt; maxit = 10000::Integer, verbose = false::Bool)
-    mkt.m > 32 && @warn "Branch and bound is slow for large markets"
-
-    tree = Dict{UInt64,Node}()
+function optimalportfolio_branchbound(mkt; maxit = 1000000::Integer, verbose = false::Bool)
+    mkt.m ≥ 30 && @warn "Branch and bound is slow for large markets"
 
     C = Set(1:length(mkt.t))
 
     rootnode = Node(Set{eltype(C)}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0, mkt)
     LB = 0
-    LB_hash = hash(rootnode)
-    push!(tree, LB_hash => rootnode)
+    LB_node = rootnode
+
+    tree = MutableBinaryMaxHeap{Node{eltype(C)}}()
+    treekeys = Set{Int64}()
+
+    push!(treekeys, push!(tree, rootnode))
 
     for k in 1:maxit
         verbose && @show k, LB, length(tree)
 
-        fltr = filter(hash_nd -> !hash_nd[2].isleaf && isempty(hash_nd[2].children), tree)
-
-        if isempty(fltr)
+        if isempty(tree)
             # All branches have either reached leaves or fathomed: done
-            return collect(tree[LB_hash].I), tree[LB_hash].v_I
+            return collect(LB_node.I), LB
         else
             # Select the node with the highest UB
-            thisnodehash = argmax(fltr)
+            thisnode, thisnodehandle = top_with_handle(tree)
+            pop!(tree)
+            delete!(treekeys, thisnodehandle)
         end
 
-        children = generatechildren!(tree[thisnodehash], mkt)
+        children = generatechildren(thisnode, mkt)
 
         newLB = false
         for child in children
-            childhash = hash(child)
-        
-            push!(tree, childhash => child)
             if child.v_I > LB
                 newLB = true
+                LB_node = child
                 LB = child.v_I
-                LB_hash = childhash        
             end
+
+            isempty(child.N) || push!(treekeys, push!(tree, child))
         end
-        
+
         if newLB
-            fathomhash = findfirst(nd -> nd.v_LP < LB, tree)
-            while !isnothing(fathomhash)
-                verbose && println("Fathoming node $fathomhash")
-                fathom!(tree, fathomhash)
-        
-                fathomhash = findfirst(nd -> nd.v_LP < LB, tree)
+            for k in treekeys
+                if tree[k].v_LP < LB
+                    verbose && println("Fathoming node $k")
+                    delete!(tree, k)
+                    delete!(treekeys, k)
+                end
             end
         end
     end
 
     @warn "Unable to find optimum in $maxit iterations; returning best so far.\n" *
-          "         Worst-case optimality ratio: $(tree[LB_hash].v_I/rootnode.v_LP)"
-    return collect(tree[LB_hash].I), tree[LB_hash].v_I
+          "         Worst-case optimality ratio: $(LB/rootnode.v_LP)"
+    return collect(LB_node.I), LB
 end

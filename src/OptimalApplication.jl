@@ -3,7 +3,6 @@ module OptimalApplication
 using Combinatorics: combinations, multiset_combinations
 using DataStructures
 import Base.isless
-import Base.hash
 
 
 export
