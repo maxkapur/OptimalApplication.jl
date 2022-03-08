@@ -45,7 +45,7 @@ hash(nd::Node) = hash((nd.I, nd.N))
 # Depth-first strategy:
 # isless(nd1::Node, nd2::Node) = isless(nd1.v_I, nd2.v_I)
 # Breadth-first strategy:
-isless(nd1::Node, nd2::Node) = isless(nd1.v_LP, nd2.v_LP)
+# isless(nd1::Node, nd2::Node) = isless(nd1.v_LP, nd2.v_LP)
 
 
 
@@ -65,8 +65,8 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)
     end
 
     # School we will branch on. In principle it can by any school in fltr.
-    i = argmax(j -> mkt.f[j] * nd.t̄[j] / mkt.g[j], fltr)
-
+    # i = argmax(j -> mkt.f[j] * nd.t̄[j] / mkt.g[j], fltr)
+    i = argmax(j -> mkt.f[j] * nd.t̄[j], fltr)
 
     newN = setdiff(nd.N, i)
 
@@ -151,8 +151,12 @@ function optimalportfolio_branchbound(mkt; maxit = 1000000::Integer, verbose = f
             # pop!(tree)
             # delete!(treekeys, thisnodehandle)
         
-            thisnode, thisnodehandle = findmax(tree)
+            thisnodehandle, thisnode = argmax(hash_nd -> hash_nd[2].v_LP, tree)
             delete!(tree, thisnodehandle)
+            
+            # Another option: Select the node with best obj value. Works pretty bad. 
+            # thisnodehandle, thisnode = argmax(hash_nd -> hash_nd[2].v_I, tree)
+            # delete!(tree, thisnodehandle)
         end
 
         children = generatechildren(thisnode, mkt)

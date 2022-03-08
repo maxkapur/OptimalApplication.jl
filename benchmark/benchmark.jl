@@ -1,9 +1,11 @@
 using OptimalApplication
 using DataFrames
+using PrettyTables
 using Random
 using StatsBase
 using Statistics
 using Base.Threads
+import Printf: @sprintf
 
 fullscale = false
 
@@ -50,8 +52,8 @@ function benchmark1()
         for (j, m) in enumerate(M)
             mkt = randSCM(m)
             sizes[i, j] = m
-            times_dict[i, j] = 1000 * minimum(@elapsed applicationorder(mkt; datastructure = :dict) for r in 1:n_reps)
-            times_heap[i, j] = 1000 * minimum(@elapsed applicationorder(mkt; datastructure = :heap) for r in 1:n_reps)
+            times_dict[i, j] = minimum(@elapsed applicationorder(mkt; datastructure = :dict) for r in 1:n_reps)
+            times_heap[i, j] = minimum(@elapsed applicationorder(mkt; datastructure = :heap) for r in 1:n_reps)
         end
     end
 
@@ -90,12 +92,12 @@ function benchmark2()
             mkt = randVCM(m)
             sizes[i, j] = m
             if m ≤ bnbcutoff
-                times_bnb[i, j] = 1000 * minimum(@elapsed optimalportfolio_branchbound(mkt; maxit=40000) for r in 1:n_reps)
+                times_bnb[i, j] = minimum(@elapsed optimalportfolio_branchbound(mkt; maxit = 40000) for r in 1:n_reps)
             end
-            times_dp[i, j] = 1000 * minimum(@elapsed optimalportfolio_dynamicprogram(mkt) for r in 1:n_reps)
+            times_dp[i, j] = minimum(@elapsed optimalportfolio_dynamicprogram(mkt) for r in 1:n_reps)
 
             for (k, epsilon) in enumerate(epsilons)
-                times_fptas[k][i, j] = 1000 * minimum(@elapsed optimalportfolio_fptas(mkt, epsilon) for r in 1:n_reps)
+                times_fptas[k][i, j] = minimum(@elapsed optimalportfolio_fptas(mkt, epsilon) for r in 1:n_reps)
             end
         end
     end
@@ -117,10 +119,21 @@ function benchmark2()
 end
 
 
+function fmter(v, i, j)
+    j == 1 && return v
+
+    v = ismissing(v) ? "—" : @sprintf "%1.2f" 1000*v
+
+    return isodd(j) ? "($v)" : v
+end
+
+
 @time begin
     println()
-    display(benchmark1()[1])
+    bm1 = benchmark1()
+    display(pretty_table(bm1[1], formatters = fmter))
     println("\n")
-    display(benchmark2()[1])
+    bm2 = benchmark2()
+    display(pretty_table(bm2[1], formatters = fmter))
     println("\n")
 end
