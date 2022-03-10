@@ -7,7 +7,7 @@ using Statistics
 using Base.Threads
 import Printf: @sprintf
 
-fullscale = false
+fullscale = true
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -16,7 +16,7 @@ fullscale = false
 n_reps = fullscale ? 3 : 2
 
 # Number of markets to test at each intersection of the experimental variables
-n_markets = fullscale ? 10 : 2
+n_markets = fullscale ? 20 : 2
 
 function printheader(s)
     printstyled(s * "\n", bold = true, color = 222)
