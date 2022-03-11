@@ -27,7 +27,7 @@
 
 % Language selector
 \newif\ifen
-\entrue % Change to false to export Korean
+%\entrue % Change to false to export Korean
 
 
 \ifen
@@ -554,7 +554,7 @@ The algorithm below outputs a list $\mathtt{X}$ of the $h$ schools to which Alma
 \begin{algorithm}[h] 
 %\DontPrintSemicolon
 \caption{Optimal portfolio algorithm for Alma’s problem.} \label{algorithmforlargeh}
-\KwData{Utility values $t \in[0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application limit $h \leq m$.}
+\KwData{Utility values $t \in(0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application limit $h \leq m$.}
 %Index schools in ascending order by $t$\;
 $\mathcal{C} \gets \{1 \dots m\}$\;
 $\mathtt{X, V} \gets $ empty lists\;
@@ -576,7 +576,7 @@ $\mathtt{X, V} \gets $ empty lists\;
 \begin{algorithm}[H] 
 %\DontPrintSemicolon
 \caption{알마의 문제를 위한 최적 포트폴리오 알고리즘.} \label{algorithmforlargeh}
-\KwData{효용 모수 $t \in[0, \infty)^m$, 합격 확률 $f \in (0, 1]^m$, 지원 제한 $h \leq m$.}
+\KwData{효용 모수 $t \in(0, \infty)^m$, 합격 확률 $f \in (0, 1]^m$, 지원 제한 $h \leq m$.}
 %$t$의 순서대로 학교의 지표를 짓는다\;
 $\mathcal{C} \gets \{1 \dots m\}$\;
 $\mathtt{X, V} \gets $ 빈 목록\;
@@ -974,14 +974,14 @@ $\mathfrak{T}$에 뿌리 마디 $n_0 = (\O, \O, \mathcal{C})$를 넣어서 알�
 \fi
 
 
-
+\ifen {
 \begin{algorithm}[h] 
 %\DontPrintSemicolon
 \caption{Branch and bound for Ellis's problem.} \label{ellisbnb}
 \KwData{Utility values $t \in(0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)$.}
 Root node $n_0 \gets (\O, \O, \mathcal{C})$\;
 Current lower bound $L \gets 0$ and best solution $\mathcal{X} \gets \O$\;
-Initialize candidate set $\mathfrak{T} \gets \{ n_0\}$\;
+Candidate set $\mathfrak{T} \gets \{ n_0\}$\;
 \While{not finished}{
 	\lIf{$\mathfrak{T} = \O$}{\Return{$\mathcal{X}, L$}}
 	\Else{
@@ -995,45 +995,102 @@ Initialize candidate set $\mathfrak{T} \gets \{ n_0\}$\;
 			}
 			\lIf{$n'$ is not a leaf}{add $n'$ to $\mathfrak{T}$}
 		}
-		\For{$n''$ in $\mathfrak{T}$} {
+		\For{$n'' \in \mathfrak{T}$} {
 			\lIf{$L >  v_{\mathrm{LP}}^*[n'']$}{remove $n''$ from $\mathfrak{T}$}
 		}
 	}
 }
 \end{algorithm}
+} \else {
+\begin{algorithm}[h] 
+%\DontPrintSemicolon
+\caption{엘리스의 문제를 위한 분지한계법.} \label{ellisbnb}
+\KwData{효용 모수 $t \in(0, \infty)^m$, 합격 확률 $f \in (0, 1]^m$, 지원 비용 $g \in (0, \infty)^m$, 예산 $H \in (0, \infty)$.}
+뿌리 마디 $n_0 \gets (\O, \O, \mathcal{C})$\;
+현재 하한 $L \gets 0$ 및 최적해 $\mathcal{X} \gets \O$\;
+후보 집합 $\mathfrak{T} \gets \{ n_0\}$\;
+\While{종료되지 않음}{
+	\lIf{$\mathfrak{T} = \O$}{\Return{$\mathcal{X}, L$}}
+	\Else{
+		$n \gets \argmax\{ v_{\mathrm{LP}}^*[n] : n \in \mathfrak{T}\}$\;
+		$\mathfrak{T}$에서 $n$을 제거한다\;
+%		Generate children of $n$\;
+		\For{$n$의 각 새끼 마디 $n'$}{
+			\If{$L < v_{\mathcal{I}}[n']$}{
+				$L \gets v_{\mathcal{I}}[n']$\;
+				$\mathcal{X}$을 $n'$에 대응하는 $\mathcal{I}$-집합으로 수정한다\;
+			}
+			\lIf{$n'$이 잎 마디 아님}{$\mathfrak{T}$에 $n'$을 추가한다}
+		}
+		\For{$n'' \in \mathfrak{T}$} {
+			\lIf{$L >  v_{\mathrm{LP}}^*[n'']$}{$\mathfrak{T}$에서 $n''$을 제거한다}
+		}
+	}
+}
+\end{algorithm}
+} \fi
 
-\begin{theorem}[Validity of Algorithm \ref{ellisbnb}]
-Algorithm \ref{ellisbnb} produces an optimal application portfolio for Ellis's problem.
+\begin{theorem}[\ifen Validity of Algorithm \ref{ellisbnb}\else 알고리즘 \ref{ellisbnb}의 타당성\fi]
+\ifen Algorithm \ref{ellisbnb} produces an optimal application portfolio for Ellis's problem.
+\else 알고리즘 \ref{ellisbnb}은(는) 엘리스 문제의 최적 지원 포트폴리오를 출력한다.
 \end{theorem}
 
 \begin{proof}
-The discussion above implies that the as if the algorithm terminates, then an optimal solution exists among the leaves of the tree, and it is therefore returned.
+\ifen
+Because an optimal solution exists among the leaves of the tree, the discussion above implies that as long as the algorithm terminates, it returns an optimal solution.
 
-Since the set of possible nodes is finite, to show that the algorithm does not cycle, it suffices to show that no node is generated twice. Suppose not: that two distinct nodes $n_1$ and $n_2$ share the same partition $(\mathcal{I}_{12}, \mathcal{O}_{12}, \mathcal{N}_{12})$. Trace each node's lineage up the tree and let $n$ denote the \emph{first} node at which the lineages meet. $n$ must have two children, or else its sole child is a common ancestor of $n_1$ and $n_2$, and one of these children, say $n_3$, must be an ancestor of $n_1$ while the other, say $n_4$, is an ancestor of $n_2$.  Write $n_3 = (\mathcal{I}_{3}, \mathcal{O}_{3}, \mathcal{N}_{3})$ and $n_4 = (\mathcal{I}_{4}, \mathcal{O}_{4}, \mathcal{N}_{4})$. By the node-generation rule, there is a school $j$ in $\mathcal{I}_3 \cap \mathcal{O}_4$, and the $\mathcal{I}$-set (respectively, $\mathcal{O}$-set) for any descendant of $\mathcal{I}_3$ (respectively, $\mathcal{O}_4$) is a superset of  $\mathcal{I}_3$ (respectively, $\mathcal{O}_4$). Therefore, $j \in \mathcal{I}_{12} \cap \mathcal{O}_{12}$, meaning that $(\mathcal{I}_{12}, \mathcal{O}_{12}, \mathcal{N}_{12})$ is not a partition of $\mathcal{C}$, a contradiction. 
+To show that the algorithm does not cycle, it suffices to show that no node is generated twice. Suppose not: that two distinct nodes $n_1$ and $n_2$ share the same partition $(\mathcal{I}_{12}, \mathcal{O}_{12}, \mathcal{N}_{12})$. Trace each node's lineage up the tree and let $n$ denote the \emph{first} node at which the lineages meet. $n$ must have two children, or else its sole child is a common ancestor of $n_1$ and $n_2$, and one of these children, say $n_3$, must be an ancestor of $n_1$ while the other, say $n_4$, is an ancestor of $n_2$.  Write $n_3 = (\mathcal{I}_{3}, \mathcal{O}_{3}, \mathcal{N}_{3})$ and $n_4 = (\mathcal{I}_{4}, \mathcal{O}_{4}, \mathcal{N}_{4})$. By the node-generation rule, there is a school $j$ in $\mathcal{I}_3 \cap \mathcal{O}_4$, and the $\mathcal{I}$-set (respectively, $\mathcal{O}$-set) for any descendant of $\mathcal{I}_3$ (respectively, $\mathcal{O}_4$) is a superset of  $\mathcal{I}_3$ (respectively, $\mathcal{O}_4$). Therefore, $j \in \mathcal{I}_{12} \cap \mathcal{O}_{12}$, meaning that $(\mathcal{I}_{12}, \mathcal{O}_{12}, \mathcal{N}_{12})$ is not a partition of $\mathcal{C}$, a contradiction. 
+\else
+나무의 잎 마디 중 최적해가 반드시 존재하므로 위의 논의에 따라 알고리즘이 종료한다면 최적해를 출력하는 것을 알 수 있다.
+
+알고리즘에서 회로가 생기지 않음을 보이기 위해 어떤 한 마디가 두번 생성되지 않는 것을 증명하면 충분하다. 모순을 보이기 위해 같은 분할 $(\mathcal{I}_{12}, \mathcal{O}_{12}, \mathcal{N}_{12})$를 가지는 상이한 마디 $n_1$과 $n_2$가 생성된다고 하자. 나무에 올라가면서 두 마디의 가계가 서로 만나는 첫 마디를 $n$이라고 하자. $n$은 새끼 마디 하나만 가지면 그 자체가  $n_1$과 $n_2$의 공통 선조가 되며 이는 모순이므로 $n$ 새끼의 개수가 2임을 알 수 있다. 또한 그 중 하나는 $n_1$의 선조며 다른 하나는 $n_2$의 선조다. 각각 $n_3 = (\mathcal{I}_{3}, \mathcal{O}_{3}, \mathcal{N}_{3})$ 그리고 $n_4 = (\mathcal{I}_{4}, \mathcal{O}_{4}, \mathcal{N}_{4})$라고 하자. 마디 생성 규칙에 따라 $\mathcal{I}_3 \cap \mathcal{O}_4$에 속한 학교 $j$가 존재하며,  $\mathcal{I}_3$ ($\mathcal{O}_4$)의 모든 후손 마디의 $\mathcal{I}$-집합 ($\mathcal{O}$-집합)은  $\mathcal{I}_3$ ($\mathcal{O}_4$)의 확대 집합이다. 따라서 $j \in \mathcal{I}_{12} \cap \mathcal{O}_{12}$가 되며 이는 $(\mathcal{I}_{12}, \mathcal{O}_{12}, \mathcal{N}_{12})$가 $\mathcal{C}$의 분할이 아님을 의미한다. 모순. 
+\fi
 \end{proof}
 
+\ifen
 The branch-and-bound algorithm is an interesting benchmark, but as a kind of enumeration algorithm, its computation time grows rapidly in the problem size, and unlike the approximation scheme we propose later on, there is no guaranteed bound on the approximation error after a fixed number of iterations. Moreover, when there are many schools in $\mathcal{N}$, the LP upper bound may be much higher than $v_{\mathcal{I}}[n']$. This means that significant fathoming operations do not occur until the algorithm has explored deep into the tree, at which point the bulk of the computational effort has already been exhausted. In our numerical experiments, Algorithm \ref{ellisbnb} was ineffective on instances larger than about $m=20$ schools, and therefore it does not represent a significant improvement over na\"ive enumeration. 
-
+\else
+분지한계법은 기술적으로 유리한 기준점이지만, 일종의 열거 해법이므로 계산 시간이 문제 크기와 지수적으로 늘어난다. 그리고 뒤에서 제안하는 근사 해법과 달리, 주어진 반복한계의 개수에 대한 정확성 보장이 없다. 또한 $\mathcal{N}$에 학교가 많을 때, 선형 완화 문제 상한은 $v_{\mathcal{I}}[n']$보다 매우 높을 수도 있다. 이는 해법이 나무에 어느 정도 깊게 파고들어야 마디를 제외시킬 수 있음을 의미하며, 그때 계산 노력의 대부분은 이미 쏟은 것이다. 수리 실험에서, 알고리즘 \ref{ellisbnb}은(는) 약 $m=20$개의 학교를 넘는 인스턴스에 대해 비효율적이었으며 이는 단순한 열거법에 비해 큰 개선이 아니다.
+\fi
 
 
 
 
 
 \ifen \subsection{Pseudopolynomial-time dynamic program} \else\subsection{의사 다항 시간 동적 계획} \fi
-In this subsection, we assume, with a small loss of generality, that $g_j \in \mathbb{N}$ for $j = 1\dots m$ and $H \in\mathbb{N}$, and provide an algorithmic solution to Ellis's problem that runs in $O(Hm + m\log m)$ time and $O(Hm)$ space. The algorithm resembles a familiar dynamic programming algorithm for the binary knapsack problem (Dantzig 1957; \emph{Wikipedia}, s.v. ``Knapsack problem''). Because we cannot assume that $H \leq m$ (as was the case in Alma's problem), this represents a pseudopolynomial-time solution (Garey and Johnson 1979).
+\ifen
+In this subsection, we assume, with a small loss of generality, that $g_j \in \mathbb{N}$ for $j = 1\dots m$ and $H \in\mathbb{N}$, and provide an algorithmic solution to Ellis's problem that runs in $O(Hm + m\log m)$-time. The algorithm resembles a familiar dynamic programming algorithm for the binary knapsack problem (Dantzig 1957; \emph{Wikipedia}, s.v. ``Knapsack problem''). Because we cannot assume that $H \leq m$ (as was the case in Alma's problem), this represents a pseudopolynomial-time solution (Garey and Johnson 1979, \S\,4.2).
+\else
+본 절에서 일반성을 약간 제한해서 $g_j \in \mathbb{N}$ for $j = 1\dots m$과 $H \in\mathbb{N}$임을 가정한다. 이때 엘리스의 문제를 위한 $O(Hm + m\log m)$-시간 해법을 제시한다. 해법은 이진 배낭 문제를 위한 익숙한 동적 계획 해법과 비슷하다 (Dantzig 1957; \emph{Wikipedia}, s.v. ``Knapsack problem''). 알마의 문제와 달리, 여기에서 $H \leq m$임을 가정할 수 없으므로 이는 의사 다항 시간 해법이라고 한다 (Garey and Johnson 1979, \S\,4.2).
+\fi
 
+\ifen 
 For $j = 0 \dots m$ and $h = 0 \dots H$, let $\mathcal{X}[j, h]$ denote the optimal portfolio using only the schools $\{ 1, \dots, j\}$ and costing no more than $h$, and let $V[j,h] = v(\mathcal{X}[j, h])$.  It is clear that if $j=0$ or $h=0$, then $\mathcal{X}[j, h] = \O$ and $V[j, h] = 0$.  For convenience, we also define $V[j, h] = -\infty$ for all $h < 0$.
+\else
+$j = 0 \dots m$와 $h = 0 \dots H$에 대해, $\{ 1, \dots, j\}$에 속한 학교만 사용하면서 최대한 $h$의 지원 비용을 지불하는 최적 포트폴리오를 $\mathcal{X}[j, h]$라고하자. 또한  $V[j,h] = v(\mathcal{X}[j, h])$이다. $j=0$ 혹은 $h=0$이면 $\mathcal{X}[j, h] = \O$이고 $V[j, h] = 0$이 되는 것은 분명하다. 편의상 $h < 0$이면 $V[j, h] = -\infty$이라고 정의하자.
+\fi
 
+\ifen
 For the remaining indices, $\mathcal{X}[j, h]$ either contains $j$ or not. If it does not contain $j$, then $\mathcal{X}[j, h] = \mathcal{X}[j-1, h]$. On the other hand, if  $\mathcal{X}[j, h]$ contains $j$, then its valuation is $(1 - f_j) v(\mathcal{X}[j, h]\setminus \{j\}) + f_j t_j$. This requires that $\mathcal{X}[j, h]\setminus \{j\}$ make optimal use of the remaining budget over the remaining schools; that is, $\mathcal{X}[j, h] = \mathcal{X}[j-1, h - g_j] \cup\{j\}$. From these observations, we obtain the following Bellman equation for $ j = 1\dots m$ and $h = 1\dots H$:
+\else
+남은 지표에 대해, $\mathcal{X}[j, h]$는 $j$를 포함하거나 포함하지 않는다. $j$를 포함하지 않는다면 $\mathcal{X}[j, h] = \mathcal{X}[j-1, h]$이다. $\mathcal{X}[j, h]$가 $j$를 포함한다면, 그의 가치는  $(1 - f_j) v(\mathcal{X}[j, h]\setminus \{j\}) + f_j t_j$다. 따라서 $\mathcal{X}[j, h]\setminus \{j\}$는 남은 예산과 남은 학교에 대한 최적 포트폴리오다. 즉,  $\mathcal{X}[j, h] = \mathcal{X}[j-1, h - g_j] \cup\{j\}$이다. 이 관찰에 따라 $ j = 1\dots m$와 $h = 1\dots H$에 대해 다음 같은 Bellman 식을 얻는다.
+\fi
 \begin{align}
 V[j, h] = \max\bigl\{ V[j-1, h], (1 - f_j) V[j-1, h-g_j] + f_j t_j \bigr\}
 \end{align}
+\ifen 
 with the convention that $ -\infty \cdot 0 = -\infty$. The corresponding optimal portfolios can be computed by observing that $\mathcal{X}[j, h]$ contains $j$ if and only if $V[j, h]> V[j-1, h]$. The optimal solution is given by $\mathcal{X}[m, H]$. The algorithm below performs these computations and outputs the optimal portfolio $\mathcal{X}$. 
+\else
+단, $ -\infty \cdot 0 = -\infty$으로 처리한다. 그러면 $\mathcal{X}[j, h]$가  $j$를 포함할 필수충분 조건이 $V[j, h]> V[j-1, h]$임을 관찰하면 대응되는 최적 포트폴리오를 쉽게 계산할 수 있으며 전역 최적해는 $\mathcal{X}[m, H]$이다. 아래 알고리즘은 이 계산을 수행하고 최적 포트폴리오 $\mathcal{X}$를 출력한다.
+\fi
 
+
+
+\ifen {
 \begin{algorithm}[h] 
 %\DontPrintSemicolon
 \caption{Dynamic program for Ellis's problem with integral application costs.} \label{ellisDP1}
-\KwData{Utility values $t \in[0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in \mathbb{N}^m$, budget $H \in\mathbb{N}$.}
+\KwData{Utility values $t \in(0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in \mathbb{N}^m$, budget $H \in\mathbb{N}$.}
 Index schools in ascending order by $t$\;
 %\SetKwProg{Fn}{function}{ do}{end}
 %\Fn{$V(j, h)$}{
@@ -1041,7 +1098,7 @@ Index schools in ascending order by $t$\;
 %	\lElseIf{$j = 0$ or $h=0$}{\Return{$0$}}
 %	\lElse{\Return{$\max\bigl\{ V(j-1, h), (1 - f_j) V(j-1, h-g_j) + f_j t_j \bigr\}$}}
 %}
-Fill a lookup table with the entries of $V[j, h]$\; \label{Vcreatedlookuptable}
+Fill a lookup table with the values of $V[j, h]$\; \label{Vcreatedlookuptable}
 $h \gets H$\;
 $\mathcal{X} \gets \O$\;
 \For{$j = m, m-1, \dots, 1$}{
@@ -1052,13 +1109,45 @@ $\mathcal{X} \gets \O$\;
 }
 \Return{$\mathcal{X}$}
 \end{algorithm}
+} \else {
+\begin{algorithm}[h] 
+%\DontPrintSemicolon
+\caption{정수 지원 비용의 엘리스 문제를 위한 동적 계획 해법.} \label{ellisDP1}
+\KwData{효용 모수 $t \in(0, \infty)^m$, 합격 확률 $f \in (0, 1]^m$, 지원 비용 $g \in \mathbb{N}^m$, 예산 $H \in\mathbb{N}$.}
+$t$의 순서대로 학교를 배열한다\;
+%\SetKwProg{Fn}{function}{ do}{end}
+%\Fn{$V(j, h)$}{
+%	\lIf{$h < g_j$}{\Return{$-\infty$}}
+%	\lElseIf{$j = 0$ or $h=0$}{\Return{$0$}}
+%	\lElse{\Return{$\max\bigl\{ V(j-1, h), (1 - f_j) V(j-1, h-g_j) + f_j t_j \bigr\}$}}
+%}
+$V[j, h]$-값으로 표를 채운다\; \label{Vcreatedlookuptable}
+$h \gets H$\;
+$\mathcal{X} \gets \O$\;
+\For{$j = m, m-1, \dots, 1$}{
+	\If{$V[j-1, h] < V[j, h]$}{
+		$\mathcal{X} \gets \mathcal{X}\cup\{j\}$\; 
+		$h \gets h - g_j$\;
+	}
+}
+\Return{$\mathcal{X}$}
+\end{algorithm}
+}\fi
 
-\begin{theorem}[Validity of Algorithm \ref{ellisDP1}]
-Algorithm \ref{ellisDP1} produces an optimal application portfolio for Ellis's problem in $O(H m + m \log m)$ time and $O(H m)$ space.
+\begin{theorem}[\ifen Validity of Algorithm \ref{ellisDP1}\else 알고리즘 \ref{ellisDP1}의 타당성\fi]
+\ifen 
+Algorithm \ref{ellisDP1} produces an optimal application portfolio for Ellis's problem in $O(H m + m \log m)$-time.
+\else
+알고리즘 \ref{ellisDP1}은(는) $O(H m + m \log m)$-시간 안의 엘리스 문제의 최적 포트폴리오를 출력한다.
+\fi
 \end{theorem}
 
 \begin{proof}
+\ifen
 Optimality follows from the foregoing discussion. Sorting $t$ is $O(m \log m)$. The bottleneck step is the creation of the lookup table for $V[j, h]$ in line \ref{Vcreatedlookuptable}. Each entry is generated in unit time, and the size of the table is $O(Hm)$. 
+\else
+위 논의에 따라 최적성이 성립한다. $t$를 배열하는 시간은 $O(m \log m)$이다. 목병 단계는 \ref{Vcreatedlookuptable}줄에서 $V[j, h]$의 표를 만드는 것이다. 각 원소를 단위 시간 안에 생성할 수 있으며 표의 크기가 $O(Hm)$다.
+\fi
 \end{proof}
 
 
