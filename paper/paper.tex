@@ -77,19 +77,32 @@
 
 
 
+\ifen
+\newcommand{\thetitle}{How to apply to college}
+\newcommand{\therunningtitle}{\thetitle}
+\newcommand{\thedate}{\today}
+\newcommand{\theauthor}{Max Kapur}
+\else
+\newcommand{\thetitle}{대학 지원 최적화 문제}
+\newcommand{\therunningtitle}{\thetitle}
+\newcommand{\thedate}{\today}
+\newcommand{\theauthor}{Max Kapur}
+\fi
 
 
-\ifen { \title{How to apply to college} }
-\else {\title{How to apply to college}} \fi
-\author{Max Kapur}
-\date{\today}                % Activate to display a given date or no date
+
+\title{\thetitle}
+\author{\theauthor}
+\date{\thedate}
+
 
 
 \pagestyle{fancy}
 \renewcommand{\headrulewidth}{0pt}
 \fancyhf{}
-\rhead{How to apply to college \\}
-\lhead{Max Kapur \\ \date{\today}}
+\lhead{\theauthor}
+\chead{\thedate}
+\rhead{\thetitle}
 \cfoot{\thepage}
 
 
@@ -97,16 +110,25 @@
 
 \maketitle
 
-\section*{Abstract}
-This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, we show that the problem is NP-complete. We provide three algorithms for this more general setup. The first is a branch-and-bound routine. The second is an dynamic program that produces an exact solution in pseudopolynomial time. The third is a fully polynomial-time approximation scheme. 
 
-\section*{요약}
+\begin{abstract}
+This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, we show that the problem is NP-complete. We provide three algorithms for this more general setup. The first is a branch-and-bound routine. The second is an dynamic program that produces an exact solution in pseudopolynomial time. The third is a fully polynomial-time approximation scheme.
+
+\ifen
+\else The full text of this paper is available in English at \url{https://github.com/maxkapur/OptimalApplication}.\fi
+\end{abstract}
+
+
+\renewcommand{\abstractname}{요약}
+\begin{abstract}
 본 논문은 다수의 확률 변수로 구성된 포트폴리오의 기대 최대값을 예산 조건 하에서 최대화하는 문제를 고려한다. 이를 대학 지원 최적화 문제라고 부른다. 각 확률 변수의 비용, 즉 각 대학의 지원 비용이 동일한 경우, 최적 포트폴리오는 예산 제약식으로 결정된 포함 사슬 관계 성질을 가짐을 보이고 이를 바탕으로 다항 시간 해법을 제시한다. 대학의 지원 비용이 서로 다른 경우, 문제가 NP-complete함을 증명한다. 세 가지 일반적인 해법을 도출한다. 첫째는 분지한계 기반 해법이다. 둘째는 의사 다항 시간 안에 정확한 해를 출력하는 동적 계획 해법이다. 마지막으로 다른 동적 계획 기반으로 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme)이 존재함을 보인다.
 
+\ifen
+\else 본 논문은 \url{https://github.com/maxkapur/OptimalApplication}에서 전문을 한글로 공유한다. \fi
+\end{abstract}
 \pagebreak
 
 \tableofcontents
-
 
 
 
@@ -141,7 +163,7 @@ Chao (2014)가 주장한 바처럼 대학 지원 전략은 약간 미묘한 포�
 \ifen
 The integer formulation of the college application problem can also be viewed as a kind of binary knapsack problem with a polynomial objective function of degree $m$. Our branch-and-bound and dynamic programming algorithms closely resemble existing algorithms for knapsack problems (Martello and Toth 1990, \S\,2.5--6). In fact, by manipulating the admissions probabilities, the objective function can be made to approximate a linear function of the characteristic vector to an arbitrary degree of accuracy, a fact that we exploit in our NP-completeness proof. Previous research has introduced various forms of stochasticity to the knapsack problem, including variants in which each item's utility takes a known probability distribution (Steinberg and Parks 1979; Carraway et al. 1993) and an online context in which the weight of each item is observed after insertion into the knapsack (Dean et al. 2008). Our problem superficially resembles the preference-order knapsack problem considered by Steinberg and Parks and Carraway et al., but these models lack the college application problem's unique ``maximax'' form. Additionally, unlike those models, we do not attempt to replace the real-valued objective function with a preference order over \emph{outcome distributions,} which introduces technical issues concerning competing notions of stochastic dominance (Sniedovich 1980). We take for granted the student's preferences over \emph{outcomes} (as encoded in the $t_j$-values), and are interested instead in an efficient computational approach to the well-defined problem above.
 \else
-대학 지원 문제의 정수 모형은 $m$차 다항식을 목적함수로 갖춘 일종의 이진 배낭 문제로 볼 수도 있다. 본 논문에서 제시하는 분지한계법과 동적 계획 해법은 배낭 문제를 위한 기존 알고리즘과 매우 비슷하다 (Martello와 Toth 1990, \S\,2.5--6). 입학 확률을 적당히 조정하면 특성벡터의 선형 함수를 원래 목적함수로 원하는 만큼의 정확성을 가지고 근사할 수 있으며 NP-completeness 증명에서 이 성질을 활용한다. 배낭 문제에 확률성을 도입한 선행 연구 중, 각 상품의 효용이 정해진 확률 분포로 결정되는 모형(Steinberg와 Parks 1979; Carraway 외 1993), 그리고 배낭에 삽입한 다음에 상품의 무게를 관측할 수 있는 온라인 모형 (Dean et al. 2008) 등이 있다. 본 연구가 고려하는 문제는 Steinberg와 Parks 그리고 Carraway 외가 고려한 ``우선순위 배낭 문제''와는 유사성을 가지지만, 우선순위 배낭 문제는 대학 지원 문제의 특색인 `maximax' 형태를 가지지는 않는다. 또한 우선순위 모형과 달리, 본 연구에서 실수값 목적함수를 선호 순위를 정의해야 하는 `결과 분포'로 대체할 필요가 없다. 확률적 우위에 대한 상반된 개념들의 문제를 야기시키기 때문이다 (Sniedovich 1980). 대신 $t_j$-값으로 유도된 학생의 `결과'에 대한 선호 순위를 받아들여 위에서 정의한 것처럼 명확히 정의된 문제를 위한 효율적인 계산법을 지향한다.
+대학 지원 문제의 정수 모형은 $m$차 다항식을 목적함수로 갖춘 일종의 이진 배낭 문제로 볼 수도 있다. 본 논문에서 제시하는 분지한계법과 동적 계획 해법은 배낭 문제를 위한 기존 알고리즘과 매우 비슷하다 (Martello와 Toth 1990, \S\,2.5--6). 입학 확률을 적당히 조정하면 특성벡터의 선형 함수를 원래 목적함수로 원하는 만큼의 정확성을 가지고 근사할 수 있으며 NP-completeness 증명에서 이 성질을 활용한다. 배낭 문제에 확률성을 도입한 선행 연구 중, 각 상품의 효용이 정해진 확률 분포로 결정되는 모형(Steinberg와 Parks 1979; Carraway 외 1993), 그리고 배낭에 삽입한 다음에 상품의 무게를 관측할 수 있는 온라인 모형 (Dean 외 2008) 등이 있다. 본 연구가 고려하는 문제는 Steinberg와 Parks 그리고 Carraway 외가 고려한 ``우선순위 배낭 문제''와는 유사성을 가지지만, 우선순위 배낭 문제는 대학 지원 문제의 특색인 `maximax' 형태를 가지지는 않는다. 또한 우선순위 모형과 달리, 본 연구에서 실수값 목적함수를 선호 순위를 정의해야 하는 `결과 분포'로 대체할 필요가 없다. 확률적 우위에 대한 상반된 개념들의 문제를 야기시키기 때문이다 (Sniedovich 1980). 대신 $t_j$-값으로 유도된 학생의 `결과'에 대한 선호 순위를 받아들여 위에서 정의한 것처럼 명확히 정의된 문제를 위한 효율적인 계산법을 지향한다.
 \fi
 
 \ifen
@@ -153,7 +175,7 @@ We take special interest in the validity of greedy optimization algorithms for t
 \ifen
 For certain classes of optimization problems, such as maximizing a submodular set function over a cardinality constraint, a greedy algorithm is known to be a good approximate solution and exact under certain additional assumptions (Fisher et al. 1978). For other problems, notably the binary knapsack problem, the most intuitive greedy algorithm can be made to perform arbitrarily poorly (Vazirani 2001). We show results for the college application problem that mirror those for knapsack: In the special case where each $g_j = 1$, the optimal portfolio satisfy a nestedness property that is equivalent to the validity of the greedy algorithm. This case mirrors the centralized college application process in Korea, where there is no application fee, but students are allowed to apply to only three schools during the main admissions cycle. Unfortunately, the nestedness property does not hold in the general case, nor does the greedy algorithm offers any performance guarantee. Instead, we offer a branch-and-bound routine, a pseudopolynomial-time algorithm that is tractable for typical college market instances, and an approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in fully polynomial time.
 \else
-탐욕 알고리즘이 좋은 근사해거나 정확한 알고리즘이 되는 최적화 모형들이 알려져 있다. 집합 크기 제약 하에서 하위 모듈 집합 함수(submodular set function)를 최대화하는 문제가 대표적인 예다 (Fisher et al. 1978). 반면에 이진 배낭 문제 같은 경우에서는 가장 직관적인 탐욕 알고리즘이 최적과 거리가 먼 해를 출력하는 예를 만들 수 있다 (Vazirani 2001). 대학 지원 문제와 배낭 문제가 서로 매우 유사함을 보인다. 모든 $g_j=1$인 특수한 경우에서, 최적 포트폴리오가 탐욕 알고리즘의 타당성과 동등한 포함 사슬 관계를 만족하는 것을 증명한다. 이 경우는 지원 비용이 없으며 정시 모집 기간에 학교 3개에만 지원할 수 있는 한국 입학 과정과 같다. 그러나 일반적인 경우에서 포함 사슬 관계가 성립하지 않을뿐더러 탐욕 알고리즘이 어떤 근사 계수를 보장할 수 없을 보일 수 있다. 대신 분지한계법, 전형적인 입학 시장 인스턴스에 대해 효율적인 의사 다항 시간 동적 계획, 그리고 완전 다항 시간 안에 $(1 - \varepsilon)$-근사해를 출력하는 알고리즘 등 3가지 해법을 제안한다. 
+탐욕 알고리즘이 좋은 근사해거나 정확한 알고리즘이 되는 최적화 모형들이 알려져 있다. 집합 크기 제약 하에서 하위 모듈 집합 함수(submodular set function)를 최대화하는 문제가 대표적인 예다 (Fisher 외 1978). 반면에 이진 배낭 문제 같은 경우에서는 가장 직관적인 탐욕 알고리즘이 최적과 거리가 먼 해를 출력하는 예를 만들 수 있다 (Vazirani 2001). 대학 지원 문제와 배낭 문제가 서로 매우 유사함을 보인다. 모든 $g_j=1$인 특수한 경우에서, 최적 포트폴리오가 탐욕 알고리즘의 타당성과 동등한 포함 사슬 관계를 만족하는 것을 증명한다. 이 경우는 지원 비용이 없으며 정시 모집 기간에 학교 3개에만 지원할 수 있는 한국 입학 과정과 같다. 그러나 일반적인 경우에서 포함 사슬 관계가 성립하지 않을뿐더러 탐욕 알고리즘이 어떤 근사 계수를 보장할 수 없을 보일 수 있다. 대신 분지한계법, 전형적인 입학 시장 인스턴스에 대해 효율적인 의사 다항 시간 동적 계획, 그리고 완전 다항 시간 안에 $(1 - \varepsilon)$-근사해를 출력하는 알고리즘 등 3가지 해법을 제안한다. 
 \fi
 
 
@@ -185,7 +207,7 @@ A brief conclusion follows.
 
 
 
-\pagebreak
+%\pagebreak
 \ifen \section{Notation and preliminary results} \else \section{표기법과 예비 결과}\fi\label{preliminaries}
 \ifen Before discussing the solution algorithms, we will introduce some additional notation and a few preliminary results that will come in handy.
 
@@ -337,7 +359,7 @@ In fact, the na\"ive algorithm is a $(1/h)$-approximation algorithm for Alma’s
 \ifen 
 When the application limit is $h$, let $\mathcal{X}_h$ denote the optimal portfolio, and $\mathcal{T}_h$ the set of the $h$ schools having the largest values of $f_j t_j$. Then $v(\mathcal{T}_h) / v(\mathcal{X}_h) \geq 1/h$. 
 \else
-지원 제한이 $h$일 때, 최적 포트폴리오가 $\mathcal{X}_h$고 기대 효용 $f_j t_j$가 가장 높은 $h$개의 학교의 집합이 $\mathcal{T}_h$라고 하자. 그러면 $v(\mathcal{T}_h) / v(\mathcal{X}_h) \geq 1/h$이다.
+지원 제한이 $h$일 때, 최적 포트폴리오가 $\mathcal{X}_h$이고 기대 효용 $f_j t_j$가 가장 높은 $h$개의 학교의 집합이 $\mathcal{T}_h$라고 하자. 그러면 $v(\mathcal{T}_h) / v(\mathcal{X}_h) \geq 1/h$이다.
 \fi
 \end{theorem}
 \begin{proof}
@@ -394,25 +416,28 @@ Thus, as $\varepsilon$ approaches zero, we have $v(\mathcal{T}_h) / v(\mathcal{X
 \fi
 \end{example}
 
-\begin{corollary}
-\ifen
-The function $v(\mathcal{X})$ is not submodular. 
-\else
-$v(\mathcal{X})$는 하위 모듈 함수가 아니다.
-\fi
-\end{corollary}
-\begin{proof}
-\ifen
-If $v(\mathcal{X})$ is submodular, then theorem 4.2 of Fisher et al. (1978) implies that the na\"ive algorithm achieves an optimality ratio of $v(\mathcal{T}_h) / v(\mathcal{X}_h)  \geq 1 - \left(\frac{h-1}{h}\right)^h$. Example \ref{tightexampleforoneoverhopt} provides a counterexample.
-\else
-$v(\mathcal{X})$가 하위 모듈 함수라면 Fisher 외(1978)의 정리 4.2는 나이브 해법이 $v(\mathcal{T}_h) / v(\mathcal{X}_h)  \geq 1 - \left(\frac{h-1}{h}\right)^h$ 같은 근사 비율을 이룬다고 의미한다. 예 \ref{tightexampleforoneoverhopt}는 반례다.
-\fi
-\end{proof}
+
+
+%% Wrong: The Fisher theorem would apply to the greedy, i.e. correct algorithm. 
+%\begin{corollary}
+%\ifen
+%The function $v(\mathcal{X})$ is not submodular. 
+%\else
+%$v(\mathcal{X})$는 하위 모듈 함수가 아니다.
+%\fi
+%\end{corollary}
+%\begin{proof}
+%\ifen
+%If $v(\mathcal{X})$ is submodular, then theorem 4.2 of Fisher et al. (1978) implies that the na\"ive algorithm achieves an optimality ratio of $v(\mathcal{T}_h) / v(\mathcal{X}_h)  \geq 1 - \left(\frac{h-1}{h}\right)^h$. Example \ref{tightexampleforoneoverhopt} provides a counterexample.
+%\else
+%$v(\mathcal{X})$가 하위 모듈 함수라면 Fisher 외(1978)의 정리 4.2는 나이브 해법이 $v(\mathcal{T}_h) / v(\mathcal{X}_h)  \geq 1 - \left(\frac{h-1}{h}\right)^h$ 같은 근사 비율을 이룬다고 의미한다. 예 \ref{tightexampleforoneoverhopt}는 반례다.
+%\fi
+%\end{proof}
 
 \ifen
-Although the na\"ive algorithm is inoptimal, we can still find the optimal solution in time polynomial in $h$ and $m$, as we will now show.
+Although the na\"ive algorithm is inoptimal, we can still find the optimal solution in $O(hm)$-time, as we will now show.
 \else
-나이브 해법은 최적해가 아니지만 $h$와 $m$의 다항 시간 안에 최적해를 구할 수 있음을 보이자.
+나이브 해법은 최적해가 아니지만 $O(hm)$-시간 안에 최적해를 구할 수 있다.
 \fi
 
 \ifen \subsection{The nestedness property}  \else \subsection{포함 사슬 관계} \fi
@@ -662,7 +687,7 @@ we also explore the possibility of storing $\mathcal{C}$ as a binary max heap ra
 \ifen
 It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio for a given market, $v(\mathcal{X}_h)$ is $O(h)$. Example \ref{tightexampleforoneoverhopt}, in which $v(\mathcal{X}_h)$ can be made arbitrarily close to $h$, establishes the tightness of this bound.
 \else
-위 결과는 $\mathcal{X}_h$가 어떤 시장의 최적 $h$-포트폴리오일 때, $v(\mathcal{X}_h)$가 $O(h)$ 함수라고 의미한다. 예\ref{tightexampleforoneoverhopt}에서 $v(\mathcal{X}_h)$를 $h$에 임의로 가깝게 조정할 수 있으므로 이 상한이 타이트함을 알 수 있다.
+위 결과는 $\mathcal{X}_h$가 어떤 시장의 최적 $h$-포트폴리오일 때, $v(\mathcal{X}_h)$가 $O(h)$ 함수라고 의미한다. 예 \ref{tightexampleforoneoverhopt}에서 $v(\mathcal{X}_h)$를 $h$에 임의로 가깝게 조정할 수 있으므로 이 상한이 타이트함을 알 수 있다.
 \fi
 
 %To wrap up, we provide an example showing that if the entries of $Z$ are dependent, then the optimal solution may violate the nestedness property of Theorem \ref{nestedapplication}.
@@ -754,7 +779,7 @@ $m=8$개의 학교로 이루어진 가상 입학 시장의 대학교 자료와 �
 
 
 
-\pagebreak
+%\pagebreak
 \ifen \section{Heterogeneous application costs} \else\section{동일하지 않은 지원 비용} \fi\label{hetappcosts}
 \ifen
 Now we turn to the more general problem in which the constant $g_j$ represents the \emph{cost} of applying to $c_j$ and the student, whom we now call Ellis, has a \emph{budget} of $H$ to spend on college applications.  Applying Theorem \ref{assumetzerozero}, we assume $t_0 = 0$ throughout.
@@ -815,7 +840,7 @@ An \emph{instance} consists of an instance of Ellis’s problem and a target val
 \ifen
 The decision form of Ellis’s problem is NP-complete.
 \else
-엘리스 문제의 결정 형태는 NP-complete다.
+엘리스 문제의 결정 형태는 NP-complete하다.
 \fi
 \end{theorem}
 
@@ -871,7 +896,7 @@ Let $t = (10, 2021)$, $f = (1, 1)$, $g = (1, 500)$, and $H = 500$. Then the gree
 \ifen 
 A traditional approach to integer optimization problems is the branch-and-bound framework, which generates subproblems in which the values of one or more decision variables are fixed and uses an upper bound on the objective function to exclude, or \emph{fathom,} branches of the decision tree that cannot yield a solution better than the best solution on hand (Martello and Toth 1990; Kellerer et al. 2004). In this subsection, we present an integer formulation of Ellis's problem and a linear program (LP) that bounds the objective value from above. We tighten the LP bound for specific subproblems by reusing the conditional transformation of the $t_j$-values from Algorithm \ref{algorithmforlargeh}. A branch-and-bound routine emerges naturally from these ingredients.
 \else
-정수 최적화의 고전적인 기법 중 분지한계법(branch and bound)이 있다. 이는 하나 이상의 결정 변수를 고정시키고 해당 부문제를 탐색하는 해법이며, 목적함수의 상한(bound)을 활용해서 기존 해보다 좋은 해를 생성할 수 없는 결정 나무의 가지(branch)를 제외시켜 결정 공간을 줄인다 (Martello and Toth 1990; Kellerer et al. 2004). 본 항에서, 엘리스 문제의 정수 모형과 그의 상한이 되는 선형 계획을 제시한다. 알고리즘 \ref{algorithmforlargeh}에서 개발한 $t_j$-값의 변환을 활용해서 부문제의 선형 완화 문제에 의한 상한을 더 타이트하게 만든다. 이 기반으로 분지한계법 알고리즘을 도출한다.
+정수 최적화의 고전적인 기법 중 분지한계법(branch and bound)이 있다. 이는 하나 이상의 결정 변수를 고정시키고 해당 부문제를 탐색하는 해법이며, 목적함수의 상한(bound)을 활용해서 기존 해보다 좋은 해를 생성할 수 없는 결정 나무의 가지(branch)를 제외시켜 결정 공간을 줄인다 (Martello and Toth 1990; Kellerer 외 2004). 본 항에서, 엘리스 문제의 정수 모형과 그의 상한이 되는 선형 계획을 제시한다. 알고리즘 \ref{algorithmforlargeh}에서 개발한 $t_j$-값의 변환을 활용해서 부문제의 선형 완화 문제에 의한 상한을 더 타이트하게 만든다. 이 기반으로 분지한계법 알고리즘을 도출한다.
 \fi
 
 \ifen
@@ -890,7 +915,7 @@ To begin, let us characterize the portfolio $\mathcal{X}$ as the binary vector $
 \ifen
 Since the product in $v(x)$ does not exceed one, the following LP relaxation is an upper bound on the valuation of the optimal portfolio.
 \else
-$v(x)$에서 등장하는 곱은 1을 넘을 수 없으므로 다음 선형 완화 문제는 최적 포트폴리오 가치의 상한이 돈다.
+$v(x)$에서 등장하는 곱은 1을 넘을 수 없으므로 다음 선형 완화 문제는 최적 포트폴리오 가치의 상한이 된다.
 \fi
 \begin{problem}[\ifen LP relaxation for Ellis's problem\else 엘리스의 문제를 위한 선형 완화 문제\fi] \label{LPrelaxation}
 \begin{align}
@@ -903,7 +928,7 @@ $v(x)$에서 등장하는 곱은 1을 넘을 수 없으므로 다음 선형 완�
 \ifen
 Problem \ref{LPrelaxation} is a continuous knapsack problem, which is easily solved in $O(m \log m)$-time by the following greedy algorithm: Start with $x = \mathbf{0}$. While $H > 0$, select the school $j$ for which $f_j t_j / g_j$ is highest, set $x_j \gets \min\{1, H / g_j\}$, and set $H \gets H - g_j$ (Dantzig 1957).  
 \else
-문제 \ref{LPrelaxation}은(는) ``연속 배낭 문제''라고 불리며 다음 탐욕 알고리즘을 적용하면 $O(m \log m)$-시간 안에 쉽게 풀 수 있다: $x = \mathbf{0}$로 초기화한다. $H > 0$가 성립하는 동안, $f_j t_j / g_j$-값이 가장 높은 학교 $j$를 택한다. $x_j \gets \min\{1, H / g_j\}$ 그리고 $H \gets H - g_j$ 같이 수정해서 반복한다 (Dantzig 1957).
+문제 \ref{LPrelaxation}은(는) ``연속 배낭 문제''라고 불리며 다음 탐욕 알고리즘을 적용하면 $O(m \log m)$-시간 안에 쉽게 풀 수 있다: $x = \mathbf{0}$로 초기화한다. $H > 0$임이 성립하는 동안, $f_j t_j / g_j$-값이 가장 높은 학교 $j$를 택한다. $x_j \gets \min\{1, H / g_j\}$ 그리고 $H \gets H - g_j$로 수정해서 반복한다 (Dantzig 1957).
 \fi
 
 \ifen 
@@ -911,7 +936,7 @@ In our branch-and-bound framework, a \emph{node} is characterized by a three-way
 %This partition induces a constant $\gamma$, transformed $t_j$-values $\bar t$, the residual budget $\mathcal{H}$, and a set $\mathcal{L}$ of pointers to the node's children, if any.
 The choice of partition induces a pair of subproblems. The first subproblem is an instance of Problem \ref{integernlp}, namely
 \else
-본 연구의 분지한계법 설계에서, `마디'(node)는 학교를 세 군으로 나눈 분할 $\mathcal{C}= \mathcal{I} \cup \mathcal{O} \cup \mathcal{N}$로 묘사한다. 단, $\sum_{j \in \mathcal{I}} g_j \leq H$을 만족한다. $\mathcal{I}$는 지원 포트폴리오에 속한 학교(`in': $x_j = 1$), $\mathcal{O}$는 속하지 않은 학교(`out': $x_j = 0$), 그리고 $\mathcal{N}$은 미결의 학교(`negotiable')로 이루어진다. 분할이 결정되면 부문제의 한 쌍이 결정해진다. 첫번째 부문제는 다음 같은 문제 \ref{integernlp}의 인스턴스다.
+본 연구의 분지한계법 설계에서, `마디'(node)는 학교를 세 군으로 나눈 분할 $\mathcal{C}= \mathcal{I} \cup \mathcal{O} \cup \mathcal{N}$로 묘사한다. 단, $\mathcal{I}$는 $\sum_{j \in \mathcal{I}} g_j \leq H$을 만족한다. $\mathcal{I}$는 지원 포트폴리오에 속한 학교(`in': $x_j = 1$), $\mathcal{O}$는 속하지 않은 학교(`out': $x_j = 0$), 그리고 $\mathcal{N}$은 미결의 학교(`negotiable')로 이루어진다. 분할이 결정되면 부문제의 한 쌍이 결정해진다. 첫번째 부문제는 다음 같은 문제 \ref{integernlp}의 인스턴스다.
 \fi
 \begin{align} \label{nodenlpsubproblem}
 \begin{split}
@@ -1073,7 +1098,7 @@ $j = 0 \dots m$와 $h = 0 \dots H$에 대해, $\{ 1, \dots, j\}$에 속한 학�
 \ifen
 For the remaining indices, $\mathcal{X}[j, h]$ either contains $j$ or not. If it does not contain $j$, then $\mathcal{X}[j, h] = \mathcal{X}[j-1, h]$. On the other hand, if  $\mathcal{X}[j, h]$ contains $j$, then its valuation is $(1 - f_j) v(\mathcal{X}[j, h]\setminus \{j\}) + f_j t_j$. This requires that $\mathcal{X}[j, h]\setminus \{j\}$ make optimal use of the remaining budget over the remaining schools; that is, $\mathcal{X}[j, h] = \mathcal{X}[j-1, h - g_j] \cup\{j\}$. From these observations, we obtain the following Bellman equation for $ j = 1\dots m$ and $h = 1\dots H$:
 \else
-남은 지표에 대해, $\mathcal{X}[j, h]$는 $j$를 포함하거나 포함하지 않는다. $j$를 포함하지 않는다면 $\mathcal{X}[j, h] = \mathcal{X}[j-1, h]$이다. $\mathcal{X}[j, h]$가 $j$를 포함한다면, 그의 가치는  $(1 - f_j) v(\mathcal{X}[j, h]\setminus \{j\}) + f_j t_j$다. 따라서 $\mathcal{X}[j, h]\setminus \{j\}$는 남은 예산과 남은 학교에 대한 최적 포트폴리오다. 즉,  $\mathcal{X}[j, h] = \mathcal{X}[j-1, h - g_j] \cup\{j\}$이다. 이 관찰에 따라 $ j = 1\dots m$와 $h = 1\dots H$에 대해 다음 같은 Bellman 식을 얻는다.
+남은 지표에 대해, $\mathcal{X}[j, h]$는 $j$를 포함하거나 포함하지 않는다. $j$를 포함하지 않는다면 $\mathcal{X}[j, h] = \mathcal{X}[j-1, h]$이다. $\mathcal{X}[j, h]$가 $j$를 포함한다면, 그의 가치는  $(1 - f_j) v(\mathcal{X}[j, h]\setminus \{j\}) + f_j t_j$이다. 따라서 $\mathcal{X}[j, h]\setminus \{j\}$는 남은 예산과 남은 학교에 대한 최적 포트폴리오다. 즉,  $\mathcal{X}[j, h] = \mathcal{X}[j-1, h - g_j] \cup\{j\}$이다. 이 관찰에 따라 $ j = 1\dots m$와 $h = 1\dots H$에 대해 다음 같은 Bellman 식을 얻는다.
 \fi
 \begin{align}
 V[j, h] = \max\bigl\{ V[j-1, h], (1 - f_j) V[j-1, h-g_j] + f_j t_j \bigr\}
@@ -1121,7 +1146,7 @@ $t$의 순서대로 학교를 배열한다\;
 %	\lElseIf{$j = 0$ or $h=0$}{\Return{$0$}}
 %	\lElse{\Return{$\max\bigl\{ V(j-1, h), (1 - f_j) V(j-1, h-g_j) + f_j t_j \bigr\}$}}
 %}
-$V[j, h]$-값으로 표를 채운다\; \label{Vcreatedlookuptable}
+$V[j, h]$의 값으로 표를 채운다\; \label{Vcreatedlookuptable}
 $h \gets H$\;
 $\mathcal{X} \gets \O$\;
 \For{$j = m, m-1, \dots, 1$}{
@@ -1146,110 +1171,47 @@ Algorithm \ref{ellisDP1} produces an optimal application portfolio for Ellis's p
 \ifen
 Optimality follows from the foregoing discussion. Sorting $t$ is $O(m \log m)$. The bottleneck step is the creation of the lookup table for $V[j, h]$ in line \ref{Vcreatedlookuptable}. Each entry is generated in unit time, and the size of the table is $O(Hm)$. 
 \else
-위 논의에 따라 최적성이 성립한다. $t$를 배열하는 시간은 $O(m \log m)$이다. 목병 단계는 \ref{Vcreatedlookuptable}줄에서 $V[j, h]$의 표를 만드는 것이다. 각 원소를 단위 시간 안에 생성할 수 있으며 표의 크기가 $O(Hm)$다.
+위 논의에 따라 최적성이 성립한다. $t$를 배열하는 시간은 $O(m \log m)$이다. 목병 단계는 \ref{Vcreatedlookuptable}줄에서 $V[j, h]$의 표를 만드는 것이다. 각 원소를 단위 시간 안에 생성할 수 있으며 표의 크기가 $O(Hm)$이다.
 \fi
 \end{proof}
 
 
 
-%\subsubsection{Dynamic program based on portfolio valuations}
-%
-%With minimal loss of generality, we assume that all $t_j\in \mathbb{N}$ and $f_j \in (0, 1] \cap \mathbb{Q}$. Let $D$ denote the product of the denominators of the $f_j$-values. Since $v(\mathcal{X})$ is linear in $t_j$, by rescaling the $t_j$-values, we may assume that each $t_j$ is divisible by $D$. Therefore, for any portfolio $\mathcal{X}\subseteq\mathcal{X}$, $v(\mathcal{X})$ is a natural number between zero and $t_m$. %Mention size of t_m
-%
-%For integers $0 \leq j \leq m$ and $v \leq t_m$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio using only the schools $\{ 1, \dots, j\}$ and having value at least $v$, if such a portfolio exists. Let $G[j, v] = v(\mathcal{W}[j, v])$ denote the corresponding value, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$. If $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
-%\begin{align} \label{recursionrelationforcostmindp}
-%G[j, v] &=
-%\begin{cases}
-%\infty, \quad & t_j < v \\
-%\min\bigl\{G[j-1, v], g_j + G[j-1, v - \Delta] \bigr\}, \quad & t_j \geq v 
-%%\begin{cases}
-%%\min\bigl\{G[j-1, v], g_j + G[j-1, v - \Delta] \bigr\}, \quad &f_j < 1 \\
-%%\min\bigl\{G[j-1, v], g_j \bigr\}, \quad &f_j = 1 \text{ and } f_j t_j \geq v\\
-%%G[j-1, v], \quad &f_j = 1 \text{ and } f_j t_j < v
-%\end{cases}\\
-%\text{where}\qquad
-%\Delta &= 
-%\begin{cases}
-%\lfloor \frac{f_j}{1 - f_j} (t_j - v)\rfloor, \quad & f_j < 1\\
-%\infty, &f_j = 1
-%\end{cases}
-%\end{align}
-%In the $t_j < v$ case, any feasible portfolio must be composed of schools with utility less than $v$, and therefore its valuation can not equal $v$, meaning that $\mathcal{W}[j, v]$ is undefined. In the $t_j \geq v$ case, the first argument to $\min\{\}$ says simply that omitting $j$ and choosing $\mathcal{W}[j-1, v]$ is a feasible choice for $\mathcal{W}[j, v]$. If, on the other hand, $j \in \mathcal{W}[j, v]$, then
-%\begin{equation}v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j\end{equation}
-%Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a value of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. This value may not be an integer; however, because $v(\mathcal{X})$ can take only integer values, if some portfolio has $v(\mathcal{X})\geq v - \Delta$, then $v(\mathcal{X})\geq \lceil v - \Delta \rceil$ as well, which allows us to apply the floor operator to $\Delta$. When $f_j = 1$, then the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
-%\begin{equation}G[j, v] = \min\bigl\{G[j-1, v], g_j \bigr\}\end{equation}
-%Defining $\Delta = \infty$ in this case ensures that $G[j-1, v-\Delta] = 0$ as required.
-%%we have $t_j < v$, and since no portfolio can be more valueable than the largest $t_j$ value of its elements, we must have $G[j, v] =\infty$. Defining $\Delta$ as zero in this guess automatically chooses $G[j, v] = G[j-1, v] = \infty$ for the same reason.
-%%
-%%In the $f_j t_j \geq v$ case, the singleton $\{j\}$ is feasible for $j$ and $v$, so $\mathcal{W}[j, v]$ is simply the cheaper of $\{j\}$ and $.\mathcal{W}[j-1, v]$.
-%
-%Once $G[j, v]$ has been calculated at each index, the corresponding portfolio can be found by applying the observation that $
-%\mathcal{W}[j, v]$ contains $j$ if and only if $G[j, v] < G[j-1, v]$. Then solution to Ellis's problem is obtained by applying this observation to the optimal objective value $\max\{ w: G[m, w] \leq H\}$. 
-%
-%
-%
-%\begin{algorithm}[H] 
-%%\DontPrintSemicolon
-%\caption{Dynamic program for Ellis's problem with integral utility parameters and rational admissions probabilities.} \label{ellisDP2}
-%\KwData{Utility values $t \in \mathbb{N}^m$, admissions probabilities $f \in \bigl((0, 1] \cap \mathbb{Q}\bigr)^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$.}
-%Index schools in ascending order by $t$\;
-%Multiply each $t_j$ by $D$, the product of the denominators of the $f_j$\;
-%\SetKwProg{Fn}{function}{ do}{end}
-%\Fn{$G(j, v)$}{
-%	\lIf{$v \leq 0$}{\Return{$0$}}
-%	\lElseIf{$j=0$ or $t_j < v$}{\Return{$\infty$}}
-%	\Else {\Return{$\min\bigl\{ G(j-1, v), g_j + G(j-1, v -  \Delta) \bigr\}$}}
-%}
-%%	\uIf{$f_j < 1$}{\Return{$\min\bigl\{ G(j-1, v), g_j + G(j-1, v -  \lfloor \frac{f_j}{1 - f_j} (t_j - v)\rfloor ) \bigr\}$}}
-%%	\uElseIf{$f_j = 1$ and $f_j t_j \geq v$}{\Return{$\min\bigl\{G[j-1, v], g_j \bigr\}$}}
-%%	\lElse{\Return{$G(j-1, v)$}}
-%%	}
-%%\lFor{$j=1\dots m$}
-%%{$\operatorname{push!}\bigl(\mathtt{H}, (j, f_j, t_j)\bigr)$}
-%%\For{$i=1\dots h$}
-%%{
-%%    $\mathtt{D} \gets \operatorname{pop!}(\mathtt{H})$\;
-%%    $\operatorname{append!}(\mathtt{X}, \mathtt{D.j})$\;
-%%     \lIfElse{$i=1$}{$\operatorname{append!}(\mathtt{V}, \mathtt{D.f}\cdot\mathtt{D.t})$}
-%%     {$\operatorname{append!}(\mathtt{V}, \mathtt{V[i-1]} + \mathtt{D.f}\cdot\mathtt{D.t})$}
-%%    \For{$\mathtt{E} \in \mathtt{H}$}
-%%	{
-%%	\lIfElse{$\mathtt{E.j} < \mathtt{D.j}$}{$\mathtt{E.t} \gets  \mathtt{E.t} \cdot(1 -  \mathtt{D.f})$}{$\mathtt{E.t} \gets  \mathtt{E.t} -  \mathtt{D.f}\cdot\mathtt{D.t}$}
-%%	}
-%%}
-%$v \gets  \max\{ w: G(m, w) \leq H\}$\;
-%$\mathcal{X} \gets \O$\;
-%\For{$j = m, m-1, \dots, 1$}{
-%	\If{$G(j, v)< \infty$ and $G(j, v) < G(j-1, v)$}{
-%		$\mathcal{X} \gets \mathcal{X}\cup\{j\}$\; 
-%		$v \gets v - \Delta$\;
-%	}
-%}
-%\Return{$\mathcal{X}$}
-%\end{algorithm}
-%
-%\begin{theorem}[Validity of Algorithm \ref{ellisDP2}]
-%Algorithm \ref{ellisDP2} produces an optimal application portfolio for Ellis's problem in $O(D m + m \log m)$ time and $O(D m)$ space, where $D$ is the product of the denominators of the $f_j$-values.
-%\end{theorem}
-%
-%\begin{proof}
-%Optimality follows from the foregoing discussion. The computational complexity follows by symmetry with Algorithm \ref{ellisDP1}. 
-%\end{proof}
+
+
 
 
 \ifen \subsection{Fully polynomial-time approximation scheme}\else \subsection{완전 다항 시간 근사 해법}\fi \label{fptashead}
-As with the knapsack problem, Ellis's problem admits a complementary dynamic program that iterates on the value of the cheapest portfolio instead of on the cost of the most valuable portfolio. We will use this algorithm as the basis for a fully polynomial-time approximation scheme for Ellis's problem that uses $O(m^3 / \varepsilon)$ time and space. Here we assume, with a small loss of generality, that each $t_j$ is a natural number.
+\ifen 
+As with the knapsack problem, Ellis's problem admits a complementary dynamic program that iterates on the value of the cheapest portfolio instead of on the cost of the most valuable portfolio. We will use this algorithm as the basis for a fully polynomial-time approximation scheme (FPTAS) for Ellis's problem that uses $O(m^3 / \varepsilon)$-time and -space. Here we assume, with a small loss of generality, that each $t_j$ is a natural number.
 %Now, we modify Algorithm \ref{ellisDP2} into a fully polynomial-time approximation scheme for Ellis's problem.
+\else
+엘리스의 문제는 배낭 문제와 같이, 가치가  가장 높은 포트폴리오의 비용 대신 비용이 가장 낮은 포트폴리오의 가치를 탐색하는 보완적인 동적 계획이 존재한다. 이를 기반으로  $O(m^3 / \varepsilon)$-시간과 -공간을 사용하는 엘리스 문제의 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme, FPTAS)을 도출할 수 있다. 여기서 일반성을 약간 제안해서 각 $t_j$가 자연수임을 가정한다.
+\fi
 
+
+\ifen 
 We will represent approximate portfolio valuations using a fixed-point decimal with a precision of $P$, where $P$ is the number of digits to retain after the decimal point. Let $r[x] =  10^{-P}\lfloor 10^P x \rfloor$ denote the value of $x$ rounded down to its nearest fixed-point representation. Since $\bar U = \sum_{j\in \mathcal{C}} f_j t_j$ is an upper bound on the valuation of any portfolio, and since we will ensure that each fixed-point approximation is an underestimate of the portfolio's true valuation, the set $\mathcal{V}$ of possible valuations possible in the fixed-point framework is finite:
+\else
+포티폴리오의 근사적 가치를 정확도 $P$로 구성된 고정소수점 십진수(fixed-point decimal)로 나타내자. 다, $P$는 소수점 뒤에 등장하는 숫자의 수다. 이때 $x$를 가장 가까운 고정소수점 십진수로 내림한 것을 $r[x] =  10^{-P}\lfloor 10^P x \rfloor$라고 하자. 임의의 포트폴리오의 가치가 $\bar U = \sum_{j\in \mathcal{C}} f_j t_j$를 넘을 수 없으며, 모든 포트폴리오 가치의 고정소수점 십진수 근사가 실제값보다 작게 나타내도록 한다. 따라서 고정소수점 환경에서 발생할 수 있는 포트폴리오 가치로 이루어진 집합 $\mathcal{V}$는 유한 집합이다.
+\fi
 \begin{equation}
 \mathcal{V} = \Bigl\{0, 1\times 10^{-P}, 2\times 10^{-P}, \dots, r\bigl[\bar U- 1\times 10^{-P}\bigr], r\bigl[\bar U\bigr]\Bigr\}
 \end{equation}
-Then $|\mathcal{V} | = \bar U \times 10^P + 1$.
+\ifen Then $|\mathcal{V} | = \bar U \times 10^P + 1$.
+\else 그러면 $|\mathcal{V} | = \bar U \times 10^P + 1$이다.\fi
 
+\ifen
 For the remainder of this subsection, unless otherwise specified, the word \emph{valuation} refers to a portfolio’s valuation within the fixed-point framework, with the understanding that this is an approximation. We will account for the approximation error below when we prove the dynamic program’s validity. 
+\else
+본 항 나머지에서, 다른 언급이 없으면 포트폴리오의 ``가치''라고 하면 고정소수점 환경 안에서의 가치를 의미하며 이것이 근사값임을 유념한다. 나중에 동적 계획의 타당성을 증명할 때 근사 오차를 처리한다.
+\fi
 
-For integers $0 \leq j \leq m$ and $v \in [-\infty, 0) \cup \mathcal{V}$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio that uses only schools $\{ 1, \dots, j\}$ and has valuation at least $v$, if such a portfolio exists. Denote its cost by $G[j, v]$, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$, and that if $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
+\ifen
+For integers $0 \leq j \leq m$ and $v \in [-\infty, 0) \cup \mathcal{V}$, let $\mathcal{W}[j, v]$ denote the least expensive portfolio that uses only schools $\{ 1, \dots, j\}$ and has valuation at least $v$, if such a portfolio exists. Denote its cost by $G[j, v] = \sum_{j\in \mathcal{W}[j, v]} g_j$, where $G[j, v] = \infty$ if $\mathcal{W}[j, v]$ does not exist. It is clear that if $v \leq 0$, then $\mathcal{W}[j, v] = \O$ and $G[j, h] = 0$, and that if $j = 0$ and $v > 0$, then $G[j, h] = \infty$.  For the remaining indices (where $j, v > 0$), we claim that
+\else
+정수 $0 \leq j \leq m$ 그리고 $v \in [-\infty, 0) \cup \mathcal{V}$에 대해, $\{ 1, \dots, j\}$에 속한 학교만 사용하면 최소한 $v$의 가치를 가지는 포트폴리오가 존재한다면 그 중 가장 비용이 낮은 포트폴리오를  $\mathcal{W}[j, v]$라고 하자. 그의 비용을 $G[j, v] = \sum_{j\in \mathcal{W}[j, v]} g_j$라고 하자. 단, $\mathcal{W}[j, v]$가 존재하지 않으면 $G[j, v] = \infty$으로 처리한다. $v \leq 0$이면 $\mathcal{W}[j, v] = \O$이고 $G[j, h] = 0$이며, $j = 0$이고 $v > 0$이면 $G[j, h] = \infty$인 것이 분명하다. 남은 지표(즉 $j, v > 0$)는 다음을 만족한다.
+\fi
 \begin{align} \label{recursionrelationforcostmindp}
 G[j, v] &=
 \begin{cases}
@@ -1264,21 +1226,39 @@ G[j, v] &=
 \Delta_j (v) &= 
 \begin{cases}
 r\left[\frac{f_j}{1 - f_j} (t_j - v)\right], \quad & f_j < 1\\
-\infty, &f_j = 1
+\infty, &f_j = 1\ifen.\fi
 \end{cases} \label{deltajvdef}
 \end{align}
+\ifen
 In the $t_j < v$ case, any feasible portfolio must be composed of schools with utility less than $v$, and therefore its valuation can not equal $v$, meaning that $\mathcal{W}[j, v]$ is undefined. In the $t_j \geq v$ case, the first argument to $\min\{\}$ says simply that omitting $j$ and choosing $\mathcal{W}[j-1, v]$ is a permissible choice for $\mathcal{W}[j, v]$. If, on the other hand, $j \in \mathcal{W}[j, v]$, then
+\else
+$t_j < v$인 경우, 가능한 포트폴리오는 효용이 $v$보다 작은 학교로 구성되므로 그의 가치는 $v$를 넘을 수가 없고 $\mathcal{W}[j, v]$가 정의되지 않는다. $t_j \geq v$인 경우, $\min\{\}$의 첫 입력값은 $j$를 제외하고 $\mathcal{W}[j-1, v]$로 지원하는 것이 가능한 선택임을 의미한다. 반면에 $j \in \mathcal{W}[j, v]$이라면 다음이 성립한다.
+\fi
 \begin{equation} \label{solvemeforvwjvminusj}
-v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j.\end{equation}
+v(\mathcal{W}[j, v]) = (1 - f_j )v(\mathcal{W}[j, v]\setminus \{j\}) + f_j t_j\ifen.\fi\end{equation}
+\ifen
 Therefore, the subportfolio $\mathcal{W}[j, v]\setminus \{j\}$ must have a valuation of at least $v - \Delta$, where $\Delta$ satisfies $v = (1 - f_j )(v - \Delta) + f_j t_j $. When $f_j < 1$, the solution to this equation is $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$. By rounding this value down, we ensure that the true valuation of $\mathcal{W}[j, v]$ is \emph{at least} $v - \Delta$. When $t_j \geq v$ and $f_j = 1$, the singleton $\{j\}$ has $v(\{j\}) \geq v$, so
+\else
+이는 부분 포트폴리오 $\mathcal{W}[j, v]\setminus \{j\}$가 최소한 $v - \Delta$의 가치를 가져야 한다고 의미한다. 단,  $\Delta$는 $v = (1 - f_j )(v - \Delta) + f_j t_j $를 만족한다. $f_j < 1$일 때, 이 식의 해는 $ \Delta = \frac{f_j}{1 - f_j} (t_j - v)$이다. 이값을 내림함으로써 $\mathcal{W}[j, v]$가 `최소한' $v - \Delta$임을 보장한다. $t_j \geq v$이고 $f_j = 1$일 때, 단일 원소 집합 $\{j\}$에 대해 $v(\{j\}) \geq v$이므로
+\fi
 \begin{equation}G[j, v] = \min\bigl\{G[j-1, v], g_j \bigr\}.\end{equation}
+\ifen
 Defining $\Delta_j(v) = \infty$ in this case ensures that $g_j + G[j-1, v-\Delta_j(v)] = g_j+ G[j-1, v-\infty] = g_j $ as required.
+\else
+이때 $\Delta_j(v) = \infty$으로 정의하면 $g_j + G[j-1, v-\Delta_j(v)] = g_j+ G[j-1, v-\infty] = g_j $와 같은 적절한 값이 나온다.
+\fi
 %we have $t_j < v$, and since no portfolio can be more valueable than the largest $t_j$ value of its elements, we must have $G[j, v] =\infty$. Defining $\Delta$ as zero in this guess automatically chooses $G[j, v] = G[j-1, v] = \infty$ for the same reason.
 %
 %In the $f_j t_j \geq v$ case, the singleton $\{j\}$ is feasible for $j$ and $v$, so $\mathcal{W}[j, v]$ is simply the cheaper of $\{j\}$ and $.\mathcal{W}[j-1, v]$.
 
+\ifen
 Once $G[j, v]$ has been calculated at each index, the associated portfolio can be found by applying the observation that $\mathcal{W}[j, v]$ contains $j$ if and only if $G[j, v] < G[j-1, v]$. Then an approximate solution to Ellis's problem is obtained by computing the largest achievable objective value $\max\{ w: G[m, w] \leq H\}$ and corresponding portfolio.
+\else
+각 지표에 대해 $G[j, v]$를 계산한 다음에,  $\mathcal{W}[j, v]$가 $j$를 포함할 필수충분 조건인 $G[j, v] < G[j-1, v]$를 적용하면 해당 최적 포트폴리오를 구할 수 있다. 그러면 가능하면서 최대적인 목적함수값 $\max\{ w: G[m, w] \leq H\}$와 해당 포트폴리오를 계산하면 엘리스 문제의 근사해를 얻을 수 있다.
+\fi
 
+
+\ifen
 \begin{algorithm}[h] 
 %\DontPrintSemicolon
 \caption{Fully polynomial-time approximation scheme for Ellis's problem.} \label{ellisDP3}
@@ -1302,23 +1282,66 @@ $\mathcal{X} \gets \O$\;
 }
 \Return{$\mathcal{X}$}
 \end{algorithm}
+\else
+\begin{algorithm}[h] 
+%\DontPrintSemicolon
+\caption{엘리스의 문제를 위한 완전 다항 시간 근사 해법.} \label{ellisDP3}
+\KwData{효용 모수 $t \in \mathbb{N}^m$, 합격 확률 $f \in (0, 1]^m$, 지원 비용 $g \in (0, \infty)^m$, 예산 $H \in (0, \infty)^m$, 허용치 $\varepsilon \in (0, 1)$.}
+$t$의 순서대로 학교를 배열한다\;
+정확도 $P \gets \bigl\lceil\log_{10}\left(m^2 / \varepsilon \bar U\right)\bigr\rceil$\;
+%\SetKwProg{Fn}{function}{ do}{end}
+%\Fn{$G(j, v)$}{
+%	\lIf{$v \leq 0$}{\Return{$0$}}
+%	\lElseIf{$j=0$ or $t_j < v$}{\Return{$\infty$}}
+%	\lElse {\Return{$\min\bigl\{ G(j-1, v), g_j + G\bigl(j-1, v -  \Delta_j(v)\bigr) \bigr\}$}}
+%}
+$G[j, h]$의 값으로 표를 채운다\; \label{createdlookuptable}
+$v\gets  \max\{ w \in \mathcal{V} : G[m, w] \leq H\}$\; \label{vrecordedhere}
+$\mathcal{X} \gets \O$\;
+\For{$j = m, m-1, \dots, 1$}{
+	\If{$G[j, v]< \infty$이고 $G[j, v] < G[j-1, v]$}{
+		$\mathcal{X} \gets \mathcal{X}\cup\{j\}$\; 
+		$v \gets v -  \Delta_j(v)$\;
+	}
+}
+\Return{$\mathcal{X}$}
+\end{algorithm}
+\fi
 
-\begin{theorem}[Validity of Algorithm \ref{ellisDP3}]
-Algorithm \ref{ellisDP3} produces a $(1 - \varepsilon)$-optimal application portfolio for Ellis's problem in $O(m^3 /\varepsilon)$ time. % and $O(m^3/\varepsilon)$ space.
-% in $O(D m + m \log m)$ time and $O(D m)$ space, where $D$ is the product of the denominators of the $f_j$-values.
+\begin{theorem}[\ifen Validity of Algorithm \ref{ellisDP3}\else 알고리즘 \ref{ellisDP3}의 타당성\fi]
+\ifen
+Algorithm \ref{ellisDP3} produces a $(1 - \varepsilon)$-optimal application portfolio for Ellis's problem in $O(m^3 /\varepsilon)$-time. % and $O(m^3/\varepsilon)$ space.
+\else
+알고리즘 \ref{ellisDP3}은(는) $O(m^3 /\varepsilon)$-시간 안에 엘리스의 문제를 위한 $(1 - \varepsilon)$-근사 최적 포트폴리오를 출력한다.
+\fi
 \end{theorem}
 
 \begin{proof}
-(Optimality.) Let $\mathcal{W}$ denote the output of Algorithm \ref{ellisDP3} and $\mathcal{X}$ the true optimum. We know that $v(\mathcal{X}) \leq \bar U$, and because each singleton portfolio is feasible, $\mathcal{X}$ must be more valuable than the average singleton portfolio; that is, $v(\mathcal{X}) \geq \bar U / m$. 
+\ifen
+(Optimality.) Let $\mathcal{W}$ denote the output of Algorithm \ref{ellisDP3} and $\mathcal{X}$ the true optimum. We know that $v(\mathcal{X}) \leq \bar U$, and because each singleton portfolio is feasible, $\mathcal{X}$ must be more valuable than the average singleton portfolio; that is, $v(\mathcal{X}) \geq \bar U / m$.
+\else
+(최적성.) 알고리즘 \ref{ellisDP3}의 출력이 $\mathcal{W}$이며 실제 최적해가 $\mathcal{X}$라고 하자. $v(\mathcal{X}) \leq \bar U$이고, 모든 단일 원소 포트폴리오가 가능해므로  $\mathcal{X}$는 평균적인 단일 원서 포트폴리오보다 가치 높을 수 밖에 없다. 즉,  $v(\mathcal{X}) \geq \bar U / m$이다.
+\fi
 
-% In the main loop, each time the target valuation $v$ is updated using
-Because $\Delta_j(v)$ is rounded down in the recursion relation defined by \eqref{recursionrelationforcostmindp} and \eqref{deltajvdef}, if $j \in \mathcal{W}[j, v]$, then the true value of $(1 - f_j) v\bigl(\mathcal{W}[j-1, v- \Delta_j(v)]\bigr) + f_j t_j$ may exceed the fixed-point valuation $v$ of $\mathcal{W}[j, v]$, but not by more than $10^{-P}$. This error accumulates with each school added to $\mathcal{W}$, but the number of additions is at most $m$. Therefore, where $v'(\mathcal{W})$ denotes the fixed-point valuation of $\mathcal{W}$ recorded in line \ref{vrecordedhere} of the algorithm, 
+\ifen
+Because $\Delta_j(v)$ is rounded down in the recursion relation defined by \eqref{recursionrelationforcostmindp} and \eqref{deltajvdef}, if $j \in \mathcal{W}[j, v]$, then the true value of $(1 - f_j) v\bigl(\mathcal{W}[j-1, v- \Delta_j(v)]\bigr) + f_j t_j$ may exceed the fixed-point valuation $v$ of $\mathcal{W}[j, v]$, but not by more than $10^{-P}$. This error accumulates additively with each school added to $\mathcal{W}$, but the number of additions is at most $m$. Therefore, where $v'(\mathcal{W})$ denotes the fixed-point valuation of $\mathcal{W}$ recorded in line \ref{vrecordedhere} of the algorithm, 
 $v(\mathcal{W}) - v'(\mathcal{W}) \leq m 10^{-P}$.
+\else
+\eqref{recursionrelationforcostmindp}과(와) \eqref{deltajvdef}(으)로 정의된 점화식에 따라 $\Delta_j(v)$를 내림하기 때문에, $j \in \mathcal{W}[j, v]$이면 $(1 - f_j) v\bigl(\mathcal{W}[j-1, v- \Delta_j(v)]\bigr) + f_j t_j$의 실제값은 $\mathcal{W}[j, v]$의 고정소수점값인 $v$보다 클 수 있는데 최대한 $10^{-P}$ 만큼의 차이가 발생하다. 또한 이 오차는 $\mathcal{W}$에 학교를 추가할 때마다 가산적으로 누적되는데 추가하는 학교의 개수는 최대한 $m$이다. 따라서 알고리즘의 \ref{vrecordedhere}줄에서 기록하는 $\mathcal{W}$의 값이 $v'(\mathcal{W})$일 때, $v(\mathcal{W}) - v'(\mathcal{W}) \leq m 10^{-P}$이 성립한다.
+\fi
 
+\ifen
 We can define $v'(\mathcal{X})$ analogously as the fixed-point valuation of $\mathcal{X}$ when its elements are added in index order and its valuation is updated and rounded down to the nearest multiple of $10^{-P}$ at each addition in accordance with \eqref{solvemeforvwjvminusj}. By the same logic, 
 $v(\mathcal{X}) - v'(\mathcal{X}) \leq m 10^{-P}$. The optimality of $\mathcal{W}$ in the fixed-point environment implies that $v'(\mathcal{W}) \geq v'(\mathcal{X})$. 
+\else
+$\mathcal{X}$의 원소를 지표 순서대로 추가했을 때, 각 학교를 추가하면 \eqref{solvemeforvwjvminusj}에 따라 가치를 수정하고 가장 가까운 $10^{-P}$의 곱으로 내림한 값으로 $v'(\mathcal{X})$를 $v'(\mathcal{W})$와 유사하게 정의할 수 있다. 위와 같은 논리에 따라 $v(\mathcal{X}) - v'(\mathcal{X}) \leq m 10^{-P}$이다. 또한 $\mathcal{W}$가 고정소수점 환경에서 최적이므로 $v'(\mathcal{W}) \geq v'(\mathcal{X})$임을 알 수 있다.
+\fi
 
+\ifen
 Applying these observations, we have
+\else
+위 관찰을 적용하면 다음 부등식을 도출할 수 있다.
+\fi
 %the fact that $\bar U / m \leq v(\mathcal{X} \leq \bar U$, we have
 \begin{equation}
 \begin{split}
@@ -1329,38 +1352,88 @@ v(\mathcal{W}) &\geq v'(\mathcal{W}) \geq v'(\mathcal{X})
 \geq \left(1 - \varepsilon\right) v(\mathcal{X})
 \end{split}
 \end{equation}
+\ifen
 which establishes the approximation bound. 
+\else
+이는 정리에서 말한 근사 계수다.
+\fi
 
+\ifen
 (Computation time.) The bottleneck step is the creation of the lookup table in line \ref{createdlookuptable}, whose size is $m \times |\mathcal{V}|$. Since
+\else
+(계산 시간.) \ref{createdlookuptable}줄에서 표를 채우는 것이 목병 단계이며 표의 크기는 $m \times |\mathcal{V}|$이다. 그러면
+\fi
 \begin{equation}
 |\mathcal{V}| = \bar U \times 10^{P} + 1 = \bar U \times 10^ { \bigl\lceil\log_{10}\left(m ^2/ \varepsilon \bar U\right)\bigr\rceil} + 1
-\leq\frac{m^2}{\varepsilon} \times \text{const.}
+\leq\frac{m^2}{\varepsilon} \times \text{\ifen const.\else 상수\fi}
 \end{equation}
-is $O(m^2/ \varepsilon)$, the time complexity is as promised. %To prevent redundant recursive calls to $G(j, v)$, we need to record its values in a dictionary as they are computed; the space required by the dictionary is $O(|\mathcal{V}| m) = O(m^3 / \varepsilon)$.
+\ifen
+is $O(m^2/ \varepsilon)$, the time complexity is as promised.
+\else
+는 $O(m^2/ \varepsilon)$이므로 시간 복잡성을 정리와 같다.
+\fi%To prevent redundant recursive calls to $G(j, v)$, we need to record its values in a dictionary as they are computed; the space required by the dictionary is $O(|\mathcal{V}| m) = O(m^3 / \varepsilon)$.
 \end{proof}
 
-Since these bounds are polynomial in $m$ and $1 / \varepsilon$, Algorithm \ref{ellisDP3} is a fully polynomial-time approximation scheme for Ellis's problem (Vazirani 2001). 
+\ifen
+Since its time complexity is polynomial in $m$ and $1 / \varepsilon$, Algorithm \ref{ellisDP3} is an FPTAS for Ellis's problem (Vazirani 2001). 
 
-Algorithms \ref{ellisDP1} and \ref{ellisDP3} can be written using recursive functions instead; however, since each function references itself \emph{twice,} the function values at each index must be recorded in a lookup table or otherwise memoized to prevent an exponential number of calls from forming on the stack.
+Algorithms \ref{ellisDP1} and \ref{ellisDP3} can be written using recursive functions instead of lookup tables. However, since each function references itself \emph{twice,} the function values at each index must be recorded in a lookup table or otherwise memoized to prevent an exponential number of calls from forming on the stack.
+\else
+계산 시간이 $m$과 $1 / \varepsilon$의 다항식으로 제한되므로  알고리즘 \ref{ellisDP3}은(는) 엘리스의 문제를 위한 FPTAS다 (Vazirani 2001). 
+
+알고리즘 \ref{ellisDP1}과(와) 알고리즘 \ref{ellisDP3}을(를) 표 대신 재귀 함수 기반으로 구성할 수 있다. 그러나 각 재귀 함수가 스스로를 `두번' 호출하므로 지수적으로 늘어나는 호출 수를 방화하기 위해 각 지표에 대응하는 함수값을 표에 저장하거나 다른 식으로 기록해야 한다.
+\fi
 
 
+%\pagebreak
+\ifen \section{Numerical experiments} \else \section{계산 실험}\fi\label{numericalexperiments}
+\ifen
+In this section, we present the results of numerical experiments designed to test the practical efficacy of the algorithms derived above. 
+\else
+본 절에서 위에서 도출한 알고리즘의 현실성을 탐구하고자 계산 실험의 결과를 제시한다.
+\fi
 
-\pagebreak
-\ifen \section{Numerical experiments} \else \section{계산적 실험}\fi\label{numericalexperiments}
-In this section, we present the results of numerical experiments designed to test the time complexity results established above. 
+\ifen \subsection{Implementation notes} \else \subsection{알고리즘의 실행}\fi
+\ifen
+We chose to implement our algorithms in the Julia language (v1.7.0) because its system of type inference allows the compiler to optimize for differential cases such as when the $t_j$-values are integers or floating-point numbers. Julia also offers convenient macros for parallel computing, which enabled us to solve more and larger problems in the benchmark (Bezanson et al. 2017). We made extensive use of the DataStructures.jl package (v0.18.11). The code is available at \url{https://github.com/maxkapur/OptimalApplication}.
+\else
+모든 알고리즘을 쥴리아 (Julia, v1.7.0) 언어로 실행했다. 쥴리아는 $t_j$-값이 정수 또는 부동소수점 수와 같은 특수한 경우에 대해 컴파일러가 자동적으로 최적화하는 자료형 추론(type inference) 기능이 있어서 유용한 선택이었다. 또한 병렬 연산을 쉽게 관리할 수 있는 매크로를 제공하므로 계산 실험의 규모를 증가할 수 있었다 (Bezanson 외 2017). DataStructures.jl 패키지(v0.18.11)도 활용했다. 실험 코드는  \url{https://github.com/maxkapur/OptimalApplication}에서 공유한다.
+\fi
+
+\ifen
+The dynamic programs, namely Algorithms \ref{ellisDP1} and \ref{ellisDP3}, were implemented using recursive functions and dictionary memoization rather than a full lookup table. Our implementation of Algorithm \ref{ellisDP3} also differed from that described in subsection \ref{fptashead} in that we represented portfolio valuations in \emph{binary} rather than decimal, with the definitions of $P$ and $\mathcal{V}$ modified accordingly, and instead of fixed-point numbers, we worked in integers by multiplying each $t_j$-value by $2^P$. These modifications yielded a substantial performance improvement without changing the fundamental algorithm design or complexity analysis.
+\else
+동적 계획 해법인 \ref{ellisDP1}과(와) 알고리즘 \ref{ellisDP3}을(를) 표 대신 사전 기록 및 재귀 함수로 실행했다. 알고리즘 \ref{ellisDP3}은(는) \ref{fptashead}항에서 설명한 것과 달리, 포트폴리오의 가치를 십진수 대신 `이진수'로 나타냈으며 $P$와  $\mathcal{V}$의 정의를 적절히 수정했다. 그리고 고정소수점 대신 $t_j$-값을 $2^P$으로 곱해서 정수로 구성했다. 이런 변경은 기본 알고리즘 설계와 계산 시간 분석은 변하지 않는데 성능은 많이 개선한다.
+\fi
 
 
 \ifen \subsection{Experimental procedure} \else \subsection{실험 방법}\fi
 \def\nmarkets{20}
+\ifen
 The experimental procedure was as follows. First, to generate synthetic markets, we drew the $t_j$-values independently from an exponential distribution with a scale parameter of ten and rounding up to the nearest integer. To achieve partial negative correlation between $t_j$ and $f_j$, we then set $f_j = 1 / (t_j + 10\,Q)$, where $Q$ is drawn uniformly from the interval $[0, 1)$. In the first experiment, which concerns Alma's problem, we set each $g_j = 1$ and $H = h = \lfloor m/ 2 \rfloor$. In the second experiment, which concerns Ellis's problem, each $g_j$ is drawn uniformly from the set $\{5, \dots, 10\}$ and we set $H = \lfloor \frac{1}{2} \sum g_j \rfloor$. A typical instance is shown in Figure \ref{samplemarket}.
+\else
+실험 방법은 다음과 같다. 먼저, 가산 시장을 생성하기 위해 $t_j$-값을 평균이 10인 지수 분포에서 동립적으로 관측하고 정수로 올림했다. 그다음에, $t_j$와 $f_j$가 서로 부분적으로 반비례하게 만들도록 $f_j = 1 / (t_j + 10\,Q)$로 정의했다. 단, $Q$는 $[0, 1)$에서 균일한 확률로 관측한다. 알마의 문제를 고려하는 첫번째 실험에서, 모든 $g_j = 1$ 그리고 $H = h = \lfloor m/ 2 \rfloor$으로 처리했다. 엘리스의 문제를 고려하는 두번째 실험에서, 모든  $g_j$를 $\{5, \dots, 10\}$에서 균일한 확률로 관측했으며 $H = \lfloor \frac{1}{2} \sum g_j \rfloor$으로 처리했다. 그림 \ref{samplemarket}에서 전형적인 인스턴스가 나타난다.
+\fi
 
-For each combination of the experimental variables, we generated \nmarkets~markets, and the optimal portfolio was computed three times, with the fastest of the three repetitions recorded as the computation time. We then report the mean and standard deviation across the \nmarkets~markets. Therefore, each cell of each table below represents a statistic over {\the\numexpr 3 * \nmarkets \relax}~computations. Where applicable, we do not count the time required to sort the entries of $t$.
+\ifen
+The experimental variables were the market size $m$, the choice of algorithm, and (for Algorithm \ref{ellisDP3}) the tolerance $\varepsilon$. For each combination of the experimental variables, we generated \nmarkets~markets, and the optimal portfolio was computed three times, with the fastest of the three repetitions recorded as the computation time. We then report the mean and standard deviation across the \nmarkets~markets. Therefore, each cell of each table below represents a statistic over {\the\numexpr 3 * \nmarkets \relax}~computations. Where applicable, we did not count the time required to sort the entries of $t$.
+\else
+실험 변수로는 시장의 크기 $m$, 해법 선택, 그리고 (알고리즘 \ref{ellisDP3}인 경우) 허용치 $\varepsilon$을 고려했다. 실험 변수의 각 조합에 대해,  \nmarkets 개의 시장을 생성했으며 최적 포트폴리오를 3번 계산 한 것 중 가장 빠른 것으로 계산 시간으로 기록했다. \nmarkets 개의 시장에 대한 평균과 평균편차를 표에 나타낸다. 따라서 아래 표의 각 칸은 {\the\numexpr 3 * \nmarkets \relax}개의 계한에 대한 통계다. $t$를 배열하는 시간은 고려하지 않았다.
+\fi
+
 
 \ifen \subsection{Summary of results} \else \subsection{결과 정리}\fi
-In our first experiment, we compare the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Although using a max heap increases the nominal runtime from $O(hm)$ to $O(hm \log m)$, we hypothesized that in typical instances, the order of the heap would change only slightly between iterations, yielding an overall savings because of the lower costs of extracting the maximal school. Our results indicate that due to its lower overhead cost, the list implementation is faster; however, the ratio between the average times of the two implementations stays roughly constant at about 1.5, suggesting that a more effective heap implementation could be competitive in certain classes of problem instances. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
+\ifen
+In our first experiment, we compare the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Although using a max heap increases the nominal runtime from $O(hm)$ to $O(hm \log m)$, we hypothesized that in typical instances, the order of the heap would change only slightly between iterations, yielding an overall savings because of the lower costs of extracting the maximal school. Our results indicate that the list implementation is faster. However, the ratio between the average times of the two implementations stays roughly constant at about 1.5, suggesting that a more effective heap implementation could be competitive in certain classes of problem instances. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
+\else
+첫번째 실험에서, 동일한 지원 비용으로 정의된 크기가 다양한 시장에 대해 알고리즘 \ref{algorithmforlargeh}의 성능을 고려했다. 이를 $\mathcal{C}$를 목록 혹은 $f_j \bar t_j$-값에 따라 배열된 힙 구현으로 구성하는 경우로 나눴으며 실험 결과는 표 \ref{experiment1results}에서 등장한다. 이론적으로 최대 힙을 사용하면 계산 시간이 $O(hm)$에서 $O(hm \log m)$으로 늘어나지만, 전형적인 인스턴스에서 반복단계 사이에 힙의 순서가 많이 변하지 않으므로 최대 학교를 구하는 시간을 줄임에 따라 전체적인 계산 시간이 감소할 것으로 가설했다. 실험 결과에 따라 목록 구현이 더 빠른 해법이었다. 그러나, 두개의 방법 사이에 계산 시간 비율은 1.5같은 상수에 가까우므로 개선된 힙 해법이 어떤 문제 인스턴스에 대해 더 빠를 가능성이 있어 보인다. 전체적으로 계산 시간은 $m$의 제곱으로 늘아나며 이는 정리 \ref{validityofalmaalgorithm}에서 말한 $O(hm)$-시간과 동의한다.
+\fi
 
-In the second experiment, we turn to the general problem, and compare the performance of the exact algorithms (Algorithms \ref{ellisbnb} and \ref{ellisDP1}) and the approximation scheme (Algorithm \ref{ellisDP3}) at tolerances 0.5 and 0.05.  The results, which appear in Table \ref{experiment2results}, agree with the time complexity analyses presented above. Overall, we found the exact dynamic program to be the fastest algorithm, a result that echoes the results of computational studies on knapsack problems. The branch-and-bound algorithm proved impractical for even medium-sized instances. %cite computational studies knapsack
-
+\ifen
+In the second experiment, we turn to the general problem, and compare the performance of the exact algorithms (Algorithms \ref{ellisbnb} and \ref{ellisDP1}) and the approximation scheme (Algorithm \ref{ellisDP3}) at tolerances 0.5 and 0.05.  The results, which appear in Table \ref{experiment2results}, broadly agree with the time complexity analyses presented above. Overall, we found the exact dynamic program to be the fastest algorithm, while the FPTAS was rather slow, a result that echoes the results of computational studies on knapsack problems (Martello and Toth 1990, \S\,2.10). The branch-and-bound algorithm proved impractical for even medium-sized instances. %cite computational studies knapsack
+\else
+두번째 실험에서 일반적 문제를 고려한다. 정확한 해법 (알고리즘 \ref{ellisbnb} 및 알고리즘 \ref{ellisDP1}) 그리고 허용치를 0.5와 0.05로 설정한 근사 해법 (알고리즘 \ref{ellisDP3})의 성능을 비교한다. 실험 결과는 표 \ref{experiment1results}에서 나타나며 위에서 도출한 시간 복잡성 결과와 대략 같다. 정확한 동적계획 해법이 전책적으로 가장 빠르며 FPTAS가 약간 느린 것으로 나온 결과는 배낭 문제 해법을 비교한 기존 연구와 비슷하다 (Martello와 Toth 1990, \S\,2.10). 분지한계법은 크기가 중간인 인스턴스에 대해서도 비효율적이었다. 
+\fi
 
 
 
@@ -1368,7 +1441,7 @@ In the second experiment, we turn to the general problem, and compare the perfor
 \newcommand{\missing}{---}
 \newcommand{\lastptofcaption}{\ifen
 For each value of $m$, \nmarkets~markets were generated, and the computation time was recorded as fastest of three repetitions of the algorithm. The table shows the average time (standard deviation) in milliseconds over the \nmarkets~instances.
-\else 각 $m$에 대해 \nmarkets 개의 시장을 생성했으며 알고리즘을 3번 반복해서 그 중 최소 계산 시간을 기록했다. 표에서 \nmarkets 개의 인스턴스에 대한 평균 (평균편차) 시간을 밀리초 단위로 나타난다.\fi}
+\else 각 $m$에 대해 \nmarkets 개의 시장을 생성했으며 알고리즘을 3번 반복해서 그 중 최소 계산 시간을 기록했다. 표에서 \nmarkets 개의 인스턴스에 대한 평균 (평균편차) 시간이 밀리초 단위로 나타난다.\fi}
 
 \begin{table}[h!] \centering
 \begin{tabular}{r|r@{~}r|r@{~}r}
@@ -1433,21 +1506,15 @@ The branch-and-bound algorithm is impractical for large markets. \lastptofcaptio
 \centering
 \includegraphics[width=0.85\textwidth]{./plots/samplemarket.pdf}
   \caption{\label{samplemarket}
- \ifen A typical randomly-generated instance with $m=60$ schools and its optimal application portfolio. The application costs $g_j$ were drawn uniformly from $\{5, \dots, 10\}$. The optimal portfolio was computed using Algorithm \ref{ellisDP1}.
- \else $m=60$개의 학교로 구성된 전형적인 무작위로 생성한 인스턴스와 해당 최적 포트폴리오. 지원 비용 $g_j$는 $\{5, \dots, 10\}$에서 균일한 확률로 선정했으며 기호의 넓이와 비례된다. 최적 포트폴리오는 알고리즘 \ref{ellisDP1}(으)로 계산했다. \fi}
+ \ifen A typical randomly-generated instance with $m=64$ schools and its optimal application portfolio. The application costs $g_j$ were drawn uniformly from $\{5, \dots, 10\}$. The optimal portfolio was computed using Algorithm \ref{ellisDP1}.
+ \else $m=64$개의 학교로 구성된 전형적인 무작위로 생성한 인스턴스와 해당 최적 포트폴리오. 지원 비용 $g_j$는 $\{5, \dots, 10\}$에서 균일한 확률로 선정했으며 기호의 넓이와 비례된다. 최적 포트폴리오는 알고리즘 \ref{ellisDP1}(으)로 계산했다. \fi}
 \end{figure}
 
 
 
 
-\ifen \subsection{Implementation notes} \else \subsection{알고리즘의 이행}\fi
-We chose to implement our algorithms in the Julia language (v1.7.0) because its system of type inference allows the compiler to optimize for differential cases such as when the $t_j$-values are integers or floating-point numbers. Julia also offers convenient macros for parallel computing, which enabled us to solve more and larger problems in the benchmark (Bezanson et al. 2017). We made extensive use of the DataStructures.jl package (v0.18.11). The code is available at \url{https://github.com/maxkapur/OptimalApplication}.
 
-The dynamic programs, namely Algorithms \ref{ellisDP1} and \ref{ellisDP3}, were implemented using recursive functions and memoization rather than a full lookup table. Our implementation of Algorithm \ref{ellisDP3} also differed from that described in section \ref{fptashead} in that we represented portfolio valuations in \emph{binary} rather than decimal, with the definitions of $P$ and $\mathcal{V}$ modified accordingly, and instead of fixed-point numbers, we worked in integers by multiplying each $t_j$-value by $2^P$. These modifications yielded a substantial performance improvement without changing the fundamental algorithm design or complexity analysis. 
-
-
-
-\pagebreak
+%\pagebreak
 \ifen \section{Conclusion} \else \section{결론}\fi\label{conclusion}
 
 
