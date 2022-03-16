@@ -7,7 +7,7 @@ using Statistics
 using Base.Threads
 import Printf: @sprintf
 
-fullscale = false
+fullscale = true
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.

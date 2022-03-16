@@ -1455,11 +1455,11 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
  \else
  \textbf{\begin{tabular}[r]{@{}r@{}}학교의\\개수 $m$\end{tabular}}& \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{algorithmforlargeh}\\(목록 구현)\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{algorithmforlargeh}\\(힙 구현)\end{tabular}}}\\ \hline
  \fi
-   16 &     0.07 &     (0.01) &        0.09 &    (0.02) \\
-   64 &     0.88 &     (0.16) &        1.18 &    (0.21) \\
-  256 &    12.51 &     (2.20) &       18.39 &    (2.90) \\
- 1024 &   281.79 &    (58.56) &      387.97 &   (96.41) \\
- 4096 &  4661.75 &  (1152.54) &     7218.04 & (1733.91)                  
+    16 &       0.07 &    (0.02) &      0.06 &    (0.02) \\
+    64 &       0.72 &    (0.21) &      0.73 &    (0.21) \\
+   256 &      10.36 &    (2.88) &     10.74 &    (3.34) \\
+  1024 &     182.14 &   (47.83) &    181.95 &   (29.10) \\
+  4096 &    2858.49 &  (123.99) &   2994.55 &  (213.49)            
 \end{tabular}
 \caption{\label{experiment1results}
 \ifen Time to compute an optimal portfolio for an admissions market with homogeneous application costs using Algorithm \ref{algorithmforlargeh} when $\mathcal{C}$ is stored as a list and as a heap. \lastptofcaption~In every case, $h = m/2$. 
