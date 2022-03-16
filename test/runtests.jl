@@ -34,7 +34,7 @@ end
             X, vX = optimalportfolio_enumerate(mkt)
             sort!(X)
             W, vW = applicationorder(mkt; datastructure = :heap)
-            Y, vY = applicationorder(mkt; datastructure = :dict)
+            Y, vY = applicationorder(mkt; datastructure = :list)
             @test X == sort(W)
             @test vX ≈ last(vW)
             @test X == sort(Y)
@@ -48,7 +48,7 @@ end
         @testset "Exact algorithms" begin
             for _ in 1:n_markets
                 mkt = randVCM(m)
-            
+
                 X, vX = optimalportfolio_enumerate(mkt)
                 sort!(X)
                 W, VW = optimalportfolio_valuationtable(mkt)
@@ -56,7 +56,7 @@ end
                 # Without memoization
                 Z, vZ = optimalportfolio_dynamicprogram(mkt, false)
                 B, vB = optimalportfolio_branchbound(mkt)
-            
+
                 @test X == sort(W)
                 @test vX ≈ VW[mkt.m, mkt.H]
                 @test X == sort(Y)

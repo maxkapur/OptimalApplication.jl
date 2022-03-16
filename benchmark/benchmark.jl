@@ -7,7 +7,7 @@ using Statistics
 using Base.Threads
 import Printf: @sprintf
 
-fullscale = true
+fullscale = false
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -44,7 +44,7 @@ function benchmark1()
     M = fullscale ? 4 .^ (2:6) : [5, 10]
 
     sizes = zeros(Int64, n_markets, length(M))
-    times_dict = zeros(Float64, n_markets, length(M))
+    times_list = zeros(Float64, n_markets, length(M))
     times_heap = zeros(Float64, n_markets, length(M))
 
     @threads for i in 1:n_markets
@@ -52,12 +52,12 @@ function benchmark1()
         for (j, m) in enumerate(M)
             mkt = randSCM(m)
             sizes[i, j] = m
-            times_dict[i, j] = minimum(@elapsed applicationorder(mkt; datastructure = :dict) for r in 1:n_reps)
+            times_list[i, j] = minimum(@elapsed applicationorder(mkt; datastructure = :list) for r in 1:n_reps)
             times_heap[i, j] = minimum(@elapsed applicationorder(mkt; datastructure = :heap) for r in 1:n_reps)
         end
     end
 
-    df = DataFrame("m" => sizes[:], "time_dict" => times_dict[:], "time_heap" => times_heap[:])
+    df = DataFrame("m" => sizes[:], "time_list" => times_list[:], "time_heap" => times_heap[:])
 
     kv_pairs = Pair[]
     for c in names(df)

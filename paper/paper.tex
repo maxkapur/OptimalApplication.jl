@@ -633,10 +633,10 @@ Optimality follows from the proof of Theorem \ref{nestedapplication}. Suppose $\
 \end{proof}
 
 \ifen 
-In our numerical experiments, whose results are reported in section \ref{numericalexperiments},
-we also explore the possibility of storing $\mathcal{C}$ as a binary max heap rather than a list. The heap is ordered according to the criterion $i \geq j \iff f_i t_i \geq f_j t_j$. Nominally, using a heap increases the cost of the main loop from $O(h m)$ to $O(hm \log m)$ because the heap is rebalanced when each $t_j$-value is updated. However, typical problem instances do not achieve this upper bound because the order of the $f_j t_j$-values changes only slightly between iterations. The cost of updating each $t_j$-value can be reduced to unit time using a Fibonacci heap (Fredman and Tarjan 1987), yielding the same overall computation time. 
+It is also possible to store $\mathcal{C}$ as a binary max heap rather than a list. The heap is ordered according to the criterion $i \geq j \iff f_i t_i \geq f_j t_j$, and by draining the heap and reheapifying at the end of each iteration, the computation time remains $O(hm)$. In our numerical experiments, whose results are reported in section \ref{numericalexperiments},
+we found the heap implementation to be faster than the list implementation. 
 \else
-(\ref{numericalexperiments}절에서 결과를 제시할) 수리 실험에서 $\mathcal{C}$를 목록 대신 이진 최대 힙 구현으로 저장하는 방법도 고려한다. 단, 힙의 순서는 $i \geq j \iff f_i t_i \geq f_j t_j$의 조건으로 정의한다. 기술적으로, $t_j$-값을 수정할 때마다 힙의 구조를 다시 복구해야 하므로 이는 주 반복단계의 계산 비용을 $O(h m)$에서 $O(hm \log m)$으로 증가시킨다. 그러나 전형적인 시장에서는, 반복단계 사이의 $f_j t_j$-값의 순서가 크게 변하지 않으므로 이 상한은 자주 발생하지 않는다. 또한 피보나치 힙을 사용하면 $t_j$-값을 수정하는 시간을 단위 시간으로 줄여서 동등한 계산 시간을 얻어 낼 수 있다 (Fredman and Tarjan 1987). 
+$\mathcal{C}$는 목록 대신 이진 최대 힙 구현으로 저장하는 방법도 고려한다. 단, 힙의 순서는 $i \geq j \iff f_i t_i \geq f_j t_j$의 조건으로 정의하며, 각 반복단계의 마지막 단계에서 힙을 비우고 다시 힙화(heapify)하면 $O(hm)$ 계산 시간을 유지할 수 있다. (\ref{numericalexperiments}절에서 결과를 제시할) 수리 실험에서 힙 구현으로 구성한 알고리즘은 목록보다 빨랐다.
 \fi
 
 
@@ -1423,10 +1423,16 @@ The experimental variables were the market size $m$, the choice of algorithm, an
 
 \ifen \subsection{Summary of results} \else \subsection{결과 정리}\fi
 \ifen
-In our first experiment, we compare the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Although using a max heap increases the nominal runtime from $O(hm)$ to $O(hm \log m)$, we hypothesized that in typical instances, the order of the heap would change only slightly between iterations, yielding an overall savings because of the lower costs of extracting the maximal school. Our results indicate that the list implementation is faster. However, the ratio between the average times of the two implementations stays roughly constant at about 1.5, suggesting that a more effective heap implementation could be competitive in certain classes of problem instances. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
+In our first experiment, we compare the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Our results indicate that the list implementation is faster. However, the ratio between the average times of the two implementations stays roughly constant at about 1.5, suggesting that a more effective heap implementation could be competitive in certain classes of problem instances. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
 \else
-첫번째 실험에서, 동일한 지원 비용으로 정의된 크기가 다양한 시장에 대해 알고리즘 \ref{algorithmforlargeh}의 성능을 고려했다. 이를 $\mathcal{C}$를 목록 혹은 $f_j \bar t_j$-값에 따라 배열된 힙 구현으로 구성하는 경우로 나눴으며 실험 결과는 표 \ref{experiment1results}에서 등장한다. 이론적으로 최대 힙을 사용하면 계산 시간이 $O(hm)$에서 $O(hm \log m)$으로 늘어나지만, 전형적인 인스턴스에서 반복단계 사이에 힙의 순서가 많이 변하지 않으므로 최대 학교를 구하는 시간을 줄임에 따라 전체적인 계산 시간이 감소할 것으로 가설했다. 실험 결과에 따라 목록 구현이 더 빠른 해법이었다. 그러나, 두개의 방법 사이에 계산 시간 비율은 1.5같은 상수에 가까우므로 개선된 힙 해법이 어떤 문제 인스턴스에 대해 더 빠를 가능성이 있어 보인다. 전체적으로 계산 시간은 $m$의 제곱으로 늘아나며 이는 정리 \ref{validityofalmaalgorithm}에서 말한 $O(hm)$-시간과 동의한다.
+첫번째 실험에서, 동일한 지원 비용으로 정의된 크기가 다양한 시장에 대해 알고리즘 \ref{algorithmforlargeh}의 성능을 고려했다. 이를 $\mathcal{C}$를 목록 혹은 $f_j \bar t_j$-값에 따라 배열된 힙 구현으로 구성하는 경우로 나눴으며 실험 결과는 표 \ref{experiment1results}에서 등장한다. 실험 결과에 따라 목록 구현이 더 빠른 해법이었다. 그러나, 두개의 방법 사이에 계산 시간 비율은 1.5같은 상수에 가까우므로 개선된 힙 해법이 어떤 문제 인스턴스에 대해 더 빠를 가능성이 있어 보인다. 전체적으로 계산 시간은 $m$의 제곱으로 늘아나며 이는 정리 \ref{validityofalmaalgorithm}에서 말한 $O(hm)$-시간과 동의한다.
 \fi
+
+%\ifen
+%In our first experiment, we compare the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Our results indicate that the heap implementation is faster. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
+%\else
+%첫번째 실험에서, 동일한 지원 비용으로 정의된 크기가 다양한 시장에 대해 알고리즘 \ref{algorithmforlargeh}의 성능을 고려했다. 이를 $\mathcal{C}$를 목록 혹은 $f_j \bar t_j$-값에 따라 배열된 힙 구현으로 구성하는 경우로 나눴으며 실험 결과는 표 \ref{experiment1results}에서 등장한다. 실험 결과에 따라 힙 구현이 더 빠른 해법이었다. 전체적으로 계산 시간은 $m$의 제곱으로 늘아나며 이는 정리 \ref{validityofalmaalgorithm}에서 말한 $O(hm)$-시간과 동의한다.
+%\fi
 
 \ifen
 In the second experiment, we turn to the general problem, and compare the performance of the exact algorithms (Algorithms \ref{ellisbnb} and \ref{ellisDP1}) and the approximation scheme (Algorithm \ref{ellisDP3}) at tolerances 0.5 and 0.05.  The results, which appear in Table \ref{experiment2results}, broadly agree with the time complexity analyses presented above. Overall, we found the exact dynamic program to be the fastest algorithm, while the FPTAS was rather slow, a result that echoes the results of computational studies on knapsack problems (Martello and Toth 1990, \S\,2.10). The branch-and-bound algorithm proved impractical for even medium-sized instances. %cite computational studies knapsack
@@ -1449,16 +1455,11 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
  \else
  \textbf{\begin{tabular}[r]{@{}r@{}}학교의\\개수 $m$\end{tabular}}& \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{algorithmforlargeh}\\(목록 구현)\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{algorithmforlargeh}\\(힙 구현)\end{tabular}}}\\ \hline
  \fi
-%16         & \phantom{000}0.0712748          &    (\phantom{000}0.00755644)              & \phantom{000}0.0977929      &     (\phantom{000}0.00367772)            \\
-%64         & \phantom{000}0.95445\phantom{00}          &    (\phantom{000}0.0822217\phantom{0})              & \phantom{000}1.28911\phantom{00}      &     (\phantom{000}0.0517071\phantom{0})            \\
-%256        & \phantom{00}14.8587\phantom{000}          &    (\phantom{000}0.725739\phantom{00})              & \phantom{00}20.3465\phantom{000}      &     (\phantom{000}0.708838\phantom{00})            \\
-%1024       & \phantom{0}287.057\phantom{0000}          &    (\phantom{00}81.9166\phantom{0000})              & \phantom{0}390.925\phantom{0000}      &     (\phantom{0}110.501\phantom{00000})            \\
-%4096       & 4826.75\phantom{00000}          &    (1432.85\phantom{000000})              & 7304.67\phantom{00000}      &     (2071.38\phantom{000000})
-    16 &    0.07 &    (0.01) &     0.09 &    (0.02) \\
-    64 &    0.88 &    (0.16) &     1.18 &    (0.21) \\
-   256 &   12.51 &    (2.20) &    18.39 &    (2.90) \\
-  1024 &  281.79 &   (58.56) &   387.97 &   (96.41) \\
-  4096 & 4661.75 & (1152.54) &  7218.04 & (1733.91)                                  
+   16 &     0.07 &     (0.01) &        0.09 &    (0.02) \\
+   64 &     0.88 &     (0.16) &        1.18 &    (0.21) \\
+  256 &    12.51 &     (2.20) &       18.39 &    (2.90) \\
+ 1024 &   281.79 &    (58.56) &      387.97 &   (96.41) \\
+ 4096 &  4661.75 &  (1152.54) &     7218.04 & (1733.91)                  
 \end{tabular}
 \caption{\label{experiment1results}
 \ifen Time to compute an optimal portfolio for an admissions market with homogeneous application costs using Algorithm \ref{algorithmforlargeh} when $\mathcal{C}$ is stored as a list and as a heap. \lastptofcaption~In every case, $h = m/2$. 

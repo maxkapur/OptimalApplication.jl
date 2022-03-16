@@ -32,7 +32,15 @@ end
 
 """
 Contains information about a college application market with identical
-application costs.
+application costs. Fields:
+
+    `m`: Number of schools
+    `f`: Vector of admissions probabilities
+    `t`: Vector of utilitied values (must be sorted)
+    `h`: Number of schools student is allowed to apply to
+    `ft = f .* t`
+    `omf = 1 .- f`
+    `perm = sortperm(perm)`: Currently a placeholder
 """
 struct SameCostsMarket
     m::Integer
@@ -63,8 +71,19 @@ end
 
 
 """
+    VariedCostsMarket
+
 Contains information about a college application market with varying
-application costs.
+application costs. Fields:
+
+    `m`: Number of schools
+    `f`: Vector of admissions probabilities
+    `t`: Vector of utilitied values (must be sorted)
+    `g`: Vector of application costs
+    `H`: Budget to spend on applications
+    `ft = f .* t`
+    `omf = 1 .- f`
+    `perm = sortperm(perm)`: Currently a placeholder
 """
 struct VariedCostsMarket
     m::Integer

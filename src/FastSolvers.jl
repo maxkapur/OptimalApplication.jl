@@ -5,17 +5,18 @@ Contains a college's admissions probability `f`, utility value `t`,
 their product `ft`, and `1 - f = omf`. Used only by `applicationorder()`.
 """
 struct College
+    j::Int
     f::Real
     t::Real
     ft::Real
     omf::Real
 
-    function College(f::Real, t::Real, ft::Real, omf::Real)
-        return new(f, t, ft, omf)
+    function College(j::Int, f::Real, t::Real, ft::Real, omf::Real)
+        return new(j, f, t, ft, omf)
     end
 
-    function College(f::Real, t::Real, omf::Real)
-        return new(f, t, f * t, omf)
+    function College(j::Int, f::Real, t::Real, omf::Real)
+        return new(j, f, t, f * t, omf)
     end
 end
 
@@ -30,71 +31,79 @@ Produce the optimal order of application for the market `mkt` having identical
 application costs and the corresponding portfolio valuations.
 """
 function applicationorder(
-    mkt::SameCostsMarket;
-    datastructure = :heap::Symbol, verbose=false::Bool)::Tuple{Vector{Int64},Vector{Float64}}
+        mkt::SameCostsMarket;
+        datastructure = :heap::Symbol
+    )::Tuple{Vector{Int64},Vector{Float64}}
 
     apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
     if datastructure == :heap
-        mkt_heap = MutableBinaryMaxHeap{College}()
-        for j in 1:mkt.m
-            push!(mkt_heap, College(mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]))
-        end
-
-        onheap = Set(1:mkt.m)
-    
+        mkt_heap = BinaryMaxHeap{College}(collect(College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in 1:mkt.m))
         for j in 1:mkt.h
-            if verbose
-                K = sort(collect(onheap))
-                println("C = ", K)
-                println("f = ", [mkt_heap[j].f for j in K])
-                println("t = ", [mkt_heap[j].t for j in K])
-                println("ft= ", [mkt_heap[j].ft for j in K])
-            end
-
-            c_k, k = top_with_handle(mkt_heap)
+            c_k = first(mkt_heap)
             v[j] = get(v, j - 1, 0) + c_k.ft
-
-            pop!(mkt_heap)
-
-            apporder[j] = k
-            delete!(onheap, k)
-            for i in onheap
-                if i < k
-                    update!(mkt_heap, i, College(mkt_heap[i].f, mkt_heap[i].t * c_k.omf, mkt_heap[i].omf))
-                else
-                    update!(mkt_heap, i, College(mkt_heap[i].f, mkt_heap[i].t - c_k.ft, mkt_heap[i].omf))
-                end
-            end
+            apporder[j] = c_k.j
+        
+            mkt_heap = BinaryMaxHeap{College}(collect(
+                    College(
+                        c.j,
+                        c.f,
+                        c.t < c_k.t ? c.t * c_k.omf : c.t - c_k.ft,
+                        c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
+                        c.omf
+                    )
+                    # This heap.valtree field is not documented in DataStructures.jl,
+                    # but it contains the heap data in an arbitrary order, which is exactly 
+                    # what we need. Equiv. to heap.drain!() in Rust
+                    for c in (d for d in mkt_heap.valtree if d.j != c_k.j)
+                )
+            )
         end
     else
-        mkt_dict = Dict{Int64,College}()
-        for j in 1:mkt.m
-            push!(mkt_dict, j => College(mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]))
-        end
+        mkt_list = College[College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in 1:mkt.m]
         
         for j in 1:mkt.h
-            if verbose
-                K = sort(collect(keys(mkt_dict)))
-                println("C = ", K)
-                println("f = ", [mkt_dict[j].f for j in K])
-                println("t = ", [mkt_dict[j].t for j in K])
-                println("ft= ", [mkt_dict[j].ft for j in K])
-            end
-
-            c_k, k = findmax(mkt_dict)
+            c_k, k = findmax(mkt_list)
             v[j] = get(v, j - 1, 0) + c_k.ft
+            apporder[j] = c_k.j
+        
+            deleteat!(mkt_list, k)
+        
+            mkt_list[:] = collect(
+                College(
+                    c.j,
+                    c.f,
+                    c.t < c_k.t ? c.t * c_k.omf : c.t - c_k.ft,
+                    c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
+                    c.omf
+                )
+                for c in mkt_list
+            )
 
-            delete!(mkt_dict, k)
-
-            apporder[j] = k
-            for i in keys(mkt_dict)
-                if i < k
-                    mkt_dict[i] = College(mkt_dict[i].f, mkt_dict[i].t * c_k.omf, mkt_dict[i].omf)
-                else
-                    mkt_dict[i] = College(mkt_dict[i].f, mkt_dict[i].t - c_k.ft, mkt_dict[i].omf)
-                end
-            end
+            # Equivalent but slower
+            
+            # for i in 1:k-1
+            #     mkt_list[i] =
+            #         College(
+            #             mkt_list[i].j,
+            #             mkt_list[i].f,
+            #             mkt_list[i].t * c_k.omf,
+            #             mkt_list[i].ft * c_k.omf,
+            #             mkt_list[i].omf
+            #         )
+            # end
+            # for i in k+1:length(mkt_list)
+            #     mkt_list[i] =
+            #         College(
+            #             mkt_list[i].j,
+            #             mkt_list[i].f,
+            #             mkt_list[i].t - c_k.ft,
+            #             mkt_list[i].ft - mkt_list[i].f * c_k.ft,
+            #             mkt_list[i].omf
+            #         )
+            # end
+        
+            # deleteat!(mkt_list, k)
         end
     end
 

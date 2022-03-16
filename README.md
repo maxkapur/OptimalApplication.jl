@@ -13,8 +13,8 @@ julia> mkt = SameCostsMarket(
                 # Utility values (must be sorted)
                 [1, 4, 5, 7, 8],
                 # Number of schools `h` to apply to. By nestedness property, 
-                # we can obtain solution for all `h` by setting `h = m`, the
-                # number of schools in the market.
+                # we can obtain the solution for all `h` by setting `h = m`, 
+                # where `m` is the number of schools in the market.
                 5
             )
 SameCostsMarket(5, [0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 5, 7, 8], 2, [0.2, 2.0, 0.5, 4.2, 0.8], [0.8, 0.5, 0.9, 0.4, 0.9], [1, 2, 3, 4, 5])
@@ -54,4 +54,3 @@ julia> x, v = optimalportfolio_fptas(mkt, 0.25)
 ````
 
 The package also includes `optimalportfolio_enumerate()` and `optimalportfolio_branchbound()`, which are inefficient algorithms of primarily theoretical interest. 
- 
