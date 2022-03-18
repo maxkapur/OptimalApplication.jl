@@ -3,21 +3,21 @@ Contains information about a subproblem in the branch and bound scheme.
 `I` is a set of schools that are "in" the portfolio and `N` is the set that 
 are "negotiable" and used to generate an LP upper bound and child nodes.
 """
-mutable struct Node{jType<:Integer}
-    I::Set{jType}
-    N::Set{jType}
-    t̄::Dict{jType,<:AbstractFloat}
-    H̄::Real
-    v_I::AbstractFloat
-    v_LP::AbstractFloat
+mutable struct Node
+    I::Set{Int}
+    N::Set{Int}
+    t̄::Dict{Int,Float64}
+    H̄::Int
+    v_I::Float64
+    v_LP::Float64
     # isleaf flag is actually superfluous: Can just check isempty(N)
 
-    function Node(I::Set, N::Set, t̄::Dict, H̄::Real, v_I::Real, mkt::VariedCostsMarket)
+    function Node(I::Set, N::Set, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket)
         # For generating a new node with its LP relaxation value and empty child set
 
         # Leaf node
         if isempty(N)
-            return new{eltype(I)}(I, N, t̄, H̄, v_I, v_I)
+            return new(I, N, t̄, H̄, v_I, v_I)
         end
 
         j_order = collect(N)
@@ -37,7 +37,7 @@ mutable struct Node{jType<:Integer}
         # Need to use goto here for the case in which all of N fits within H̄
         @label done
 
-        return new{eltype(I)}(I, N, t̄, H̄, v_I, v_LP)
+        return new(I, N, t̄, H̄, v_I, v_LP)
     end
 end
 
@@ -60,7 +60,7 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)
 
     # No way to add any school to this: just skip to the leaf node
     if isempty(fltr)
-        child = Node(nd.I, Set{eltype(nd.I)}(), nd.t̄, nd.H̄, nd.v_I, mkt)
+        child = Node(nd.I, Set{Int}(), nd.t̄, nd.H̄, nd.v_I, mkt)
         return (child,)
     end
 
@@ -106,7 +106,7 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)
         end
         delete!(t̄1, i)
 
-        child1 = Node(union(nd.I, i), Set{eltype(nd.I)}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
+        child1 = Node(union(nd.I, i), Set{Int}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
 
         return child1, child2
     end
@@ -119,12 +119,12 @@ end
 Use the branch-and-bound algorithm to produce the optimal portfolio for the
 market `mkt` with varying application costs. Intractable for large markets. 
 """
-function optimalportfolio_branchbound(mkt; maxit = 1000000::Integer, verbose = false::Bool)
+function optimalportfolio_branchbound(mkt; maxit = 1000000::Int, verbose = false::Bool)
     mkt.m ≥ 30 && @warn "Branch and bound is slow for large markets"
 
     C = Set(1:length(mkt.t))
 
-    rootnode = Node(Set{eltype(C)}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0, mkt)
+    rootnode = Node(Set{Int}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
     LB = 0
     LB_node = rootnode
 
@@ -136,7 +136,7 @@ function optimalportfolio_branchbound(mkt; maxit = 1000000::Integer, verbose = f
 
     # push!(treekeys, push!(tree, rootnode))
 
-    tree = Dict{UInt64,Node}()
+    tree = Dict{UInt,Node}()
     push!(tree, hash(rootnode) => rootnode)
 
     for k in 1:maxit

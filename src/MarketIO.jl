@@ -1,11 +1,11 @@
-function iscoherentmarket(f::Vector{<:Real}, t::Vector{<:Real})
+function iscoherentmarket(f::Vector{Float64}, t::Vector{Int})
     @assert length(f) == length(t)
     @assert all(0 .< f .≤ 1)
     @assert issorted(t)
 end
 
 
-function iscoherentmarket(f::Vector{<:Real}, t::Vector{<:Real}, g::Vector{<:Real})
+function iscoherentmarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int})
     @assert length(f) == length(t)
     @assert length(f) == length(g)
     @assert all(0 .< f .≤ 1)
@@ -13,17 +13,17 @@ function iscoherentmarket(f::Vector{<:Real}, t::Vector{<:Real}, g::Vector{<:Real
 end
 
 
-function isnontrivialmarket(f::Vector{<:Real}, t::Vector{<:Real}, h::Int)
+function isnontrivialmarket(f::Vector{Float64}, t::Vector{Int}, h::Int)
     iscoherentmarket(f, t)
     @assert 0 < h ≤ length(t)
 end
 
 
 function isnontrivialmarket(
-    f::Vector{<:Real},
-    t::Vector{<:Real},
-    g::Vector{<:Real},
-    H::Real)
+    f::Vector{Float64},
+    t::Vector{Int},
+    g::Vector{Int},
+    H::Int)
     iscoherentmarket(f, t, g)
     @assert 0 < H ≤ sum(g)
     @assert all(0 .< g .≤ H)
@@ -43,13 +43,13 @@ application costs. Fields:
     `perm = sortperm(perm)`: Currently a placeholder
 """
 struct SameCostsMarket
-    m::Integer
-    f::Vector{<:Real}
-    t::Vector{<:Real}
-    h::Integer
-    ft::Vector{<:Real}      # = f .* t
-    omf::Vector{<:Real}     # = 1 .- f
-    perm::Vector{<:Integer}
+    m::Int
+    f::Vector{Float64}
+    t::Vector{Int}
+    h::Int
+    ft::Vector{Float64}      # = f .* t
+    omf::Vector{Float64}     # = 1 .- f
+    perm::Vector{Int}
 
     """
         SameCostsMarket(f, t, h)
@@ -58,7 +58,7 @@ struct SameCostsMarket
     admissions probabilities `f`, utility values `t`, and application limit `h`
     and return the market object.
     """
-    function SameCostsMarket(f::Vector{<:Real}, t::Vector{<:Real}, h::Integer)
+    function SameCostsMarket(f::Vector{Float64}, t::Vector{Int}, h::Int)
         isnontrivialmarket(f, t, h)
         m = length(f)
 
@@ -86,14 +86,14 @@ application costs. Fields:
     `perm = sortperm(perm)`: Currently a placeholder
 """
 struct VariedCostsMarket
-    m::Integer
-    f::Vector{<:Real}
-    t::Vector{<:Real}
-    g::Vector{<:Real}
+    m::Int
+    f::Vector{Float64}
+    t::Vector{Int}
+    g::Vector{Int}
     H::Real
-    ft::Vector{<:Real}      # = f .* t
-    omf::Vector{<:Real}     # = 1 .- f
-    perm::Vector{<:Integer}
+    ft::Vector{Float64}      # = f .* t
+    omf::Vector{Float64}     # = 1 .- f
+    perm::Vector{Int}
 
     """
         VariedCostsMarket(f, t, g, H)
@@ -102,7 +102,7 @@ struct VariedCostsMarket
     admissions probabilities `f`, utility values `t`, application costs `g`,
     and application budget `H` and return the market object.
     """
-    function VariedCostsMarket(f::Vector{<:Real}, t::Vector{<:Real}, g::Vector{<:Real}, H::Real)
+    function VariedCostsMarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
         isnontrivialmarket(f, t, g, H)
         m = length(f)
         perm = sortperm(t)
@@ -118,7 +118,7 @@ Perform preliminary helper calculations for `SameCostsMarket` defined by
 admissions probabilities `f`, utility values `t`, and application limit `h`
 and return the market object.
 """
-function Market(f::Vector{<:Real}, t::Vector{<:Real}, h::Integer)
+function Market(f::Vector{Float64}, t::Vector{Int}, h::Int)
     return SameCostsMarket(f, t, h)
 end
 
@@ -130,7 +130,7 @@ Perform preliminary helper calculations for `SameCostsMarket` defined by
 admissions probabilities `f`, utility values `t`, application costs `g`,
 and application budget `H` and return the market object.
 """
-function Market(f::Vector{<:Real}, t::Vector{<:Real}, g::Vector{<:Real}, H::Real)
+function Market(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
     return VariedCostsMarket(f, t, g, H)
 end
 
@@ -141,7 +141,7 @@ end
 Return the valuation of the portfolio `X` on the market `mkt`, which may be either 
 a `SameCostsMarket` or a `VariedCostsMarket`.
 """
-function valuation(X::Vector{<:Integer}, mkt::Union{SameCostsMarket,VariedCostsMarket})
+function valuation(X::Vector{Int}, mkt::Union{SameCostsMarket,VariedCostsMarket})
     isempty(X) && return 0.0
 
     sort!(X)

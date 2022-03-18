@@ -7,7 +7,7 @@ using Statistics
 using Base.Threads
 import Printf: @sprintf
 
-fullscale = true
+fullscale = false
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -23,7 +23,6 @@ function printheader(s)
 end
 
 function make_correlated_market(m)
-    A = 10
     t = ceil.(Int, 10 * randexp(m))
     sort!(t)
     f = inv.(t .+ 10 * rand(m))
@@ -52,8 +51,8 @@ function benchmark1()
         for (j, m) in enumerate(M)
             mkt = randSCM(m)
             sizes[i, j] = m
-            times_list[i, j] = minimum(@elapsed applicationorder(mkt; datastructure = :list) for r in 1:n_reps)
-            times_heap[i, j] = minimum(@elapsed applicationorder(mkt; datastructure = :heap) for r in 1:n_reps)
+            times_list[i, j] = minimum(@elapsed applicationorder_list(mkt) for r in 1:n_reps)
+            times_heap[i, j] = minimum(@elapsed applicationorder_heap(mkt) for r in 1:n_reps)
         end
     end
 
