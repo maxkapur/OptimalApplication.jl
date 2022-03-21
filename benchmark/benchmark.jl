@@ -7,7 +7,7 @@ using Statistics
 using Base.Threads
 import Printf: @sprintf
 
-fullscale = false
+fullscale = true
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -33,7 +33,7 @@ end
 
 randVCM(m) = VariedCostsMarket(make_correlated_market(m)...)
 function randSCM(m)
-    f, t, g, H = make_correlated_market(m)
+    f, t, _, _ = make_correlated_market(m)
     return SameCostsMarket(f, t, m ÷ 2)
 end
 
@@ -72,7 +72,7 @@ end
 function benchmark2()
     printheader("Benchmark 2: Heterogeneous-cost algorithms")
     M = fullscale ? 2 .^ (3:9) : [5, 10]
-    bnbcutoff = fullscale ? 20 : 6
+    bnbcutoff = fullscale ? 33 : 6
     epsilons = [0.5, 0.05]
 
     dtype = Union{Float64,Missing}

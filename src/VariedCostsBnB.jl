@@ -10,7 +10,6 @@ mutable struct Node
     H̄::Int
     v_I::Float64
     v_LP::Float64
-    # isleaf flag is actually superfluous: Can just check isempty(N)
 
     function Node(I::Set, N::Set, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket)
         # For generating a new node with its LP relaxation value and empty child set
@@ -119,8 +118,8 @@ end
 Use the branch-and-bound algorithm to produce the optimal portfolio for the
 market `mkt` with varying application costs. Intractable for large markets. 
 """
-function optimalportfolio_branchbound(mkt; maxit = 1000000::Int, verbose = false::Bool)
-    mkt.m ≥ 30 && @warn "Branch and bound is slow for large markets"
+function optimalportfolio_branchbound(mkt; maxit = 100000::Int, verbose = false::Bool)
+    mkt.m ≥ 33 && @warn "Branch and bound is slow for large markets"
 
     C = Set(1:length(mkt.t))
 
@@ -170,7 +169,9 @@ function optimalportfolio_branchbound(mkt; maxit = 1000000::Int, verbose = false
             end
 
             # isempty(child.N) || push!(treekeys, push!(tree, child))
-            isempty(child.N) || push!(tree, hash(child) => child)
+            if child.v_LP > LB && !isempty(child.N)
+                push!(tree, hash(child) => child)
+            end
         end
 
         if newLB

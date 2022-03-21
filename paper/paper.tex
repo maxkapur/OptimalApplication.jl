@@ -1017,7 +1017,7 @@ Candidate set $\mathfrak{T} \gets \{ n_0\}$\;
 				$L \gets v_{\mathcal{I}}[n']$\;
 				Update $\mathcal{X}$ to the $\mathcal{I}$-set associated with $n'$\;
 			}
-			\lIf{$n'$ is not a leaf}{add $n'$ to $\mathfrak{T}$}
+			\lIf{$v_{\mathrm{LP}}^*[n] > L$ and $n'$ is not a leaf}{add $n'$ to $\mathfrak{T}$}
 		}
 		\For{$n'' \in \mathfrak{T}$} {
 			\lIf{$L >  v_{\mathrm{LP}}^*[n'']$}{remove $n''$ from $\mathfrak{T}$}
@@ -1044,7 +1044,7 @@ Candidate set $\mathfrak{T} \gets \{ n_0\}$\;
 				$L \gets v_{\mathcal{I}}[n']$\;
 				$\mathcal{X}$을 $n'$에 대응하는 $\mathcal{I}$-집합으로 수정한다\;
 			}
-			\lIf{$n'$이 잎 마디 아님}{$\mathfrak{T}$에 $n'$을 추가한다}
+			\lIf{$v_{\mathrm{LP}}^*[n] > L$이고 $n'$이 잎 마디 아님}{$\mathfrak{T}$에 $n'$을 추가한다}
 		}
 		\For{$n'' \in \mathfrak{T}$} {
 			\lIf{$L >  v_{\mathrm{LP}}^*[n'']$}{$\mathfrak{T}$에서 $n''$을 제거한다}
@@ -1072,9 +1072,9 @@ To show that the algorithm does not cycle, it suffices to show that no node is g
 \end{proof}
 
 \ifen
-The branch-and-bound algorithm is an interesting benchmark, but as a kind of enumeration algorithm, its computation time grows rapidly in the problem size, and unlike the approximation scheme we propose later on, there is no guaranteed bound on the approximation error after a fixed number of iterations. Moreover, when there are many schools in $\mathcal{N}$, the LP upper bound may be much higher than $v_{\mathcal{I}}[n']$. This means that significant fathoming operations do not occur until the algorithm has explored deep into the tree, at which point the bulk of the computational effort has already been exhausted. In our numerical experiments, Algorithm \ref{ellisbnb} was ineffective on instances larger than about $m=20$ schools, and therefore it does not represent a significant improvement over na\"ive enumeration. 
+The branch-and-bound algorithm is an interesting benchmark, but as a kind of enumeration algorithm, its computation time grows rapidly in the problem size, and unlike the approximation scheme we propose later on, there is no guaranteed bound on the approximation error after a fixed number of iterations. Moreover, when there are many schools in $\mathcal{N}$, the LP upper bound may be much higher than $v_{\mathcal{I}}[n']$. This means that significant fathoming operations do not occur until the algorithm has explored deep into the tree, at which point the bulk of the computational effort has already been exhausted. In our numerical experiments, Algorithm \ref{ellisbnb} was ineffective on instances larger than about $m=35$ schools, and therefore it does not represent a significant improvement over na\"ive enumeration. 
 \else
-분지한계법은 기술적으로 유리한 기준점이지만, 일종의 열거 해법이므로 계산 시간이 문제 크기와 지수적으로 늘어난다. 그리고 뒤에서 제안하는 근사 해법과 달리, 주어진 반복한계의 개수에 대한 정확성 보장이 없다. 또한 $\mathcal{N}$에 학교가 많을 때, 선형 완화 문제 상한은 $v_{\mathcal{I}}[n']$보다 매우 높을 수도 있다. 이는 해법이 나무에 어느 정도 깊게 파고들어야 마디를 제외시킬 수 있음을 의미하며, 그때 계산 노력의 대부분은 이미 쏟은 것이다. 수리 실험에서, 알고리즘 \ref{ellisbnb}은(는) 약 $m=20$개의 학교를 넘는 인스턴스에 대해 비효율적이었으며 이는 단순한 열거법에 비해 큰 개선이 아니다.
+분지한계법은 기술적으로 유리한 기준점이지만, 일종의 열거 해법이므로 계산 시간이 문제 크기와 지수적으로 늘어난다. 그리고 뒤에서 제안하는 근사 해법과 달리, 주어진 반복한계의 개수에 대한 정확성 보장이 없다. 또한 $\mathcal{N}$에 학교가 많을 때, 선형 완화 문제 상한은 $v_{\mathcal{I}}[n']$보다 매우 높을 수도 있다. 이는 해법이 나무에 어느 정도 깊게 파고들어야 마디를 제외시킬 수 있음을 의미하며, 그때 계산 노력의 대부분은 이미 쏟은 것이다. 수리 실험에서, 알고리즘 \ref{ellisbnb}은(는) 약 $m=35$개의 학교를 넘는 인스턴스에 대해 비효율적이었으며 이는 단순한 열거법에 비해 큰 개선이 아니다.
 \fi
 
 

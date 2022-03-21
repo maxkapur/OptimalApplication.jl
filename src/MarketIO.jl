@@ -90,7 +90,7 @@ struct VariedCostsMarket
     f::Vector{Float64}
     t::Vector{Int}
     g::Vector{Int}
-    H::Real
+    H::Int
     ft::Vector{Float64}      # = f .* t
     omf::Vector{Float64}     # = 1 .- f
     perm::Vector{Int}

@@ -138,7 +138,23 @@ function optimalportfolio_valuationtable(mkt::VariedCostsMarket)::Tuple{Vector{I
 end
 
 
-const IntTypes = [Int8, Int16, Int32, Int64]
+# Used by dynamic program below
+function V_recursor!(V_dict::Dict{Tuple{Int,Int},Float64}, j::Int, h::Int, mkt::VariedCostsMarket)
+    haskey(V_dict, (j, h)) && return V_dict[(j, h)]
+
+    if j == 0 || h == 0
+        return 0.0
+    elseif h < mkt.g[j]
+        push!(V_dict, (j, h) => V_recursor!(V_dict, j - 1, h, mkt))
+        return V_dict[(j, h)]
+    else
+        push!(V_dict, (j, h) => max(
+            V_recursor!(V_dict, j - 1, h, mkt),
+            mkt.omf[j] * V_recursor!(V_dict, j - 1, h - mkt.g[j], mkt) + mkt.ft[j]
+        ))
+        return V_dict[(j, h)]
+    end
+end
 
 
 
@@ -149,38 +165,73 @@ Use the dynamic program on application costs to produce the optimal portfolio `X
 value `v` for the market `mkt` with varying application costs. 
 """
 function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket)::Tuple{Vector{Int},Float64}
-    V_dict = Dict{Tuple{Int, Int}, Float64}()
-
-    function V(j, h)
-        haskey(V_dict, (j, h)) && V_dict[(j, h)]
-
-        if j == 0 || h == 0
-            return 0.0
-        elseif h < mkt.g[j]
-            push!(V_dict, (j, h) => V(j - 1, h))
-            return V_dict[(j, h)]
-        else
-            push!(V_dict, (j, h) => max(
-                V(j - 1, h),
-                mkt.omf[j] * V(j - 1, h - mkt.g[j]) + mkt.ft[j]
-            ))
-            return V_dict[(j, h)]
-        end
-    end
-
+    V_dict = Dict{Tuple{Int,Int},Float64}()
+    v = V_recursor!(V_dict, mkt.m, mkt.H, mkt)
+    
     h = mkt.H
     X = Int[]
 
-    v = V(mkt.m, mkt.H)
-
     for j in mkt.m:-1:1
-        if V(j - 1, h) < V(j, h)
+        if V_recursor!(V_dict, j - 1, h, mkt) < V_recursor!(V_dict, j, h, mkt)
             push!(X, j)
             h -= mkt.g[j]
         end
     end
 
     return X, v
+end
+
+
+# Used by fptas below
+struct ScaleParams
+    t::Vector{Int}
+    ft::Vector{Float64}
+    Ū::Int
+    infty::Int
+
+    function ScaleParams(mkt::VariedCostsMarket, ε::Float64)
+        @assert 0 < ε < 1
+        P = ceil(Int, log2(mkt.m^2 / (ε * sum(mkt.ft))))
+        t = mkt.t .* 2^P
+        ft = mkt.f .* t
+        Ū = ceil(Int, sum(ft))
+        infty = sum(mkt.g) + 1
+
+        return new(t, ft, Ū, infty)
+    end
+end
+
+
+# Used by fptas below
+function G_recursor!(
+        G_dict::Dict{Tuple{Int,Int},Int},
+        j::Int,
+        v::Int, 
+        mkt::VariedCostsMarket,
+        sp::ScaleParams
+    )::Int
+    haskey(G_dict, (j, v)) && return G_dict[(j, v)]
+
+    if v ≤ 0
+        return 0
+    elseif j == 0 || sp.t[j] < v || v ≥ sp.Ū
+        return sp.infty
+    else
+        if mkt.f[j] < 1
+            # Clamping prevents over/underflow: for any v≤0 or v>Ū the function
+            # is trivially defined, so recording any more extreme number is meaningless
+            v_minus_Δ = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
+
+            push!(G_dict, (j, v) => min(
+                G_recursor!(G_dict, j - 1, v, mkt, sp),
+                mkt.g[j] + G_recursor!(G_dict, j - 1, v_minus_Δ, mkt, sp)
+            ))
+            return G_dict[(j, v)]
+        else
+            push!(G_dict, (j, v) => min(G_recursor!(G_dict, j - 1, v, mkt, sp), mkt.g[j]))
+            return G_dict[(j, v)]
+        end
+    end
 end
 
 
@@ -191,56 +242,22 @@ Use the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio for the market `mkt` with varying application costs. 
 """
 function optimalportfolio_fptas(mkt::VariedCostsMarket, ε::Float64)::Tuple{Vector{Int},Float64}
-    @assert 0 < ε < 1
-
-    P = ceil(Int, log2(mkt.m^2 / (ε * sum(mkt.ft))))
-
-    t = mkt.t .* 2^P
-    ft = mkt.f .* t
-
-    Ū = ceil(Int, sum(ft))
-
-    infty = sum(mkt.g) + 1
+    sp = ScaleParams(mkt, ε)
 
     G_dict = Dict{Tuple{Int,Int},Int}()
 
-    function G(j::Integer, v::Integer)
-        haskey(G_dict, (j, v)) && return G_dict[(j, v)]
-
-        if v ≤ 0
-            return 0
-        elseif j == 0 || t[j] < v || v ≥ Ū
-            return infty
-        else
-            if mkt.f[j] < 1
-                # Clamping prevents over/underflow: for any v≤0 or v>Ū the function
-                # is trivially defined, so recording any more extreme number is meaningless
-                v_minus_Δ = floor(Int, clamp((v - ft[j]) / mkt.omf[j], -1, Ū))
-
-                push!(G_dict, (j, v) => min(
-                    G(j - 1, v),
-                    mkt.g[j] + G(j - 1, v_minus_Δ)
-                ))
-                return G_dict[(j, v)]
-            else
-                push!(G_dict, (j, v) => min(G(j - 1, v), mkt.g[j]))
-                return G_dict[(j, v)]
-            end
-        end
-    end
-
     # Binary search
     v = 0
-    v_UB = Ū
+    v_UB = sp.Ū
 
     while v + 1 < v_UB
         mid = (v + v_UB) ÷ 2
 
-        if G(mkt.m, mid) > mkt.H
+        if G_recursor!(G_dict, mkt.m, mid, mkt, sp) > mkt.H
             v_UB = mid
         else
             v = mid
-            if G(mkt.m, v + 1) > mkt.H
+            if G_recursor!(G_dict, mkt.m, v + 1, mkt, sp) > mkt.H
                 @goto foundit
             end
         end
@@ -250,9 +267,9 @@ function optimalportfolio_fptas(mkt::VariedCostsMarket, ε::Float64)::Tuple{Vect
     X = Int[]
 
     for j in mkt.m:-1:1
-        if G(j, v) < infty && G(j, v) < G(j - 1, v)
+        if G_recursor!(G_dict, j, v, mkt, sp) < sp.infty && G_recursor!(G_dict, j, v, mkt, sp) < G_recursor!(G_dict, j - 1, v, mkt, sp)
             push!(X, j)
-            v = floor(Int, clamp((v - ft[j]) / mkt.omf[j], -1, Ū))
+            v = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
         end
     end
 

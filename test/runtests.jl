@@ -16,7 +16,7 @@ end
 
 randVCM(m) = VariedCostsMarket(make_correlated_market(m)...)
 function randSCM(m)
-    f, t, g, H = make_correlated_market(m)
+    f, t, _, _ = make_correlated_market(m)
     return SameCostsMarket(f, t, m ÷ 2)
 end
 
@@ -27,36 +27,36 @@ end
         for _ in 1:n_markets
             mkt = randSCM(m)
 
-            X, vX = optimalportfolio_enumerate(mkt)
-            sort!(X)
-            W, vW = applicationorder_heap(mkt)
-            Y, vY = applicationorder_list(mkt)
-            @test X == sort(W)
-            @test vX ≈ last(vW)
-            @test X == sort(Y)
-            @test vX ≈ last(vY)
+            X_enum, vX_enum = optimalportfolio_enumerate(mkt)
+            sort!(X_enum)
+            X_heap, vX_heap = applicationorder_heap(mkt)
+            X_list, vX_list = applicationorder_list(mkt)
+            @test X_enum == sort(X_heap)
+            @test vX_enum ≈ last(vX_heap)
+            @test X_enum == sort(X_list)
+            @test vX_enum ≈ last(vX_list)
         end
     end
 
     @testset verbose = true "Varied app. costs" begin
-        m = 10
+        m = 16
 
         @testset "Exact algorithms" begin
             for _ in 1:n_markets
                 mkt = randVCM(m)
 
-                X, vX = optimalportfolio_enumerate(mkt)
-                sort!(X)
-                W, VW = optimalportfolio_valuationtable(mkt)
-                Y, vY = optimalportfolio_dynamicprogram(mkt)
-                B, vB = optimalportfolio_branchbound(mkt)
+                X_enum, vX_enum = optimalportfolio_enumerate(mkt)
+                sort!(X_enum)
+                X_valtable, VX_valtable = optimalportfolio_valuationtable(mkt)
+                X_dp, vX_dp = optimalportfolio_dynamicprogram(mkt)
+                X_bnb, vX_bnb = optimalportfolio_branchbound(mkt)
 
-                @test X == sort(W)
-                @test vX ≈ VW[mkt.m, mkt.H]
-                @test X == sort(Y)
-                @test vX ≈ vY
-                @test X == sort(B)
-                @test vX ≈ vB
+                @test X_enum == sort(X_valtable)
+                @test vX_enum ≈ VX_valtable[mkt.m, mkt.H]
+                @test X_enum == sort(X_dp)
+                @test vX_enum ≈ vX_dp
+                @test X_enum == sort(X_bnb)
+                @test vX_enum ≈ vX_bnb
             end
         end
 
