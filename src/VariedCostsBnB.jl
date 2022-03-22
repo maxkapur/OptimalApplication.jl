@@ -54,13 +54,13 @@ hash(nd::Node) = hash((nd.I, nd.N))
 With respect to the data in `mkt`, generates the child(ren) of node `nd` and writes 
 their hashes to `nd.children`.
 """
-function generatechildren(nd::Node, mkt::VariedCostsMarket)
+function generatechildren(nd::Node, mkt::VariedCostsMarket)::Set{Node}
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
     if isempty(fltr)
         child = Node(nd.I, Set{Int}(), nd.t̄, nd.H̄, nd.v_I, mkt)
-        return (child,)
+        return Set((child, ))
     end
 
     # School we will branch on. In principle it can by any school in fltr.
@@ -86,12 +86,12 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)
             end
         end
         delete!(t̄1, i)
-
+    
         child1 = Node(union(nd.I, i), newN, t̄1, nd.H̄ - mkt.g[i],
             nd.v_I + mkt.f[i] * nd.t̄[i],
             mkt)
-
-        return child1, child2
+    
+        return Set((child1, child2))
     else
         # Then mkt.g[i] == nd.H̄
         # Leaf node with i
@@ -104,10 +104,10 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)
             end
         end
         delete!(t̄1, i)
-
+    
         child1 = Node(union(nd.I, i), Set{Int}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
-
-        return child1, child2
+    
+        return Set((child1, child2))
     end
 end
 
@@ -118,20 +118,20 @@ end
 Use the branch-and-bound algorithm to produce the optimal portfolio for the
 market `mkt` with varying application costs. Intractable for large markets. 
 """
-function optimalportfolio_branchbound(mkt; maxit = 100000::Int, verbose = false::Bool)
+function optimalportfolio_branchbound(mkt; maxit = 100000::Int, verbose = false::Bool)::Tuple{Vector{Int},Float64}
     mkt.m ≥ 33 && @warn "Branch and bound is slow for large markets"
 
     C = Set(1:length(mkt.t))
 
-    rootnode = Node(Set{Int}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
-    LB = 0
-    LB_node = rootnode
+    rootnode::Node = Node(Set{Int}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
+    LB::Float64 = 0.0
+    LB_node::Node = rootnode
 
     # Commented out is an implementation that stores tree as a heap. The dict is faster because
     # fathoming nodes is slow on the heap. 
 
     # tree = MutableBinaryMaxHeap{Node{eltype(C)}}()        
-    # treekeys = Set{Int64}()
+    # treekeys = Set{Int}()
 
     # push!(treekeys, push!(tree, rootnode))
 
@@ -150,7 +150,7 @@ function optimalportfolio_branchbound(mkt; maxit = 100000::Int, verbose = false:
             # pop!(tree)
             # delete!(treekeys, thisnodehandle)
         
-            thisnodehandle, thisnode = argmax(hash_nd -> hash_nd[2].v_LP, tree)
+            thisnodehandle::UInt, thisnode::Node = argmax(hash_nd -> hash_nd[2].v_LP, tree)
             delete!(tree, thisnodehandle)
             
             # Another option: Select the node with best obj value. Works pretty bad. 

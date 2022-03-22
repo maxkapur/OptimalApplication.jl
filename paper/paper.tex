@@ -390,7 +390,7 @@ The following example establishes the tightness of the approximation factor.
 
 \begin{example} \label{tightexampleforoneoverhopt}
 \ifen
-Pick any $h$ and let $m = 2h$. For a small constant $\varepsilon \in (0, 1)$, construct the market as follows.
+Pick any $h$ and let $m = 2h$. For a small constant $\varepsilon \in (0, 1)$, define the market as follows.
 \else
 임의의 $h$를 택하고 $m = 2h$라고 하자. 작은 상수  $\varepsilon \in (0, 1)$에 대해 시장을 다음처럼 구성한다.
 \fi
@@ -734,13 +734,14 @@ Below are shown the first several iterations of Algorithm \ref{algorithmforlarge
 \ifen 
 The output of the algorithm is $\mathtt{X} = [4, 2, 8, 1, 7, 3, 5, 6]$, and the optimal $h$-portfolio consists of its first $h$ entries. The ``priority'' column of Table \ref{planetsdata} shows the inverse permutation of $\mathtt{X}$, which is the minimum value of $h$ for which the school is included in the optimal portfolio. Figure \ref{planetsplot} shows the value of the optimal portfolio as a function of $h$. The concave shape of the plot suggests the result of Theorem \ref{concavityinh}. 
 \else
-알고리즘의 출력은 $\mathtt{X} = [4, 2, 8, 1, 7, 3, 5, 6]$이며 최적 $h$-포트폴리오는 그의 첫 $h$개의 원소로 이루어진다. 표 \ref{planetsdata}에서 등장하는 ``지원 순위'' 자료는 $\mathtt{X}$의 역순열(inverse permutation)이며 이는 해당 학교가 최적 포트폴리오에 포함되는 최소 $h$-값을 의미한다. 그림 \ref{planetsplot}은 최적 포트폴리오의 가치를 $h$의 함수로 나타낸다. 곡선의 오목성은 정리 \ref{concavityinh}의 결과를 시사한다.
+알고리즘의 출력은 $\mathtt{X} = [4, 2, 8, 1, 7, 3, 5, 6]$이며 최적 $h$-포트폴리오는 그의 첫 $h$개의 원소로 이루어진다. 표 \ref{planetsdata}에서 등장하는 ``지원 순위'' 자료는 $\mathtt{X}$의 역순열(inverse permutation)이며 이는 해당 학교가 최적 포트폴리오에 포함되는 최소한 $h$-값을 의미한다. 그림 \ref{planetsplot}은 최적 포트폴리오의 가치를 $h$의 함수로 나타낸다. 곡선의 오목성은 정리 \ref{concavityinh}의 결과를 시사한다.
 \fi
 
 
 
 
 \begin{table}[h!] \centering
+\small
 \begin{tabular}{r|lcccc}
 \ifen\textbf{Index $j$} & \textbf{School $c_j$} & \textbf{Utility $t_j$} & \textbf{Admit prob. $f_j$} & \textbf{Priority} & \textbf{$v(\mathcal{X}_h)$} \\ \hline
 \else 
@@ -755,8 +756,8 @@ The output of the algorithm is $\mathtt{X} = [4, 2, 8, 1, 7, 3, 5, 6]$, and the 
 7 & \ifen Neptune University   \else  해왕성대     \fi        & 500 & 0.10 & 5   & 257.7  \\
 8 & \ifen Pluto College        \else  명왕성대       \fi        & 550 & 0.12 & 3   & 195.1              
 \end{tabular}
-\caption{\label{planetsdata}
-\ifen College data and optimal application portfolios for a fictional market with $m=8$ schools. By the nestedness property (Theorem \ref{nestedapplication}), the optimal portfolio when the application limit is $h$ consists of the $h$ schools having priority number $h$ or less.
+\caption{\label{planetsdata} \normalsize
+\ifen College data and optimal application portfolios for a fictional market with $m=8$ schools. By the nestedness property (Theorem \ref{nestedapplication}), the optimal portfolio when the application limit is $h$ consists of the $h$ schools having priority $h$ or less.
 \else
 $m=8$개의 학교로 이루어진 가상 입학 시장의 대학교 자료와 최적 지원 포트폴리오. 포함 사슬 관계 성질(정리 \ref{nestedapplication})에 따라, 지원 제한이 $h$일 때 최적 포트폴리오는 지원 순위가 $h$ 이하인 $h$개의 학교로 구성된다.
 \fi}
@@ -1423,9 +1424,9 @@ The experimental variables were the market size $m$, the choice of algorithm, an
 
 \ifen \subsection{Summary of results} \else \subsection{결과 정리}\fi
 \ifen
-In our first experiment, we compare the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Our results indicate that the list implementation is faster. However, the ratio between the average times of the two implementations stays roughly constant at about 1.5, suggesting that a more effective heap implementation could be competitive in certain classes of problem instances. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
+In our first experiment, we compare the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Our results indicate that the list implementation is faster. However, the ratio between the average times of the two implementations stays roughly constant, suggesting that a more effective heap implementation could be competitive in certain classes of problem instances. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
 \else
-첫번째 실험에서, 동일한 지원 비용으로 정의된 크기가 다양한 시장에 대해 알고리즘 \ref{algorithmforlargeh}의 성능을 고려했다. 이를 $\mathcal{C}$를 목록 혹은 $f_j \bar t_j$-값에 따라 배열된 힙 구현으로 구성하는 경우로 나눴으며 실험 결과는 표 \ref{experiment1results}에서 등장한다. 실험 결과에 따라 목록 구현이 더 빠른 해법이었다. 그러나, 두개의 방법 사이에 계산 시간 비율은 1.5같은 상수에 가까우므로 개선된 힙 해법이 어떤 문제 인스턴스에 대해 더 빠를 가능성이 있어 보인다. 전체적으로 계산 시간은 $m$의 제곱으로 늘아나며 이는 정리 \ref{validityofalmaalgorithm}에서 말한 $O(hm)$-시간과 동의한다.
+첫번째 실험에서, 동일한 지원 비용으로 정의된 크기가 다양한 시장에 대해 알고리즘 \ref{algorithmforlargeh}의 성능을 고려했다. 이를 $\mathcal{C}$를 목록 혹은 $f_j \bar t_j$-값에 따라 배열된 힙 구현으로 구성하는 경우로 나눴으며 실험 결과는 표 \ref{experiment1results}에서 등장한다. 실험 결과에 따라 목록 구현이 더 빠른 해법이었다. 그러나, 두개의 방법 사이에 계산 시간 비율은 거의 상수이므로 개선된 힙 해법이 어떤 문제 인스턴스에 대해 더 빠를 가능성이 있어 보인다. 전체적으로 계산 시간은 $m$의 제곱으로 늘아나며 이는 정리 \ref{validityofalmaalgorithm}에서 말한 $O(hm)$-시간과 동의한다.
 \fi
 
 %\ifen
@@ -1449,19 +1450,21 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
 \else 각 $m$에 대해 \nmarkets 개의 시장을 생성했으며 알고리즘을 3번 반복해서 그 중 최소 계산 시간을 기록했다. 표에서 \nmarkets 개의 인스턴스에 대한 평균 (평균편차) 시간이 밀리초 단위로 나타난다.\fi}
 
 \begin{table}[h!] \centering
+\small
 \begin{tabular}{r|r@{~}r|r@{~}r}
 \ifen 
  \textbf{\begin{tabular}[r]{@{}r@{}}Number of\\schools $m$\end{tabular}}& \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{algorithmforlargeh}\\with list\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{algorithmforlargeh}\\with heap\end{tabular}}}\\ \hline
  \else
  \textbf{\begin{tabular}[r]{@{}r@{}}학교의\\개수 $m$\end{tabular}}& \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{algorithmforlargeh}\\(목록 구현)\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{algorithmforlargeh}\\(힙 구현)\end{tabular}}}\\ \hline
  \fi
-    16 &       0.07 &    (0.02) &      0.06 &    (0.02) \\
-    64 &       0.72 &    (0.21) &      0.73 &    (0.21) \\
-   256 &      10.36 &    (2.88) &     10.74 &    (3.34) \\
-  1024 &     182.14 &   (47.83) &    181.95 &   (29.10) \\
-  4096 &    2858.49 &  (123.99) &   2994.55 &  (213.49)            
+    16 &     0.00 &  (0.00) &      0.01 &    (0.00) \\
+    64 &     0.01 &  (0.00) &      0.13 &    (0.03) \\
+   256 &     0.14 &  (0.02) &      1.56 &    (0.57) \\
+  1024 &     2.21 &  (0.35) &     41.65 &   (10.55) \\
+  4096 &    35.36 &  (4.96) &   5080.63 & (6266.66) \\
+ 16384 &   552.45 & (79.57) &  16452.20 & (5525.29)       
 \end{tabular}
-\caption{\label{experiment1results}
+\caption{\label{experiment1results} \normalsize
 \ifen Time to compute an optimal portfolio for an admissions market with homogeneous application costs using Algorithm \ref{algorithmforlargeh} when $\mathcal{C}$ is stored as a list and as a heap. \lastptofcaption~In every case, $h = m/2$. 
 \else 알고리즘 \ref{algorithmforlargeh}에서 $\mathcal{C}$를 목록 또는 힙 구현으로 저장했을 때, 
 동일 지원 비용 입학 시장의 최적 지원 포트폴리오를 계산하는 시간. \lastptofcaption~모든 경우, $h = m/2$. \fi}
@@ -1473,6 +1476,7 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
 
 
 \begin{table}[h!] \centering
+\small
 \begin{tabular}{r|r@{~}r|r@{~}r|r@{~}r|r@{~}r}
 \ifen
 \textbf{\begin{tabular}[r]{@{}r@{}}Number of\\schools $m$\end{tabular}}&\multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisbnb}:\\Branch \& bound\end{tabular}}}  & \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP1}:\\App. costs DP\end{tabular}}}  &\multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP3}:\\FPTAS, $\varepsilon= 0.5$\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP3}:\\FPTAS, $\varepsilon= 0.05$\end{tabular}}}   \\ \hline
@@ -1487,7 +1491,7 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
  256 &             — &          (—) &       205.57 &     (52.98) &             3106.71 &           (957.95) &             69291.93 &          (34881.04) \\
  512 &             — &          (—) &      1136.18 &    (396.24) &            16613.99 &          (6241.99) &            206020.31 &          (45217.42) 
 \end{tabular}%
-\caption{\label{experiment2results}
+\caption{\label{experiment2results} \normalsize
 \ifen Time to compute an optimal or $(1 - \varepsilon)$-optimal portfolio for an admissions market with heterogeneous application costs using the three algorithms developed in section \ref{hetappcosts}.
 %branch-and-bound routine (Algorithm \ref{ellisbnb}), exact dynamic program (Algorithm \ref{ellisDP1}), and the fully polynomial-time approximation scheme (Algorithm \ref{ellisDP3}).
 The branch-and-bound algorithm is impractical for large markets. \lastptofcaption
@@ -1564,6 +1568,9 @@ Rozanov, Mark and Arie Tamir. 2020. ``The nestedness property of the convex orde
 Sniedovich, Moshe. 1980. ``Preference Order Stochastic Knapsack Problems: Methodological Issues.'' \emph{The Journal of the Operational Research Society} 31 (11): 1025--32. \url{https://www.jstor.org/stable/2581283}. 
 
 Steinberg, E. and M. S. Parks. 1979. ``A Preference Order Dynamic Program for a Knapsack Problem with Stochastic Rewards.'' \emph{The Journal of the Operational Research Society} 30 (2): 141--47. \url{https://www.jstor.org/stable/3009295}. 
+
+% Another ex of nestedness.
+%Tibshirani, Robert. 1996. ``Regression Shrinkage and Selection via the Lasso.'' \emph{Journal of the Royal Statistical Society,. Series B (Methodological)} 58, no. 1: 267--88. \url{https://www.jstor.org/stable/2346178}.
 
 Vazirani, Vijay. 2001. \emph{Approximation Algorithms.} Berlin: Springer. 
 

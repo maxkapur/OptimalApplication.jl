@@ -4,7 +4,7 @@
 Produce the optimal portfolio for the market `mkt` having identical application costs.
 """
 function optimalportfolio_enumerate(mkt::SameCostsMarket)::Tuple{Vector{Int},Float64}
-    X = zeros(Int64, mkt.h)
+    X = zeros(Int, mkt.h)
     v = 0.0
 
     for Y in multiset_combinations(1:mkt.m, mkt.h)

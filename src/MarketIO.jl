@@ -30,6 +30,9 @@ function isnontrivialmarket(
 end
 
 
+# TO DO: Parameterize type of m to use a smaller integer type depending on size of input.
+
+
 """
 Contains information about a college application market with identical
 application costs. Fields:

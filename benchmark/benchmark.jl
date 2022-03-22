@@ -6,20 +6,24 @@ using StatsBase
 using Statistics
 using Base.Threads
 import Printf: @sprintf
+using BenchmarkTools
 
-fullscale = true
+const fullscale = true
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
 
 # Number of times to repeat each computation, where min of these is reported as time
-n_reps = fullscale ? 3 : 2
+BenchmarkTools.DEFAULT_PARAMETERS.samples = fullscale ? 5 : 2
+BenchmarkTools.DEFAULT_PARAMETERS.evals = 1 # ... which is the default
 
 # Number of markets to test at each intersection of the experimental variables
-n_markets = fullscale ? 20 : 2
+const n_markets = fullscale ? 20 : 2
+const bnbcutoff = fullscale ? 33 : 6
+const twottbnbcutoff = 2^bnbcutoff
 
 function printheader(s)
-    printstyled(s * "\n", bold = true, color = 222)
+    printstyled(s * "\n", bold=true, color=222)
 end
 
 function make_correlated_market(m)
@@ -31,6 +35,7 @@ function make_correlated_market(m)
     return f, t, g, H
 end
 
+
 randVCM(m) = VariedCostsMarket(make_correlated_market(m)...)
 function randSCM(m)
     f, t, _, _ = make_correlated_market(m)
@@ -40,9 +45,9 @@ end
 
 function benchmark1()
     printheader("Benchmark 1: Homogeneous-cost algorithms")
-    M = fullscale ? 4 .^ (2:6) : [5, 10]
+    M = fullscale ? 4 .^ (2:7) : [5, 10]
 
-    sizes = zeros(Int64, n_markets, length(M))
+    sizes = zeros(Int, n_markets, length(M))
     times_list = zeros(Float64, n_markets, length(M))
     times_heap = zeros(Float64, n_markets, length(M))
 
@@ -51,8 +56,8 @@ function benchmark1()
         for (j, m) in enumerate(M)
             mkt = randSCM(m)
             sizes[i, j] = m
-            times_list[i, j] = minimum(@elapsed applicationorder_list(mkt) for r in 1:n_reps)
-            times_heap[i, j] = minimum(@elapsed applicationorder_heap(mkt) for r in 1:n_reps)
+            times_list[i, j] = @belapsed applicationorder_list($mkt)
+            times_heap[i, j] = @belapsed applicationorder_heap($mkt)
         end
     end
 
@@ -72,12 +77,11 @@ end
 function benchmark2()
     printheader("Benchmark 2: Heterogeneous-cost algorithms")
     M = fullscale ? 2 .^ (3:9) : [5, 10]
-    bnbcutoff = fullscale ? 33 : 6
     epsilons = [0.5, 0.05]
 
     dtype = Union{Float64,Missing}
 
-    sizes = zeros(Int64, n_markets, length(M))
+    sizes = zeros(Int, n_markets, length(M))
     times_bnb = zeros(dtype, n_markets, length(M))
     times_dp = zeros(dtype, n_markets, length(M))
     times_fptas = [zeros(dtype, n_markets, length(M)) for k in epsilons]
@@ -91,12 +95,12 @@ function benchmark2()
             mkt = randVCM(m)
             sizes[i, j] = m
             if m ≤ bnbcutoff
-                times_bnb[i, j] = minimum(@elapsed optimalportfolio_branchbound(mkt; maxit = 40000) for r in 1:n_reps)
+                times_bnb[i, j] = @belapsed optimalportfolio_branchbound($mkt; maxit=$twottbnbcutoff)
             end
-            times_dp[i, j] = minimum(@elapsed optimalportfolio_dynamicprogram(mkt) for r in 1:n_reps)
+            times_dp[i, j] = @belapsed optimalportfolio_dynamicprogram($mkt)
 
             for (k, epsilon) in enumerate(epsilons)
-                times_fptas[k][i, j] = minimum(@elapsed optimalportfolio_fptas(mkt, epsilon) for r in 1:n_reps)
+                times_fptas[k][i, j] = @belapsed optimalportfolio_fptas($mkt, $epsilon)
             end
         end
     end
@@ -121,7 +125,7 @@ end
 function fmter(v, i, j)
     j == 1 && return v
 
-    v = ismissing(v) ? "—" : @sprintf "%1.2f" 1000*v
+    v = ismissing(v) ? "—" : @sprintf "%1.2f" 1000 * v
 
     return isodd(j) ? "($v)" : v
 end
@@ -130,9 +134,9 @@ end
 @time begin
     println()
     bm1 = benchmark1()
-    display(pretty_table(bm1[1], formatters = fmter))
+    display(pretty_table(bm1[1], formatters=fmter))
     println("\n")
     bm2 = benchmark2()
-    display(pretty_table(bm2[1], formatters = fmter))
+    display(pretty_table(bm2[1], formatters=fmter))
     println("\n")
 end
