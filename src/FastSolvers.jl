@@ -137,7 +137,7 @@ end
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 valuation table `V` for the market `mkt` with varying application costs.
 """
-function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where T
+function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{T},Matrix{Float64}} where T
     V = zeros(mkt.m, mkt.H)
     for j in T(1):mkt.m, h in 1:mkt.H
         if h < mkt.g[j]

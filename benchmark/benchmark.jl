@@ -103,12 +103,9 @@ function benchmark2()
     dtype = Union{Float64,Missing}
 
     sizes = zeros(Int, n_markets, length(marketsizes_VCM))
-    times_bnb = zeros(dtype, n_markets, length(marketsizes_VCM))
-    times_dp = zeros(dtype, n_markets, length(marketsizes_VCM))
-    times_fptas = [zeros(dtype, n_markets, length(marketsizes_VCM)) for k in epsilons]
-    fill!.((times_bnb, times_dp), missing)
-    fill!.(times_fptas, missing)
-
+    times_bnb = Array{dtype}(missing, n_markets, length(marketsizes_VCM))
+    times_dp = Array{dtype}(missing, n_markets, length(marketsizes_VCM))
+    times_fptas = Array{dtype}[Array{dtype}(missing, n_markets, length(marketsizes_VCM)) for _ in epsilons]
 
     @threads for i in 1:n_markets
         println("  i = $i of $n_markets")
@@ -141,7 +138,7 @@ function benchmark2()
         push!(
             plts,
             histogram(
-                Array{Float64}(df[large_idx, c]),
+                Vector{Float64}(df[large_idx, c]),
                 ylabel=c,
                 title="Time when m = $(marketsizes_SCM[end])"
             )
@@ -168,14 +165,15 @@ function fmter(v, i, j)
 end
 
 
-@time begin
+function doeverything()
     println()
-    bm1, plts1, df1 = benchmark1()
+    bm1, plts1, = benchmark1()
     display(pretty_table(bm1, formatters=fmter))
-    for pl in plts1 display(pl) end
-    println("\n")
-    bm2, plts2, df2 = benchmark2()
+    for pl in plts1 display(pl); println() end
+    bm2, plts2, = benchmark2()
     display(pretty_table(bm2, formatters=fmter))
-    for pl in plts2 display(pl) end
-    println("\n")
+    for pl in plts2 display(pl); println() end
 end
+
+
+@time doeverything()
