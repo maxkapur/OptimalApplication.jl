@@ -3,20 +3,20 @@ Contains information about a subproblem in the branch and bound scheme.
 `I` is a set of schools that are "in" the portfolio and `N` is the set that 
 are "negotiable" and used to generate an LP upper bound and child nodes.
 """
-mutable struct Node
-    I::Set{Int}
-    N::Set{Int}
+mutable struct Node{T<:Unsigned}
+    I::Set{T}
+    N::Set{T}
     t̄::Dict{Int,Float64}
     H̄::Int
     v_I::Float64
     v_LP::Float64
 
-    function Node(I::Set, N::Set, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket)
+    function Node(I::Set{T}, N::Set{T}, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket{T}) where T
         # For generating a new node with its LP relaxation value and empty child set
 
         # Leaf node
         if isempty(N)
-            return new(I, N, t̄, H̄, v_I, v_I)
+            return new{T}(I, N, t̄, H̄, v_I, v_I)
         end
 
         j_order = collect(N)
@@ -36,15 +36,11 @@ mutable struct Node
         # Need to use goto here for the case in which all of N fits within H̄
         @label done
 
-        return new(I, N, t̄, H̄, v_I, v_LP)
+        return new{T}(I, N, t̄, H̄, v_I, v_LP)
     end
 end
 
 hash(nd::Node) = hash((nd.I, nd.N))
-# Depth-first strategy:
-# isless(nd1::Node, nd2::Node) = isless(nd1.v_I, nd2.v_I)
-# Breadth-first strategy:
-# isless(nd1::Node, nd2::Node) = isless(nd1.v_LP, nd2.v_LP)
 
 
 
@@ -54,12 +50,12 @@ hash(nd::Node) = hash((nd.I, nd.N))
 With respect to the data in `mkt`, generates the child(ren) of node `nd` and writes 
 their hashes to `nd.children`.
 """
-function generatechildren(nd::Node, mkt::VariedCostsMarket)::Set{Node}
+function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Set{Node{T}} where T
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
     if isempty(fltr)
-        child = Node(nd.I, Set{Int}(), nd.t̄, nd.H̄, nd.v_I, mkt)
+        child = Node(nd.I, Set{T}(), nd.t̄, nd.H̄, nd.v_I, mkt)
         return Set((child, ))
     end
 
@@ -105,7 +101,7 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)::Set{Node}
         end
         delete!(t̄1, i)
     
-        child1 = Node(union(nd.I, i), Set{Int}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
+        child1 = Node(union(nd.I, i), Set{T}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
     
         return Set((child1, child2))
     end
@@ -118,14 +114,14 @@ end
 Use the branch-and-bound algorithm to produce the optimal portfolio for the
 market `mkt` with varying application costs. Intractable for large markets. 
 """
-function optimalportfolio_branchbound(mkt; maxit = 100000::Int, verbose = false::Bool)::Tuple{Vector{Int},Float64}
+function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit = 100000::Int, verbose = false::Bool)::Tuple{Vector{T},Float64} where T
     mkt.m ≥ 33 && @warn "Branch and bound is slow for large markets"
 
-    C = Set(1:length(mkt.t))
+    C = Set(T(1):mkt.m)
 
-    rootnode::Node = Node(Set{Int}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
+    rootnode::Node{T} = Node(Set{T}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
     LB::Float64 = 0.0
-    LB_node::Node = rootnode
+    LB_node::Node{T} = rootnode
 
     # Commented out is an implementation that stores tree as a heap. The dict is faster because
     # fathoming nodes is slow on the heap. 
@@ -135,7 +131,7 @@ function optimalportfolio_branchbound(mkt; maxit = 100000::Int, verbose = false:
 
     # push!(treekeys, push!(tree, rootnode))
 
-    tree = Dict{UInt,Node}()
+    tree = Dict{UInt,Node{T}}()
     push!(tree, hash(rootnode) => rootnode)
 
     for k in 1:maxit
@@ -150,7 +146,7 @@ function optimalportfolio_branchbound(mkt; maxit = 100000::Int, verbose = false:
             # pop!(tree)
             # delete!(treekeys, thisnodehandle)
         
-            thisnodehandle::UInt, thisnode::Node = argmax(hash_nd -> hash_nd[2].v_LP, tree)
+            thisnodehandle::UInt, thisnode::Node{T} = argmax(hash_nd -> hash_nd[2].v_LP, tree)
             delete!(tree, thisnodehandle)
             
             # Another option: Select the node with best obj value. Works pretty bad. 
@@ -158,7 +154,7 @@ function optimalportfolio_branchbound(mkt; maxit = 100000::Int, verbose = false:
             # delete!(tree, thisnodehandle)
         end
 
-        children = generatechildren(thisnode, mkt)
+        children::Set{Node{T}} = generatechildren(thisnode, mkt)
 
         newLB = false
         for child in children

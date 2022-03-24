@@ -1,3 +1,7 @@
+const UIntTypes = DataType[UInt8, UInt16, UInt32, UInt64]
+
+
+# TO DO: Use Julian errors rather than assertions here.
 function iscoherentmarket(f::Vector{Float64}, t::Vector{Int})
     @assert length(f) == length(t)
     @assert all(0 .< f .≤ 1)
@@ -30,9 +34,6 @@ function isnontrivialmarket(
 end
 
 
-# TO DO: Parameterize type of m to use a smaller integer type depending on size of input.
-
-
 """
 Contains information about a college application market with identical
 application costs. Fields:
@@ -45,14 +46,14 @@ application costs. Fields:
     `omf = 1 .- f`
     `perm = sortperm(perm)`: Currently a placeholder
 """
-struct SameCostsMarket
-    m::Int
+struct SameCostsMarket{T<:Unsigned}
+    m::T
     f::Vector{Float64}
     t::Vector{Int}
-    h::Int
+    h::T
     ft::Vector{Float64}      # = f .* t
     omf::Vector{Float64}     # = 1 .- f
-    perm::Vector{Int}
+    perm::Vector{T}
 
     """
         SameCostsMarket(f, t, h)
@@ -61,14 +62,15 @@ struct SameCostsMarket
     admissions probabilities `f`, utility values `t`, and application limit `h`
     and return the market object.
     """
-    function SameCostsMarket(f::Vector{Float64}, t::Vector{Int}, h::Int)
+    function SameCostsMarket(f::Vector{Float64}, t::Vector{Int}, h::Integer)
         isnontrivialmarket(f, t, h)
-        m = length(f)
+        T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
+        m = T(length(f))
 
         # We are current asserting that t is sorted; a placeholder for later work
-        perm = sortperm(t)
+        perm = T.(sortperm(t))
 
-        return new(m, f, t, h, f .* t, 1 .- f, perm)
+        return new{T}(m, f, t, T(h), f .* t, 1 .- f, perm)
     end
 end
 
@@ -88,15 +90,15 @@ application costs. Fields:
     `omf = 1 .- f`
     `perm = sortperm(perm)`: Currently a placeholder
 """
-struct VariedCostsMarket
-    m::Int
+struct VariedCostsMarket{T<:Unsigned}
+    m::T
     f::Vector{Float64}
     t::Vector{Int}
     g::Vector{Int}
     H::Int
     ft::Vector{Float64}      # = f .* t
     omf::Vector{Float64}     # = 1 .- f
-    perm::Vector{Int}
+    perm::Vector{T}
 
     """
         VariedCostsMarket(f, t, g, H)
@@ -107,10 +109,11 @@ struct VariedCostsMarket
     """
     function VariedCostsMarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
         isnontrivialmarket(f, t, g, H)
-        m = length(f)
-        perm = sortperm(t)
+        T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
+        m = T(length(f))
+        perm = T.(sortperm(t))
 
-        return new(m, f, t, g, H, f .* t, 1 .- f, perm)
+        return new{T}(m, f, t, g, H, f .* t, 1 .- f, perm)
     end
 end
 
@@ -144,17 +147,17 @@ end
 Return the valuation of the portfolio `X` on the market `mkt`, which may be either 
 a `SameCostsMarket` or a `VariedCostsMarket`.
 """
-function valuation(X::Vector{Int}, mkt::Union{SameCostsMarket,VariedCostsMarket})
+function valuation(X::Vector{T}, mkt::Union{SameCostsMarket{T},VariedCostsMarket}) where T
     isempty(X) && return 0.0
 
     sort!(X)
-    h = length(X)
+    h = T(length(X))
 
     if h > 1
         res = 0.0
         cp = reverse(cumprod(reverse(mkt.omf[X[2:end]])))
 
-        for j in 1:h-1
+        for j in T(1):T(h-1)
             res += mkt.ft[X[j]] * cp[j]
         end
 

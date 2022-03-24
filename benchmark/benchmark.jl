@@ -7,8 +7,9 @@ using Statistics
 using Base.Threads
 import Printf: @sprintf
 using BenchmarkTools
+using UnicodePlots
 
-const fullscale = true
+const fullscale = false
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -21,6 +22,10 @@ BenchmarkTools.DEFAULT_PARAMETERS.evals = 1 # ... which is the default
 const n_markets = fullscale ? 20 : 2
 const bnbcutoff = fullscale ? 33 : 6
 const twottbnbcutoff = 2^bnbcutoff
+
+# Sizes of markets to test
+const marketsizes_SCM = fullscale ? 4 .^ (2:7) : [5, 10]
+const marketsizes_VCM = fullscale ? 2 .^ (3:9) : [5, 10]
 
 function printheader(s)
     printstyled(s * "\n", bold=true, color=222)
@@ -35,8 +40,8 @@ function make_correlated_market(m)
     return f, t, g, H
 end
 
-
 randVCM(m) = VariedCostsMarket(make_correlated_market(m)...)
+
 function randSCM(m)
     f, t, _, _ = make_correlated_market(m)
     return SameCostsMarket(f, t, m ÷ 2)
@@ -45,15 +50,14 @@ end
 
 function benchmark1()
     printheader("Benchmark 1: Homogeneous-cost algorithms")
-    M = fullscale ? 4 .^ (2:7) : [5, 10]
 
-    sizes = zeros(Int, n_markets, length(M))
-    times_list = zeros(Float64, n_markets, length(M))
-    times_heap = zeros(Float64, n_markets, length(M))
+    sizes = zeros(Int, n_markets, length(marketsizes_SCM))
+    times_list = zeros(Float64, n_markets, length(marketsizes_SCM))
+    times_heap = zeros(Float64, n_markets, length(marketsizes_SCM))
 
     @threads for i in 1:n_markets
         println("  i = $i of $n_markets")
-        for (j, m) in enumerate(M)
+        for (j, m) in enumerate(marketsizes_SCM)
             mkt = randSCM(m)
             sizes[i, j] = m
             times_list[i, j] = @belapsed applicationorder_list($mkt)
@@ -61,7 +65,25 @@ function benchmark1()
         end
     end
 
-    df = DataFrame("m" => sizes[:], "time_list" => times_list[:], "time_heap" => times_heap[:])
+    df = DataFrame(
+        "m" => sizes[:],
+        "time_list" => times_list[:],
+        "time_heap" => times_heap[:]
+    )
+
+    plts = Plot[]
+    
+    large_idx = df[!, :m] .== marketsizes_SCM[end]
+    for c in names(df)[2:end]
+        push!(
+            plts,
+            histogram(
+                df[large_idx, c],
+                ylabel=c,
+                title="Time when m = $(marketsizes_SCM[end])"
+            )
+        )
+    end
 
     kv_pairs = Pair[]
     for c in names(df)
@@ -70,32 +92,32 @@ function benchmark1()
             push!(kv_pairs, c => std)
         end
     end
-    return combine(groupby(df, :m), kv_pairs...), df
+    return combine(groupby(df, :m), kv_pairs...), plts, df
 end
 
 
 function benchmark2()
     printheader("Benchmark 2: Heterogeneous-cost algorithms")
-    M = fullscale ? 2 .^ (3:9) : [5, 10]
     epsilons = [0.5, 0.05]
 
     dtype = Union{Float64,Missing}
 
-    sizes = zeros(Int, n_markets, length(M))
-    times_bnb = zeros(dtype, n_markets, length(M))
-    times_dp = zeros(dtype, n_markets, length(M))
-    times_fptas = [zeros(dtype, n_markets, length(M)) for k in epsilons]
+    sizes = zeros(Int, n_markets, length(marketsizes_VCM))
+    times_bnb = zeros(dtype, n_markets, length(marketsizes_VCM))
+    times_dp = zeros(dtype, n_markets, length(marketsizes_VCM))
+    times_fptas = [zeros(dtype, n_markets, length(marketsizes_VCM)) for k in epsilons]
     fill!.((times_bnb, times_dp), missing)
     fill!.(times_fptas, missing)
 
 
     @threads for i in 1:n_markets
         println("  i = $i of $n_markets")
-        for (j, m) in enumerate(M)
+        for (j, m) in enumerate(marketsizes_VCM)
             mkt = randVCM(m)
             sizes[i, j] = m
             if m ≤ bnbcutoff
-                times_bnb[i, j] = @belapsed optimalportfolio_branchbound($mkt; maxit=$twottbnbcutoff)
+                times_bnb[i, j] =
+                    @belapsed optimalportfolio_branchbound($mkt; maxit=$twottbnbcutoff)
             end
             times_dp[i, j] = @belapsed optimalportfolio_dynamicprogram($mkt)
 
@@ -109,7 +131,22 @@ function benchmark2()
         "m" => sizes[:],
         "time_bnb" => times_bnb[:],
         "time_dp" => times_dp[:],
-        ["time_fptas_$epsilon" => times_fptas[k][:] for (k, epsilon) in enumerate(epsilons)]...)
+        ["time_fptas_$epsilon" => times_fptas[k][:] for (k, epsilon) in enumerate(epsilons)]...
+    )
+
+    plts = Plot[]
+
+    large_idx = df[!, :m] .== marketsizes_VCM[end]
+    for c in setdiff(names(df), ("m", "time_bnb"))
+        push!(
+            plts,
+            histogram(
+                Array{Float64}(df[large_idx, c]),
+                ylabel=c,
+                title="Time when m = $(marketsizes_SCM[end])"
+            )
+        )
+    end
 
     kv_pairs = Pair[]
     for c in names(df)
@@ -118,7 +155,7 @@ function benchmark2()
             push!(kv_pairs, c => std)
         end
     end
-    return combine(groupby(df, :m), kv_pairs...), df
+    return combine(groupby(df, :m), kv_pairs...), plts, df
 end
 
 
@@ -133,10 +170,12 @@ end
 
 @time begin
     println()
-    bm1 = benchmark1()
-    display(pretty_table(bm1[1], formatters=fmter))
+    bm1, plts1, df1 = benchmark1()
+    display(pretty_table(bm1, formatters=fmter))
+    for pl in plts1 display(pl) end
     println("\n")
-    bm2 = benchmark2()
-    display(pretty_table(bm2[1], formatters=fmter))
+    bm2, plts2, df2 = benchmark2()
+    display(pretty_table(bm2, formatters=fmter))
+    for pl in plts2 display(pl) end
     println("\n")
 end
