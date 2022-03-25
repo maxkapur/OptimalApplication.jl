@@ -20,7 +20,7 @@ const n_reps = fullscale ? 5 : 2
 # BenchmarkTools.DEFAULT_PARAMETERS.evals = 1 # ... which is the default
 
 # Number of markets to test at each intersection of the experimental variables
-const n_markets = fullscale ? 40 : 2
+const n_markets = fullscale ? 50 : 2
 const bnbcutoff = fullscale ? 33 : 6
 const twottbnbcutoff = 2^bnbcutoff
 
@@ -118,7 +118,7 @@ function benchmark2()
     times_dp = fill(Inf, n_markets, length(marketsizes_VCM))
     times_fptas = fill(Inf, n_markets, length(marketsizes_VCM), length(epsilons))
 
-    for i in 1:n_markets
+    @threads for i in 1:n_markets
         println("  i = $i of $n_markets")
         for (j, m) in enumerate(marketsizes_VCM), _ in 1:n_reps
             if m ≤ bnbcutoff
