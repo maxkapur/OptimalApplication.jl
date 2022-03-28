@@ -74,7 +74,7 @@ function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Set{Node{T}} 
     if mkt.g[i] < nd.H̄
         # Node with i
         t̄1 = copy(nd.t̄)
-        for j in keys(t̄1)
+        @inbounds for j in keys(t̄1)
             if t̄1[j] ≤ t̄1[i]
                 t̄1[j] *= mkt.omf[i]
             else
@@ -172,7 +172,7 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit = 100000:
 
         if newLB
             # for k in treekeys
-            for k in keys(tree)
+            @inbounds for k in keys(tree)
                 if tree[k].v_LP < LB
                     verbose && println("Fathoming node $k")
                     delete!(tree, k)

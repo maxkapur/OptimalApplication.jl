@@ -21,7 +21,7 @@ const n_reps = fullscale ? 5 : 2
 
 # Number of markets to test at each intersection of the experimental variables
 const n_markets = fullscale ? 50 : 2
-const bnbcutoff = fullscale ? 33 : 6
+const bnbcutoff = fullscale ? 25 : 6
 const twottbnbcutoff = 2^bnbcutoff
 
 # Sizes of markets to test
@@ -162,12 +162,12 @@ end
 
 function doeverything()
     println()
-    bm1, plts1, = benchmark1()
-    display(pretty_table(bm1, formatters=fmter))
-    for pl in plts1
-        display(pl)
-        println()
-    end
+    # bm1, plts1, = benchmark1()
+    # display(pretty_table(bm1, formatters=fmter))
+    # for pl in plts1
+    #     display(pl)
+    #     println()
+    # end
     bm2, plts2, = benchmark2()
     display(pretty_table(bm2, formatters=fmter))
     for pl in plts2

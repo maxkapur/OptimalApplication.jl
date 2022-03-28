@@ -39,7 +39,7 @@ function applicationorder_list(mkt::SameCostsMarket{T}; verbose=false::Bool)::Tu
     mkt_list = College{T}[College(T(j), mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in T(1):mkt.m]
     
     c_best::College{T}, idx_best::Int = findmax(mkt_list)
-    for j in T(1):mkt.h
+    @inbounds for j in T(1):mkt.h
         if verbose
             println("Iteration $j")
             println("  ft: ", [mkt_list[i].ft for i in T(1):length(mkt_list)])
@@ -100,17 +100,17 @@ end
 Produce the optimal order of application for the market `mkt` having identical
 application costs and the corresponding portfolio valuations.
 """
-function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vector{Float64}} where T
+function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vector{Float64}} where {T}
     apporder = zeros(T, mkt.h)
     v = zeros(mkt.h)
-    
+
     mkt_heap = BinaryMaxHeap{College{T}}(collect(College(T(j), mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in T(1):mkt.m))
-    
-    for j in T(1):mkt.h
+
+    @inbounds for j in T(1):mkt.h
         c_k = first(mkt_heap)
         v[j] = get(v, j - 1, 0) + c_k.ft
         apporder[j] = c_k.j
-    
+
         mkt_heap = BinaryMaxHeap{College{T}}(collect(
                 College(
                     c.j,
@@ -137,9 +137,9 @@ end
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 valuation table `V` for the market `mkt` with varying application costs.
 """
-function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where T
+function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where {T}
     V = zeros(mkt.m, mkt.H)
-    for j in T(1):mkt.m, h in 1:mkt.H
+    @inbounds for j in T(1):mkt.m, h in 1:mkt.H
         if h < mkt.g[j]
             V[j, h] = get(V, (j - 1, h), 0)
         else
@@ -164,7 +164,7 @@ end
 
 
 # Used by dynamic program below
-function V_recursor!(V_dict::Dict{Tuple{T,Int},Float64}, j::T, h::Int, mkt::VariedCostsMarket{T})::Float64 where T
+@inbounds function V_recursor!(V_dict::Dict{Tuple{T,Int},Float64}, j::T, h::Int, mkt::VariedCostsMarket{T})::Float64 where T
     haskey(V_dict, (j, h)) && return V_dict[(j, h)]
 
     if j == 0 || h == 0
@@ -190,10 +190,10 @@ end
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 value `v` for the market `mkt` with varying application costs. 
 """
-function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Float64} where T
+function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T}; verbose=false::Bool)::Tuple{Vector{Int},Float64} where {T}
     V_dict = Dict{Tuple{T,Int},Float64}()
     v = V_recursor!(V_dict, mkt.m, mkt.H, mkt)
-    
+
     h = mkt.H
     X = T[]
 
@@ -202,6 +202,17 @@ function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T})::Tuple{Vecto
             push!(X, j)
             h -= mkt.g[j]
         end
+    end
+
+    if verbose
+        V_table = Array{Union{Missing,Float64}}(missing, mkt.m, mkt.H)
+        for (j, h) in keys(V_dict)
+            if 0 < j ≤ mkt.m && 0 < h ≤ mkt.H
+                V_table[j, h] = V_dict[(j, h)]
+            end
+        end
+
+        display(V_table)
     end
 
     return X, v
@@ -237,7 +248,7 @@ end
 
 
 # Used by fptas below
-function G_recursor!(
+@inbounds function G_recursor!(
         G_dict::Dict{Tuple{T,Int},Int},
         j::T,
         v::Int, 
@@ -276,7 +287,7 @@ end
 Use the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio for the market `mkt` with varying application costs. 
 """
-function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64)::Tuple{Vector{Int},Float64} where T
+function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose=false::Bool)::Tuple{Vector{Int},Float64} where T
     sp = ScaleParams(mkt, ε)
 
     G_dict = Dict{Tuple{T,Int},Int}()
@@ -308,6 +319,18 @@ function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64)::Tuple{V
             v = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
         end
     end
+
+    if verbose
+        G_table = Array{Union{Missing,Int}}(missing, mkt.m, v_UB)
+        for (j, v) in keys(G_dict)
+            if 0 < j ≤ mkt.m && 0 < v ≤ v_UB
+                G_table[j, v] = G_dict[(j, v)]
+            end
+        end
+    
+        display(G_table)
+    end
+
 
     return X, valuation(X, mkt)
 end
