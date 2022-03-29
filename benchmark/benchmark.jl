@@ -9,43 +9,30 @@ import Printf: @sprintf
 # using BenchmarkTools
 using UnicodePlots
 
-const fullscale = true
+const fullscale = false
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
 
 # Number of times to repeat each computation, where min of these is reported as time
-const n_reps = fullscale ? 5 : 2
-# BenchmarkTools.DEFAULT_PARAMETERS.samples = n_reps
-# BenchmarkTools.DEFAULT_PARAMETERS.evals = 1 # ... which is the default
+const n_reps = fullscale ? 3 : 2
 
 # Number of markets to test at each intersection of the experimental variables
 const n_markets = fullscale ? 50 : 2
+
+# Cutoffs to exclude certain large computations
 const bnbcutoff = fullscale ? 25 : 6
 const twottbnbcutoff = 2^bnbcutoff
+const fptascutoff_m = fullscale ? 300 : 11
+const fptascutoff_eps = 0.1
 
 # Sizes of markets to test
-const marketsizes_SCM = fullscale ? 4 .^ (2:7) : [5, 10]
-const marketsizes_VCM = fullscale ? 2 .^ (3:9) : [5, 10]
+const marketsizes_SCM = fullscale ? 4 .^ (2:7) : [5, 10, 15]
+const marketsizes_VCM = fullscale ? 2 .^ (3:9) : [5, 10, 15]
+const epsilons = [0.5, 0.05]
 
-function makecorrelatedmarketdata(m)
-    t = ceil.(Int, 10 * randexp(m))
-    sort!(t)
-    f = inv.(t .+ 10 * rand(m))
-    g = rand(5:10, m)
-    H = sum(g) ÷ 2
-    return f, t, g, H
-end
-
-randVCM(m) = VariedCostsMarket(makecorrelatedmarketdata(m)...)
-
-function randSCM(m)
-    f, t, _, _ = makecorrelatedmarketdata(m)
-    return SameCostsMarket(f, t, m ÷ 2)
-end
-
-const mkts_SCM = SameCostsMarket[randSCM(m) for i in 1:n_markets, m in marketsizes_SCM]
-const mkts_VCM = VariedCostsMarket[randVCM(m) for i in 1:n_markets, m in marketsizes_VCM]
+const mkts_SCM = SameCostsMarket[SameCostsMarket(m) for m in marketsizes_SCM, i in 1:n_markets]
+const mkts_VCM = VariedCostsMarket[VariedCostsMarket(m) for m in marketsizes_VCM, i in 1:n_markets]
 
 
 function makeunicodeplots(df::DataFrame)
@@ -81,13 +68,13 @@ end
 function benchmark1()
     printheader("Benchmark 1: Homogeneous-cost algorithms")
 
-    sizes = Int[m for _ in 1:n_markets, m in marketsizes_SCM]
+    sizes = Int[m for m in marketsizes_SCM, _ in 1:n_markets]
     times_list = fill(Inf, n_markets, length(marketsizes_SCM))
     times_heap = fill(Inf, n_markets, length(marketsizes_SCM))
 
-    @threads for i in 1:n_markets
-        println("  i = $i of $n_markets")
-        for j in 1:length(marketsizes_SCM), _ in 1:n_reps
+    @threads for j in 1:n_markets
+        println("  j = $j of $n_markets")
+        for i in 1:length(marketsizes_SCM), _ in 1:n_reps
             times_list[i, j] = min(times_list[i, j], @elapsed applicationorder_list(mkts_SCM[i, j]))
             times_heap[i, j] = min(times_heap[i, j], @elapsed applicationorder_heap(mkts_SCM[i, j]))
         
@@ -102,7 +89,7 @@ function benchmark1()
         "time_heap" => times_heap[:]
     )
 
-    plts = makeunicodeplots(df)
+    plts = [] #makeunicodeplots(df)
     meanstd = collectmeanstd(df)
 
     return meanstd, plts, df
@@ -111,16 +98,15 @@ end
 
 function benchmark2()
     printheader("Benchmark 2: Heterogeneous-cost algorithms")
-    epsilons = [0.5, 0.05]
 
-    sizes = Int[m for _ in 1:n_markets, m in marketsizes_VCM]
-    times_bnb = fill(Inf, n_markets, length(marketsizes_VCM))
-    times_dp = fill(Inf, n_markets, length(marketsizes_VCM))
-    times_fptas = fill(Inf, n_markets, length(marketsizes_VCM), length(epsilons))
+    sizes = Int[m for m in marketsizes_VCM, _ in 1:n_markets]
+    times_bnb = fill(Inf, length(marketsizes_VCM), n_markets)
+    times_dp = fill(Inf, length(marketsizes_VCM), n_markets)
+    times_fptas = fill(Inf, length(epsilons), length(marketsizes_VCM), n_markets)
 
-    @threads for i in 1:n_markets
-        println("  i = $i of $n_markets")
-        for (j, m) in enumerate(marketsizes_VCM), _ in 1:n_reps
+    @threads for j in 1:n_markets
+        println("  j = $j of $n_markets")
+        for (i, m) in enumerate(marketsizes_VCM), _ in 1:n_reps
             if m ≤ bnbcutoff
                 times_bnb[i, j] = min(times_bnb[i, j], @elapsed optimalportfolio_branchbound(mkts_VCM[i, j]; maxit=twottbnbcutoff))
                 # times_bnb[i, j] =
@@ -131,8 +117,10 @@ function benchmark2()
             # times_dp[i, j] = @belapsed optimalportfolio_dynamicprogram($(mkts_VCM[i, j]))
 
             for (k, epsilon) in enumerate(epsilons)
-                times_fptas[i, j, k] = min(times_fptas[i, j, k], @elapsed optimalportfolio_fptas(mkts_VCM[i, j], epsilon))
-                # times_fptas[i, j, k] = @belapsed optimalportfolio_fptas($(mkts_VCM[i, j]), $epsilon)
+                if m ≤ fptascutoff_m || epsilon > fptascutoff_eps
+                    times_fptas[k, i, j] = min(times_fptas[k, i, j], @elapsed optimalportfolio_fptas(mkts_VCM[i, j], epsilon))
+                    # times_fptas[i, j, k] = @belapsed optimalportfolio_fptas($(mkts_VCM[i, j]), $epsilon)
+                end
             end
         end
     end
@@ -141,10 +129,10 @@ function benchmark2()
         "m" => sizes[:],
         "time_bnb" => times_bnb[:],
         "time_dp" => times_dp[:],
-        ["time_fptas_$epsilon" => times_fptas[:, :, k][:] for (k, epsilon) in enumerate(epsilons)]...
+        ["time_fptas_$epsilon" => times_fptas[k, :, :][:] for (k, epsilon) in enumerate(epsilons)]...
     )
 
-    plts = makeunicodeplots(df)
+    plts = [] # makeunicodeplots(df)
     meanstd = collectmeanstd(df)
 
     return meanstd, plts, df

@@ -5,27 +5,12 @@ using Random
 # Number of markets to generate for each test
 const n_markets = 3
 
-function make_correlated_market(m)
-    t = ceil.(Int, 10 * randexp(m))
-    sort!(t)
-    f = inv.(t .+ 10 * rand(m))
-    g = rand(5:10, m)
-    H = sum(g) ÷ 2
-    return f, t, g, H
-end
-
-randVCM(m) = VariedCostsMarket(make_correlated_market(m)...)
-function randSCM(m)
-    f, t, _, _ = make_correlated_market(m)
-    return SameCostsMarket(f, t, m ÷ 2)
-end
-
 @testset verbose = true "OptimalApplication.jl" begin
     @testset verbose = true "Same app. costs" begin
         m = 20
 
         for _ in 1:n_markets
-            mkt = randSCM(m)
+            mkt = SameCostsMarket(m)
 
             X_enum, vX_enum = optimalportfolio_enumerate(mkt)
             sort!(X_enum)
@@ -43,7 +28,7 @@ end
 
         @testset "Exact algorithms" begin
             for _ in 1:n_markets
-                mkt = randVCM(m)
+                mkt = VariedCostsMarket(m)
 
                 X_enum, vX_enum = optimalportfolio_enumerate(mkt)
                 sort!(X_enum)
@@ -65,7 +50,7 @@ end
 
         @testset "FPTAS" begin
             for _ in 1:n_markets
-                mkt = randVCM(m)
+                mkt = VariedCostsMarket(m)
 
                 W, vW = optimalportfolio_fptas(mkt, ε)
                 Y, vY = optimalportfolio_dynamicprogram(mkt)
@@ -76,12 +61,12 @@ end
     end
 
     @testset verbose = true "Large problems" begin
-        mkt = randSCM(5000)
+        mkt = SameCostsMarket(5000)
 
         X, V = applicationorder_list(mkt)
         @test !isempty(X)
 
-        mkt = randVCM(500)
+        mkt = VariedCostsMarket(500)
 
         W, vW = optimalportfolio_fptas(mkt, 0.5)
         Y, vY = optimalportfolio_dynamicprogram(mkt)

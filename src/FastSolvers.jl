@@ -192,6 +192,8 @@ value `v` for the market `mkt` with varying application costs.
 """
 function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T}; verbose=false::Bool)::Tuple{Vector{Int},Float64} where {T}
     V_dict = Dict{Tuple{T,Int},Float64}()
+    sizehint!(V_dict, mkt.m * mkt.m ÷ 2)
+
     v = V_recursor!(V_dict, mkt.m, mkt.H, mkt)
 
     h = mkt.H
@@ -228,15 +230,7 @@ struct ScaleParams
 
     function ScaleParams(mkt::VariedCostsMarket, ε::Float64)
         @assert 0 < ε < 1
-        P = try
-            ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.ft))))
-        catch e
-            @show mkt
-            @show ε
-            @show sum(mkt.ft)
-            @show mkt.m^2 / (ε * sum(mkt.ft))
-            throw(e)
-        end
+        P = ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.ft))))
         t = mkt.t .* 2^P
         ft = mkt.f .* t
         Ū = ceil(Int, sum(ft))
@@ -254,7 +248,7 @@ end
         v::Int, 
         mkt::VariedCostsMarket{T},
         sp::ScaleParams
-    )::Int where T
+    )::Int where T<:Unsigned
     haskey(G_dict, (j, v)) && return G_dict[(j, v)]
 
     if v ≤ 0
@@ -264,7 +258,7 @@ end
     else
         jmo = j - T(1)
         if mkt.f[j] < 1
-            # Clamping prevents over/underflow: for any v≤0 or v>Ū the function
+            # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
             # is trivially defined, so recording any more extreme number is meaningless
             v_minus_Δ = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
 
@@ -287,10 +281,11 @@ end
 Use the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio for the market `mkt` with varying application costs. 
 """
-function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose=false::Bool)::Tuple{Vector{Int},Float64} where T
+function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose=false::Bool)::Tuple{Vector{Int},Float64} where T<:Unsigned
     sp = ScaleParams(mkt, ε)
 
     G_dict = Dict{Tuple{T,Int},Int}()
+    sizehint!(G_dict, mkt.m * mkt.m ÷ 2)
 
     # Binary search
     v = 0

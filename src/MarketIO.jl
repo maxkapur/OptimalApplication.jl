@@ -72,6 +72,15 @@ struct SameCostsMarket{T<:Unsigned}
 
         return new{T}(m, f, t, T(h), f .* t, 1 .- f, perm)
     end
+
+    function SameCostsMarket(m::Integer)
+        T = UIntTypes[findfirst(T -> m < typemax(T), UIntTypes)]
+        t = ceil.(T, -10 * log.(rand(m)))
+        sort!(t)
+        f = inv.(t .+ 10 * rand(m))
+        perm = T.(1:m)
+        return new{T}(T(m), f, t, T(m ÷ 2), f .* t, 1 .- f, perm)
+    end
 end
 
 
@@ -115,6 +124,17 @@ struct VariedCostsMarket{T<:Unsigned}
 
         return new{T}(m, f, t, g, H, f .* t, 1 .- f, perm)
     end
+
+    function VariedCostsMarket(m::Integer)
+        T = UIntTypes[findfirst(T -> m < typemax(T), UIntTypes)]
+        t = ceil.(T, -10 * log.(rand(m)))
+        sort!(t)
+        f = inv.(t .+ 10 * rand(m))
+        g = rand(5:10, m)
+        H = sum(g) ÷ 2
+        perm = T.(1:m)    
+        return new{T}(T(m), f, t, g, H, f .* t, 1 .- f, perm)
+    end
 end
 
 """
@@ -147,7 +167,7 @@ end
 Return the valuation of the portfolio `X` on the market `mkt`, which may be either 
 a `SameCostsMarket` or a `VariedCostsMarket`.
 """
-function valuation(X::Vector{T}, mkt::Union{SameCostsMarket{T},VariedCostsMarket}) where T
+function valuation(X::Vector{T}, mkt::Union{SameCostsMarket{T},VariedCostsMarket{T}})::Float64 where T<:Unsigned
     isempty(X) && return 0.0
 
     sort!(X)
