@@ -23,8 +23,6 @@ end
 # Overload isless() so that the heap is ordered by expected utility.
 isless(c1::College, c2::College) = isless(c1.ft, c2.ft)
 
-const dummy_college = College(UInt8(0), 1.0, -1.0, -1.0, 0.0)
-
 
 """
     applicationorder_list(mkt::SameCostsMarket)
@@ -37,7 +35,9 @@ function applicationorder_list(mkt::SameCostsMarket{T}; verbose=false::Bool)::Tu
     v = zeros(mkt.h)
 
     mkt_list = College{T}[College(T(j), mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in T(1):mkt.m]
-    
+
+    dummy_college = College(T(0), 1.0, -1.0, -1.0, 0.0)
+
     c_best::College{T}, idx_best::Int = findmax(mkt_list)
     @inbounds for j in T(1):mkt.h
         if verbose
@@ -110,8 +110,9 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
         c_k = first(mkt_heap)
         v[j] = get(v, j - 1, 0) + c_k.ft
         apporder[j] = c_k.j
-
-        mkt_heap = BinaryMaxHeap{College{T}}(collect(
+    
+        mkt_heap = BinaryMaxHeap{College{T}}(
+            map(filter(c -> c.j != c_k.j, mkt_heap.valtree)) do c
                 College(
                     c.j,
                     c.f,
@@ -119,11 +120,7 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
                     c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
                     c.omf
                 )
-                # This heap.valtree field is not documented in DataStructures.jl,
-                # but it contains the heap data in an arbitrary order, which is exactly 
-                # what we need. Equiv. to heap.drain!() in Rust except doesn't mutate.
-                for c in (d for d in mkt_heap.valtree if d.j != c_k.j)
-            )
+            end
         )
     end
 
@@ -165,20 +162,20 @@ end
 
 # Used by dynamic program below
 @inbounds function V_recursor!(V_dict::Dict{Tuple{T,Int},Float64}, j::T, h::Int, mkt::VariedCostsMarket{T})::Float64 where T
-    haskey(V_dict, (j, h)) && return V_dict[(j, h)]
-
-    if j == 0 || h == 0
-        return 0.0
-    elseif h < mkt.g[j]
-        push!(V_dict, (j, h) => V_recursor!(V_dict, j - T(1), h, mkt))
-        return V_dict[(j, h)]
-    else
-        jmo = j - T(1)
-        push!(V_dict, (j, h) => max(
-            V_recursor!(V_dict, jmo, h, mkt),
-            mkt.omf[j] * V_recursor!(V_dict, jmo, h - mkt.g[j], mkt) + mkt.ft[j]
-        ))
-        return V_dict[(j, h)]
+    return get(V_dict, (j, h)) do
+        if j == 0 || h == 0
+            return 0.0
+        elseif h < mkt.g[j]
+            push!(V_dict, (j, h) => V_recursor!(V_dict, j - T(1), h, mkt))
+            return V_dict[(j, h)]
+        else
+            jmo = j - T(1)
+            push!(V_dict, (j, h) => max(
+                V_recursor!(V_dict, jmo, h, mkt),
+                mkt.omf[j] * V_recursor!(V_dict, jmo, h - mkt.g[j], mkt) + mkt.ft[j]
+            ))
+            return V_dict[(j, h)]
+        end
     end
 end
 
@@ -249,27 +246,27 @@ end
         mkt::VariedCostsMarket{T},
         sp::ScaleParams
     )::Int where T<:Unsigned
-    haskey(G_dict, (j, v)) && return G_dict[(j, v)]
-
-    if v ≤ 0
-        return 0
-    elseif j == 0 || sp.t[j] < v || v ≥ sp.Ū
-        return sp.infty
-    else
-        jmo = j - T(1)
-        if mkt.f[j] < 1
-            # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
-            # is trivially defined, so recording any more extreme number is meaningless
-            v_minus_Δ = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
-
-            push!(G_dict, (j, v) => min(
-                G_recursor!(G_dict, jmo, v, mkt, sp),
-                mkt.g[j] + G_recursor!(G_dict, jmo, v_minus_Δ, mkt, sp)
-            ))
-            return G_dict[(j, v)]
+    return get(G_dict, (j, v)) do
+        if v ≤ 0
+            return 0
+        elseif j == 0 || sp.t[j] < v || v ≥ sp.Ū
+            return sp.infty
         else
-            push!(G_dict, (j, v) => min(G_recursor!(G_dict, jmo, v, mkt, sp), mkt.g[j]))
-            return G_dict[(j, v)]
+            jmo = j - T(1)
+            if mkt.f[j] < 1
+                # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
+                # is trivially defined, so recording any more extreme number is meaningless
+                v_minus_Δ = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
+
+                push!(G_dict, (j, v) => min(
+                    G_recursor!(G_dict, jmo, v, mkt, sp),
+                    mkt.g[j] + G_recursor!(G_dict, jmo, v_minus_Δ, mkt, sp)
+                ))
+                return G_dict[(j, v)]
+            else
+                push!(G_dict, (j, v) => min(G_recursor!(G_dict, jmo, v, mkt, sp), mkt.g[j]))
+                return G_dict[(j, v)]
+            end
         end
     end
 end

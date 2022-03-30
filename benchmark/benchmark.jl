@@ -9,7 +9,7 @@ import Printf: @sprintf
 # using BenchmarkTools
 using UnicodePlots
 
-const fullscale = false
+const fullscale = true
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -21,14 +21,14 @@ const n_reps = fullscale ? 3 : 2
 const n_markets = fullscale ? 50 : 2
 
 # Cutoffs to exclude certain large computations
-const bnbcutoff = fullscale ? 25 : 6
+const bnbcutoff = fullscale ? 33 : 6
 const twottbnbcutoff = 2^bnbcutoff
 const fptascutoff_m = fullscale ? 300 : 11
-const fptascutoff_eps = 0.1
+const fptascutoff_eps = fullscale ? 0.0 : 0.1
 
 # Sizes of markets to test
 const marketsizes_SCM = fullscale ? 4 .^ (2:7) : [5, 10, 15]
-const marketsizes_VCM = fullscale ? 2 .^ (3:9) : [5, 10, 15]
+const marketsizes_VCM = fullscale ? 2 .^ (3:7) : [5, 10, 15]
 const epsilons = [0.5, 0.05]
 
 const mkts_SCM = SameCostsMarket[SameCostsMarket(m) for m in marketsizes_SCM, i in 1:n_markets]
@@ -43,7 +43,7 @@ function makeunicodeplots(df::DataFrame)
             ylabel=c,
             title="Time when m = $(marketsizes_SCM[end])"
         )
-        for c in setdiff(names(df), ("m", "time_bnb"))
+        for c in setdiff(names(df), ("m", "time_bnb")) if !(Inf in df[!, c])
     ]
 end
 
@@ -69,17 +69,14 @@ function benchmark1()
     printheader("Benchmark 1: Homogeneous-cost algorithms")
 
     sizes = Int[m for m in marketsizes_SCM, _ in 1:n_markets]
-    times_list = fill(Inf, n_markets, length(marketsizes_SCM))
-    times_heap = fill(Inf, n_markets, length(marketsizes_SCM))
+    times_list = fill(Inf, length(marketsizes_SCM), n_markets)
+    times_heap = fill(Inf, length(marketsizes_SCM), n_markets)
 
     @threads for j in 1:n_markets
-        println("  j = $j of $n_markets")
-        for i in 1:length(marketsizes_SCM), _ in 1:n_reps
+        println("  j = ", @sprintf("%2d", j), " of $n_markets")
+        for (i, _) in enumerate(marketsizes_SCM), _ in 1:n_reps
             times_list[i, j] = min(times_list[i, j], @elapsed applicationorder_list(mkts_SCM[i, j]))
             times_heap[i, j] = min(times_heap[i, j], @elapsed applicationorder_heap(mkts_SCM[i, j]))
-        
-            # times_list[i, j] = @belapsed applicationorder_list($(mkts_SCM[i, j]))
-            # times_heap[i, j] = @belapsed applicationorder_heap($(mkts_SCM[i, j]))
         end
     end
 
@@ -89,7 +86,7 @@ function benchmark1()
         "time_heap" => times_heap[:]
     )
 
-    plts = [] #makeunicodeplots(df)
+    plts = makeunicodeplots(df)
     meanstd = collectmeanstd(df)
 
     return meanstd, plts, df
@@ -105,17 +102,17 @@ function benchmark2()
     times_fptas = fill(Inf, length(epsilons), length(marketsizes_VCM), n_markets)
 
     @threads for j in 1:n_markets
-        println("  j = $j of $n_markets")
+        println("  j = ", @sprintf("%2d",j)," of $n_markets")
         for (i, m) in enumerate(marketsizes_VCM), _ in 1:n_reps
             if m ≤ bnbcutoff
                 times_bnb[i, j] = min(times_bnb[i, j], @elapsed optimalportfolio_branchbound(mkts_VCM[i, j]; maxit=twottbnbcutoff))
                 # times_bnb[i, j] =
                 #     @belapsed optimalportfolio_branchbound($(mkts_VCM[i, j]); maxit=$twottbnbcutoff)
             end
-
+        
             times_dp[i, j] = min(times_dp[i, j], @elapsed optimalportfolio_dynamicprogram(mkts_VCM[i, j]))
             # times_dp[i, j] = @belapsed optimalportfolio_dynamicprogram($(mkts_VCM[i, j]))
-
+        
             for (k, epsilon) in enumerate(epsilons)
                 if m ≤ fptascutoff_m || epsilon > fptascutoff_eps
                     times_fptas[k, i, j] = min(times_fptas[k, i, j], @elapsed optimalportfolio_fptas(mkts_VCM[i, j], epsilon))
@@ -132,7 +129,7 @@ function benchmark2()
         ["time_fptas_$epsilon" => times_fptas[k, :, :][:] for (k, epsilon) in enumerate(epsilons)]...
     )
 
-    plts = [] # makeunicodeplots(df)
+    plts = makeunicodeplots(df)
     meanstd = collectmeanstd(df)
 
     return meanstd, plts, df
@@ -149,13 +146,14 @@ end
 
 
 function doeverything()
+    println("Number of threads: ", Threads.nthreads())
     println()
-    # bm1, plts1, = benchmark1()
-    # display(pretty_table(bm1, formatters=fmter))
-    # for pl in plts1
-    #     display(pl)
-    #     println()
-    # end
+    bm1, plts1, = benchmark1()
+    display(pretty_table(bm1, formatters=fmter))
+    for pl in plts1
+        display(pl)
+        println()
+    end
     bm2, plts2, = benchmark2()
     display(pretty_table(bm2, formatters=fmter))
     for pl in plts2
