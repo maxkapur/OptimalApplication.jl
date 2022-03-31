@@ -28,7 +28,7 @@ const fptascutoff_eps = fullscale ? 0.0 : 0.1
 
 # Sizes of markets to test
 const marketsizes_SCM = fullscale ? 4 .^ (2:7) : [5, 10, 15]
-const marketsizes_VCM = fullscale ? 2 .^ (3:7) : [5, 10, 15]
+const marketsizes_VCM = fullscale ? 2 .^ (3:8) : [5, 10, 15]
 const epsilons = [0.5, 0.05]
 
 const mkts_SCM = SameCostsMarket[SameCostsMarket(m) for m in marketsizes_SCM, i in 1:n_markets]

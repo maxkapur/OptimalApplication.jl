@@ -144,8 +144,8 @@ This paper considers the maximization of the expected maximum value of a portfol
 \end{split}
 \end{align}
 %\end{definition}
-\ifen Here $\mathcal{C} = \{ 1 \dots m\}$ is an index set; $H > 0$ is a budget parameter; for $j = 1 \dots m$, $g_j > 0$ is a cost parameter and $Z_j$ is a random, independent Bernoulli variable with probability $f_j$; and for $j = 0\dots m$, $t_j$ is a utility parameter. 
-\else 단,  $\mathcal{C} = \{ 1 \dots m\}$은 지표 집합이며 $H$는 예산을 나타내는 모수이다. 각 $j = 1 \dots m$에 대해 $g_j > 0$는 비용 모수이며 $Z_j$는 확률 $f_j$를 가지는 서로 독립적인 Bernoulli 변수이다. 각 $j = 0 \dots m$에 대해 $t_j$는 효용 모수이다. \fi
+\ifen Here $\mathcal{C} = \{ 1 \dots m\}$ is an index set; $H > 0$ is a budget parameter; for $j = 1 \dots m$, $g_j > 0$ is a cost parameter and $Z_j$ is a random, independent Bernoulli variable with probability $f_j$; and for $j = 0\dots m$, $t_j\geq 0$ is a utility parameter. 
+\else 단,  $\mathcal{C} = \{ 1 \dots m\}$은 지표 집합이며 $H$는 예산을 나타내는 모수이다. 각 $j = 1 \dots m$에 대해 $g_j > 0$는 비용 모수이며 $Z_j$는 확률 $f_j$를 가지는 서로 독립적인 Bernoulli 변수이다. 각 $j = 0 \dots m$에 대해 $t_j\geq 0$는 효용 모수이다. \fi
 
 \ifen
 We refer to this problem as the \emph{optimal college application} problem, as follows. Consider an admissions market with $m$ colleges. The $j$th college is named $c_j$. Consider a single prospective student in this market, and let each $t_j$-value indicate the utility she associates with attending $c_j$, where her utility is $t_0$ if she does not attend college. Let $g_j$ denote the application fee for $c_j$ and $H$ the student's total budget to spend on application fees. (Alternatively, the budget constraint may represent the time needed to complete each application, or a legal limit on the number of applications permitted.) Lastly, let $f_j$ denote the student's probability of being admitted to $c_j$ if she applies, so that $Z_j$ equals one if she is admitted and zero if not. It is appropriate to assume that the $Z_j$ are statistically independent as long as $f_j$ are probabilities estimated specifically for this student (as opposed to generic acceptance rates). Then the student's objective is to maximize the expected utility associated with the best school she gets into within this budget. Therefore, her optimal college application strategy is given by the solution $\mathcal{X}$ to the problem above, where $\mathcal{X}$ represents the set of schools to which she applies. (The problem is also conformable to other competitive matching games such as job application.)
@@ -156,7 +156,7 @@ We refer to this problem as the \emph{optimal college application} problem, as f
 \ifen
 The college application problem is not solely of theoretical interest. In the American college consulting industry, students pay private consultants an average of \$200 per hour for assistance in preparing application materials, estimating their admissions odds, and identifying target schools (Sklarow 2018). In Korea, an important revenue stream for admissions consulting firms such as Megastudy (\url{megastudy.net}) and Jinhak (\url{jinhak.com}) is ``mock application'' software that claims to use artificial intelligence to optimize the client's application strategy.  Due to the widespread perception that career earnings depend on college admissions outcomes, the solution of \eqref{headlineproblem} holds monetary value. However, although predicting admissions outcomes on a school-by-school basis is a standard benchmark for regression models (Acharya et al. 2019), we believe our study is the first to formulate the overall application strategy as an optimization problem. 
 \else
-대학 지원 최적화 문제는 이론적인 화제일 뿐만이 아니다. 미국 입학 컨설팅 산업에서 대학 지원 서류 작성, 합격 확률 추정, 그리고 지원 학교를 선택하는 데에 자문하는 개인 상담가의 시간당 비율은 평균 200달러이다 (Sklarow 2018). 한국에서, 메가스터디(\url{megastudy.net})와 진학(\url{jinhak.com})과 같은 입학 컨설팅 기업의 주된 수입원 중 인공지능을 활용해서 학생의 지원 전략을 최대화한다고 홍보하는 ``모의 지원'' 소프트웨어가 있다. 미래의 소득이 대학 입학 결과로 결정된다는 넓은 인식에 따라, \eqref{headlineproblem}의 최적해는 금전적인 가치를 가지고 있다. 그러나, 학교 개별 합격 확률을 추정하는 것은 회귀 분석 모형의 익숙한 응용 사례(Acharya et al. 2019)이지만, 전체적인 지원 전략을 최적화 문제로 모형화한 것은 본 연구의 새로운 기여로 보인다.
+대학 지원 최적화 문제는 이론적인 화제일 뿐만이 아니다. 미국 입학 컨설팅 산업에서 대학 지원 서류 작성, 합격 확률 추정, 그리고 지원 학교를 선택하는 데에 자문하는 개인 상담가의 시간당 급료는 평균 200달러이다 (Sklarow 2018). 한국에서, 메가스터디(\url{megastudy.net})와 진학(\url{jinhak.com})과 같은 입학 컨설팅 기업의 주된 수입원 중 인공지능을 활용해서 학생의 지원 전략을 최대화한다고 홍보하는 ``모의 지원'' 소프트웨어가 있다. 미래의 소득이 대학 입학 결과로 결정된다는 넓은 인식에 따라, \eqref{headlineproblem}의 최적해는 금전적인 가치를 가지고 있다. 그러나, 학교 개별 합격 확률을 추정하는 것은 회귀 분석 모형의 익숙한 응용 사례(Acharya et al. 2019)이지만, 전체적인 지원 전략을 최적화 문제로 모형화한 것은 본 연구의 새로운 기여로 보인다.
 \fi
 
 \ifen
@@ -185,23 +185,23 @@ For certain classes of optimization problems, such as maximizing a submodular se
 
 
 \ifen \subsection{Structure of this paper} \else \subsection{본 논문의 구성}\fi
-\ifen Section \ref{preliminaries} introduces some additional notation and assumptions that can be imposed with trivial loss of generality. 
+\ifen Section \ref{preliminaries} introduces some additional notation and assumptions that can be imposed without loss of generality. 
 \else \ref{preliminaries}절은 표기법과 일반성을 제한하지 않는 편의적 가정을 제시한다.\fi
 
 \ifen
-In section \ref{homogappcosts}, we consider the special case where each $g_j = 1$ and $H$ is an integer $h \leq m$.  We show that an intuitive heuristic is in fact a $1/h$-approximation algorithm. Then, we show that the optimal portfolios are nested in the budget constraint, which yields an exact algorithm that runs in $O(hm)$-time.
+In Section \ref{homogappcosts}, we consider the special case where each $g_j = 1$ and $H$ is an integer $h \leq m$.  We show that an intuitive heuristic is in fact a $1/h$-approximation algorithm. Then, we show that the optimal portfolios are nested in the budget constraint, which yields an exact algorithm that runs in $O(hm)$-time.
 \else
 \ref{homogappcosts}절에서 각 $g_j = 1$이고 $H$가 $h \leq m$이고 자연수인 특수한 경우를 고려한다. 직관적인 휴리스틱 해법이 실제로 $1/h$-근사 해법임을 증명한다. 그다음에 최적 포트폴리오의 예산 제약에 대한 포함 사슬 관계를 보이고 이를 이용해서 $O(hm)$-시간 정확한 해법을 도출한다.
 \fi
 
 \ifen
-In section \ref{hetappcosts}, we turn to the scenario in which colleges differ in their application fees. We show that the decision form of the portfolio optimization problem is NP-complete through a polynomial reduction from the binary knapsack problem. We provide three algorithms for this more general setup. The first is a branch-and-bound routine. The second is a dynamic program that iterates on total expenditures and produces an exact solution in pseudopolynomial time, namely $O(Hm + m \log m)$. The third is a different dynamic program that iterates on truncated portfolio valuations. It yields a fully polynomial-time approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in $O(m^3 / \varepsilon)$ time.  
+In Section \ref{hetappcosts}, we turn to the scenario in which colleges differ in their application fees. We show that the decision form of the portfolio optimization problem is NP-complete through a polynomial reduction from the binary knapsack problem. We provide three algorithms for this more general setup. The first is a branch-and-bound routine. The second is a dynamic program that iterates on total expenditures and produces an exact solution in pseudopolynomial time, namely $O(Hm + m \log m)$. The third is a different dynamic program that iterates on truncated portfolio valuations. It yields a fully polynomial-time approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in $O(m^3 / \varepsilon)$ time.  
 \else
 \ref{hetappcosts}절에서 각 학교의 지원 비용이 동일하지 않은 일반적인 상황을 다룬다. 이진 배낭 문제에서의 다항 변환을 통해서 포트폴리오 최적화 문제가 NP-complete임을 증명한다. 또한 3개의 일반적인 해법을 제안한다. 첫째는 분지한계법이다. 둘째는 총 지출액으로 탐색하는 $O(Hm + m \log m)$과 같은 의사 다항 시간 동적 계획 해법이다. 셋째는 실수값을 분수값으로 내림한 포트폴리오 가치를 탐색하는 또다른 동적 계획 해법이다. 이를 통해서 $O(m^3 / \varepsilon)$-시간 안에 $(1 - \varepsilon)$-근사해를 출력하는 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme)을 얻는다.
 \fi
 
 \ifen
-In section \ref{numericalexperiments}, we present the results of computational experiments that confirm the validity and time complexity results established in the previous two sections.
+In Section \ref{numericalexperiments}, we present the results of computational experiments that confirm the validity and time complexity results established in the previous two sections.
 
 A brief conclusion follows.
 \else
@@ -375,10 +375,10 @@ $\mathcal{T}_h$는 $\operatorname{E}\bigl[ \sum_{j \in \mathcal{T}_h}\{ t_j Z_j 
 \fi
 \begin{align} \label{oneoverhopt}
 \begin{split}
-v(\mathcal{X}_h) &= \operatorname{E}\bigl[ \max_{j \in \mathcal{X}_h}\{ t_j Z_j \}\bigr] \leq \operatorname{E}\bigl[ \sum_{j \in \mathcal{X}_h}\{ t_j Z_j \}\bigr] \leq \operatorname{E}\bigl[ \sum_{j \in \mathcal{T}_h}\{ t_j Z_j \}\bigr] \\
-&= h  \operatorname{E}\bigl[ \tfrac{1}{h} \sum_{j \in \mathcal{T}_h}\{ t_j Z_j \}\bigr]
-\leq h  \operatorname{E}\bigl[ \max_{j \in \mathcal{T}_h}\{ t_j Z_j \}\bigr]
-= h\,v(\mathcal{T}_h).
+v(\mathcal{X}_h) &= \operatorname{E}\Bigl[ \max_{j \in \mathcal{X}_h}\{ t_j Z_j \}\Bigr] \leq \operatorname{E}\Bigl[ \sum_{j \in \mathcal{X}_h}\{ t_j Z_j \}\Bigr] \leq \operatorname{E}\Bigl[ \sum_{j \in \mathcal{T}_h}\{ t_j Z_j \}\Bigr] \\
+&= h  \operatorname{E}\Bigl[ \tfrac{1}{h} \sum_{j \in \mathcal{T}_h}\{ t_j Z_j \}\Bigr]
+\leq h  \operatorname{E}\Bigl[ \max_{j \in \mathcal{T}_h}\{ t_j Z_j \}\Bigr]
+= h v(\mathcal{T}_h).
 \end{split}
 \end{align}
 \ifen 
@@ -476,10 +476,10 @@ Although the na\"ive algorithm is inoptimal, we can still find the optimal solut
 \end{theorem}
 
 \begin{proof}\ifen
-By induction on $h$. Applying Theorem \ref{assumetzerozero}, we assume that $t_0 = 0$. 
+By induction on $h$. Applying Theorem \ref{assumetzerozero}, we assume that $t_0 = 0$. We also assume that each $f_j < 1$, which is without loss of generality because any school having $f_j = 1$ can be eliminated by setting $t_0 = t_j$ and reapplying the transformation from Theorem \ref{assumetzerozero}.
 
 (Base case.) First, we will show that $\mathcal{X}_1 \subset \mathcal{X}_2$. To get a contradiction, suppose that the optima are $\mathcal{X}_1 = \{j\}$ and $\mathcal{X}_2 = \{k, l\}$, where we may assume that $t_k \leq t_l$. Optimality requires that
-\else$h$에 대해 귀납법을 적용한다. 정리 \ref{assumetzerozero}에 따라 $t_0 = 0$이라고 가정한다.
+\else$h$에 대해 귀납법을 적용한다. 정리 \ref{assumetzerozero}에 따라 $t_0 = 0$이라고 가정한다. 또한 모든 $f_j < 1$임을 가정한다. $f_j = 1$인 학교가 있으면 $t_0 = t_j$로 수정하고  정리 \ref{assumetzerozero}의 변환을 다시 적용해서 소거할 수 있으므로 일반성을 제한하지 않는다.
 
 (기본 경우.) 우선 $\mathcal{X}_1 \subset \mathcal{X}_2$임을 증명하자. 모순을 보이기 위해 최적해가 $\mathcal{X}_1 = \{j\}$와 $\mathcal{X}_2 = \{k, l\}$이라고 하자. 여기서 $t_k \leq t_l$이라고 가정할 수 있다. 최적성에 따라 다음이 성립한다:
 \fi
@@ -639,7 +639,7 @@ Optimality follows from the proof of Theorem \ref{nestedapplication}. Suppose $\
 \end{proof}
 
 \ifen 
-It is also possible to store $\mathcal{C}$ as a binary max heap rather than a list. The heap is ordered according to the criterion $i \geq j \iff f_i t_i \geq f_j t_j$, and by draining the heap and reheapifying at the end of each iteration, the computation time remains $O(hm)$. However, in our numerical experiments, whose results are reported in section \ref{numericalexperiments},
+It is also possible to store $\mathcal{C}$ as a binary max heap rather than a list. The heap is ordered according to the criterion $i \geq j \iff f_i t_i \geq f_j t_j$, and by draining the heap and reheapifying at the end of each iteration, the computation time remains $O(hm)$. However, in our numerical experiments, whose results are reported in Section \ref{numericalexperiments},
 we found the list implementation to be much faster, because it is possible to identify the entering school $k$ as the utility parameters are updated, which all but eliminates the cost of the $\argmax\{\}$ operation. 
 \else
 $\mathcal{C}$는 목록 대신 이진 최대 힙 구현으로 저장하는 방법도 고려한다. 단, 힙의 순서는 $i \geq j \iff f_i t_i \geq f_j t_j$의 조건으로 정의하며, 각 반복단계의 마지막 단계에서 힙을 비우고 다시 힙화(heapify)하면 $O(hm)$ 계산 시간을 유지할 수 있다. 그러나 (\ref{numericalexperiments}절에서 결과를 제시할) 수리 실험에서 목록 구현으로 구성한 알고리즘이 더 빨랐다. 효용 모수를 수정하면서 $k$를 구함으로 $\argmax\{\}$ 연산의 계산 비용을 거의 제거할 수 있기 때문이다.
@@ -819,10 +819,10 @@ In this section, we show that this problem is NP-complete, then provide three al
 \ifen
 The optima for Ellis's problem are not necessarily nested, nor is the number of schools in the optimal portfolio necessarily increasing in $H$. For example, if
 $f = (0.5, 0.5, 0.5)$, $t = (1, 1, 219)$, and $g = (1, 1, 3)$,
-then it is evident that the optimal portfolio for $H = 2$ is $\{1, 2\}$ while that for $H = 3$ is $\{3\}$. In fact, Ellis’s problem is NP-complete, as we will show by a transformation from the binary knapsack problem, which is known to be NP-complete (Garey and Johnson 1979).
+then it is evident that the optimal portfolio for $H = 2$ is $\{1, 2\}$ while that for $H = 3$ is $\{3\}$. In fact, Ellis’s problem is NP-complete, as we will show by a transformation from the binary knapsack problem, which is known to be NP-complete (Garey and Johnson 1979, \S\,3.2.1).
 \else
 엘리스 문제의 최적해는 필수적으로 포함 사슬 관계를 가지지 않으며 최적 포트폴리오에 속한 학교의 개수는 $H$에 대해 감소할 수도 있다. 예를 들어
-$f = (0.5, 0.5, 0.5)$, $t = (1, 1, 219)$, 그리고 $g = (1, 1, 3)$이면 $H = 2$에 대응하는 최적해가 $\{1, 2\}$이며 $H = 3$에 대응하는 최적해는 $\{3\}$임을 쉽게 알 수 있다. 사실은 엘리스의 문제가 NP-complete이며 이를 이진 배낭 문제에서의 변환을 통해 증명할 수 있다. 배낭 문제의 NP-completeness가 이미 알려져 있다 (Garey and Johnson 1979).
+$f = (0.5, 0.5, 0.5)$, $t = (1, 1, 219)$, 그리고 $g = (1, 1, 3)$이면 $H = 2$에 대응하는 최적해가 $\{1, 2\}$이며 $H = 3$에 대응하는 최적해는 $\{3\}$임을 쉽게 알 수 있다. 사실은 엘리스의 문제가 NP-complete이며 이를 이진 배낭 문제에서의 변환을 통해 증명할 수 있다. 배낭 문제의 NP-completeness가 이미 알려져 있다 (Garey and Johnson 1979, \S\,3.2.1).
 \fi
 
 
@@ -932,9 +932,9 @@ $v(x)$에서 등장하는 곱은 1을 넘을 수 없으므로 다음 선형 완�
 \end{align}
 \end{problem}
 \ifen
-Problem \ref{LPrelaxation} is a continuous knapsack problem, which is easily solved in $O(m \log m)$-time by the following greedy algorithm: Start with $x = \mathbf{0}$. While $H > 0$, select the school $j$ for which $f_j t_j / g_j$ is highest, set $x_j \gets \min\{1, H / g_j\}$, and set $H \gets H - g_j$ (Dantzig 1957).  
+Problem \ref{LPrelaxation} is a continuous knapsack problem, which is easily solved in $O(m \log m)$-time by the following greedy algorithm: Start with $x = \mathbf{0}$. While $H > 0$, select the school $j$ for which $f_j t_j / g_j$ is highest, set $x_j \gets \min\{1, H / g_j\}$, and set $H \gets H - g_j$ (Dantzig 1957). Balas and Zemel (1980, \S\,2) provide an $O(m)$ algorithm. 
 \else
-문제 \ref{LPrelaxation}은(는) ``연속 배낭 문제''라고 불리며 다음 탐욕 알고리즘을 적용하면 $O(m \log m)$-시간 안에 쉽게 풀 수 있다: $x = \mathbf{0}$로 초기화한다. $H > 0$임이 성립하는 동안, $f_j t_j / g_j$-값이 가장 높은 학교 $j$를 택한다. $x_j \gets \min\{1, H / g_j\}$ 그리고 $H \gets H - g_j$로 수정해서 반복한다 (Dantzig 1957).
+문제 \ref{LPrelaxation}은(는) ``연속 배낭 문제''라고 불리며 다음 탐욕 알고리즘을 적용하면 $O(m \log m)$-시간 안에 쉽게 풀 수 있다: $x = \mathbf{0}$로 초기화한다. $H > 0$임이 성립하는 동안, $f_j t_j / g_j$-값이 가장 높은 학교 $j$를 택한다. $x_j \gets \min\{1, H / g_j\}$ 그리고 $H \gets H - g_j$로 수정해서 반복한다 (Dantzig 1957).  $O(m)$ 알고리즘도 알려져 있다 (Balas와 Zemel 1980, \S\,2).
 \fi
 
 \ifen 
@@ -959,7 +959,7 @@ The choice of partition induces a pair of subproblems. The first subproblem is a
 \end{split}
 \end{align}
 \ifen
-In both subproblems, $\bar H = H - \sum_{j\in \mathcal{I}} g_j$ denotes the residual budget. The parameters $\gamma$ and $\bar t$ are obtained by iteratively applying the transformation \eqref{howtotransformfj} to the schools in $\mathcal{I}$. For each $j\in \mathcal{I}$,  we increment $\gamma$ by the current value of $f_j \bar t_j$, eliminate $j$ from the market, and update the remaining $\bar t_j$-values using \eqref{howtotransformfj}. (An example is provided below.)
+In both subproblems, $\bar H = H - \sum_{j\in \mathcal{I}} g_j$ denotes the residual budget. The parameters $\gamma$ and $\bar t$ are obtained by iteratively applying the transformation \eqref{howtotransformfj} to the schools in $\mathcal{I}$. For each $j\in \mathcal{I}$,  we increment $\gamma$ by the current value of $f_j \bar t_j$, eliminate $j$ from the market, and update the remaining $\bar t_j$-values using \eqref{howtotransformfj}. (An example is given below.)
 \else
 각 부문제에서 $\bar H = H - \sum_{j\in \mathcal{I}} g_j$는 잔여 예산을 의미한다. $\mathcal{I}$에 속한 학교에 \eqref{howtotransformfj}의 변환을 적용해서 모수 $\gamma$와 $\bar t$를 얻을 수 있다. 즉, 각 $j\in \mathcal{I}$에 대해 $\gamma$를 $f_j \bar t_j$ 만큼 증가시키고, 시장에서 $j$를 소거하고, \eqref{howtotransformfj}에 따라 남은 $\bar t_j$-값을 수정한다. (아래에서 예를 제시한다.)
 \fi
@@ -1098,7 +1098,7 @@ In this subsection, we assume, with a small loss of generality, that $g_j \in \m
 \ifen 
 For $j = 0 \dots m$ and $h = 0 \dots H$, let $\mathcal{X}[j, h]$ denote the optimal portfolio using only the schools $\{ 1, \dots, j\}$ and costing no more than $h$, and let $V[j,h] = v(\mathcal{X}[j, h])$.  It is clear that if $j=0$ or $h=0$, then $\mathcal{X}[j, h] = \O$ and $V[j, h] = 0$.  For convenience, we also define $V[j, h] = -\infty$ for all $h < 0$.
 \else
-$j = 0 \dots m$와 $h = 0 \dots H$에 대해, $\{ 1, \dots, j\}$에 속한 학교만 사용하면서 최대한 $h$의 지원 비용을 지불하는 최적 포트폴리오를 $\mathcal{X}[j, h]$라고하자. 또한  $V[j,h] = v(\mathcal{X}[j, h])$이다. $j=0$ 혹은 $h=0$이면 $\mathcal{X}[j, h] = \O$이고 $V[j, h] = 0$이 되는 것은 분명하다. 편의상 $h < 0$이면 $V[j, h] = -\infty$이라고 정의하자.
+$j = 0 \dots m$와 $h = 0 \dots H$에 대해, $\{ 1, \dots, j\}$에 속한 학교만 사용하면서 지원 지출액이 $h$을 넘지 않는 최적 포트폴리오를 $\mathcal{X}[j, h]$라고 하자. 또한  $V[j,h] = v(\mathcal{X}[j, h])$이다. $j=0$ 혹은 $h=0$이면 $\mathcal{X}[j, h] = \O$이고 $V[j, h] = 0$이 되는 것은 분명하다. 편의상 $h < 0$이면 $V[j, h] = -\infty$이라고 정의하자.
 \fi
 
 \ifen
@@ -1199,7 +1199,7 @@ As with the knapsack problem, Ellis's problem admits a complementary dynamic pro
 \ifen 
 We will represent approximate portfolio valuations using a fixed-point decimal with a precision of $P$, where $P$ is the number of digits to retain after the decimal point. Let $r[x] =  10^{-P}\lfloor 10^P x \rfloor$ denote the value of $x$ rounded down to its nearest fixed-point representation. Since $\bar U = \sum_{j\in \mathcal{C}} f_j t_j$ is an upper bound on the valuation of any portfolio, and since we will ensure that each fixed-point approximation is an underestimate of the portfolio's true valuation, the set $\mathcal{V}$ of possible valuations possible in the fixed-point framework is finite:
 \else
-포티폴리오의 근사적 가치를 정확도 $P$로 구성된 고정소수점 십진수(fixed-point decimal)로 나타내자. 다, $P$는 소수점 뒤에 등장하는 숫자의 수다. 이때 $x$를 가장 가까운 고정소수점 십진수로 내림한 것을 $r[x] =  10^{-P}\lfloor 10^P x \rfloor$라고 하자. 임의의 포트폴리오의 가치가 $\bar U = \sum_{j\in \mathcal{C}} f_j t_j$를 넘을 수 없으며, 모든 포트폴리오 가치의 고정소수점 십진수 근사가 실제값보다 작게 나타내도록 한다. 따라서 고정소수점 환경에서 발생할 수 있는 포트폴리오 가치로 이루어진 집합 $\mathcal{V}$는 유한 집합이다.
+포트폴리오의 근사적 가치를 정확도 $P$로 구성된 고정소수점 십진수(fixed-point decimal)로 나타내자. 다, $P$는 소수점 뒤에 등장하는 숫자의 수다. 이때 $x$를 가장 가까운 고정소수점 십진수로 내림한 것을 $r[x] =  10^{-P}\lfloor 10^P x \rfloor$라고 하자. 임의의 포트폴리오의 가치가 $\bar U = \sum_{j\in \mathcal{C}} f_j t_j$를 넘을 수 없으며, 모든 포트폴리오 가치의 고정소수점 십진수 근사가 실제값보다 작게 나타내도록 한다. 따라서 고정소수점 환경에서 발생할 수 있는 포트폴리오 가치로 이루어진 집합 $\mathcal{V}$는 유한 집합이다.
 \fi
 \begin{equation}
 \mathcal{V} = \Bigl\{0, 1\times 10^{-P}, 2\times 10^{-P}, \dots, r\bigl[\bar U- 1\times 10^{-P}\bigr], r\bigl[\bar U\bigr]\Bigr\}
@@ -1401,13 +1401,13 @@ In this section, we present the results of numerical experiments designed to tes
 
 \ifen \subsection{Implementation notes} \else \subsection{알고리즘의 실행}\fi
 \ifen
-We chose to implement our algorithms in the Julia language (v1.7.0) because its system of parametric data types allows the compiler to optimize for differential cases such as when the $t_j$-values are integers or floating-point numbers. Julia also offers convenient macros for parallel computing, which enabled us to solve more and larger problems in the benchmark (Bezanson et al. 2017). We made extensive use of the DataStructures.jl package (v0.18.11). The code is available at \url{https://github.com/maxkapur/OptimalApplication}.
+We chose to implement our algorithms in the Julia language (v1.8.0b1) because its system of parametric data types allows the compiler to optimize for differential cases such as when the $t_j$-values are integers or floating-point numbers. Julia also offers convenient macros for parallel computing, which enabled us to solve more and larger problems in the benchmark (Bezanson et al. 2017). We made extensive use of the DataStructures.jl package (v0.18.11, \url{github.com/JuliaCollections}). The code is available at \url{https://github.com/maxkapur/OptimalApplication}.
 \else
-모든 알고리즘을 쥴리아 (Julia, v1.7.0) 언어로 실행했다. 쥴리아는 $t_j$-값이 정수 또는 부동소수점 수와 같은 특수한 경우에 대해 컴파일러가 자동적으로 최적화하는 모수적 자료형(parametric data type) 기능이 있어서 유용한 선택이었다. 또한 병렬 연산을 쉽게 관리할 수 있는 매크로를 제공하므로 계산 실험의 규모를 증가할 수 있었다 (Bezanson 외 2017). DataStructures.jl 패키지(v0.18.11)도 활용했다. 실험 코드는  \url{https://github.com/maxkapur/OptimalApplication}에서 공유한다.
+모든 알고리즘을 쥴리아 (Julia, v1.8.0b1) 언어로 실행했다. 쥴리아는 $t_j$-값이 정수 또는 부동소수점 수와 같은 특수한 경우에 대해 컴파일러가 자동적으로 최적화하는 모수적 자료형(parametric data type) 기능이 있어서 유용한 선택이었다. 또한 병렬 연산을 쉽게 관리할 수 있는 매크로를 제공하므로 계산 실험의 규모를 증가할 수 있었다 (Bezanson 외 2017). DataStructures.jl 패키지(v0.18.11, \url{github.com/JuliaCollections})도 활용했다. 실험 코드는  \url{https://github.com/maxkapur/OptimalApplication}에서 공유한다.
 \fi
 
 \ifen
-The dynamic programs, namely Algorithms \ref{ellisDP1} and \ref{ellisDP3}, were implemented using recursive functions and dictionary memoization rather than a full lookup table. Our implementation of Algorithm \ref{ellisDP3} also differed from that described in subsection \ref{fptashead} in that we represented portfolio valuations in \emph{binary} rather than decimal, with the definitions of $P$ and $\mathcal{V}$ modified accordingly, and instead of fixed-point numbers, we worked in integers by multiplying each $t_j$-value by $2^P$. These modifications yielded a substantial performance improvement without changing the fundamental algorithm design or complexity analysis.
+The dynamic programs, namely Algorithms \ref{ellisDP1} and \ref{ellisDP3}, were implemented using recursive functions and dictionary memoization rather than a full lookup table. Our implementation of Algorithm \ref{ellisDP3} also differed from that described in Subsection \ref{fptashead} in that we represented portfolio valuations in \emph{binary} rather than decimal, with the definitions of $P$ and $\mathcal{V}$ modified accordingly, and instead of fixed-point numbers, we worked in integers by multiplying each $t_j$-value by $2^P$. These modifications yielded a substantial performance improvement without changing the fundamental algorithm design or complexity analysis.
 \else
 동적 계획 해법인 \ref{ellisDP1}과(와) 알고리즘 \ref{ellisDP3}을(를) 표 대신 사전 기록 및 재귀 함수로 실행했다. 알고리즘 \ref{ellisDP3}은(는) \ref{fptashead}항에서 설명한 것과 달리, 포트폴리오의 가치를 십진수 대신 `이진수'로 나타냈으며 $P$와  $\mathcal{V}$의 정의를 적절히 수정했다. 그리고 고정소수점 대신 $t_j$-값을 $2^P$으로 곱해서 정수로 구성했다. 이런 변경은 기본 알고리즘 설계와 계산 시간 분석은 변하지 않는데 성능은 많이 개선한다.
 \fi
@@ -1466,12 +1466,12 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
  \else
  \textbf{\begin{tabular}[r]{@{}r@{}}학교의\\개수 $m$\end{tabular}}& \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{algorithmforlargeh}\\(목록 구현)\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{algorithmforlargeh}\\(힙 구현)\end{tabular}}}\\ \hline
  \fi
-    16 &           0.00 &        (0.00) &           0.02 &        (0.01) \\
-    64 &           0.03 &        (0.00) &           0.17 &        (0.05) \\
-   256 &           0.14 &        (0.03) &           2.20 &        (0.73) \\
-  1024 &           2.08 &        (0.65) &          30.51 &        (6.37) \\
-  4096 &          28.87 &       (10.60) &         485.80 &       (90.50) \\
- 16384 &         369.79 &      (127.38) &        9780.83 &     (1888.34)  
+    16 &           0.00 &        (0.00) &           0.01 &        (0.00) \\
+    64 &           0.03 &        (0.00) &           0.08 &        (0.02) \\
+   256 &           0.15 &        (0.01) &           0.97 &        (0.22) \\
+  1024 &           2.31 &        (0.05) &          14.44 &        (1.66) \\
+  4096 &          37.85 &        (0.61) &         245.74 &       (17.33) \\
+ 16384 &         585.75 &        (2.11) &        4728.59 &      (552.25)
 \end{tabular}
 \caption{\label{experiment1results} \normalsize
 \ifen Time in ms to compute an optimal portfolio for an admissions market with homogeneous application costs using Algorithm \ref{algorithmforlargeh} when $\mathcal{C}$ is stored as a list and as a heap. \lastptofcaption~In every case, $h = m/2$. 
@@ -1488,18 +1488,19 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
 \small
 \begin{tabular}{r|r@{~}r|r@{~}r|r@{~}r|r@{~}r}
 \ifen
-\textbf{\begin{tabular}[r]{@{}r@{}}Number of\\schools $m$\end{tabular}}&\multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisbnb}:\\Branch \& bound\end{tabular}}}  & \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP1}:\\App. costs DP\end{tabular}}}  &\multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP3}:\\FPTAS, $\varepsilon= 0.5$\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP3}:\\FPTAS, $\varepsilon= 0.05$\end{tabular}}}   \\ \hline
+\textbf{\begin{tabular}[r]{@{}r@{}}Number of\\schools $m$\end{tabular}}&\multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisbnb}:\\Branch \& bound\end{tabular}}}  & \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP1}:\\Costs DP\end{tabular}}}  &\multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP3}:\\FPTAS, $\varepsilon= 0.5$\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}Algorithm \ref{ellisDP3}:\\FPTAS, $\varepsilon= 0.05$\end{tabular}}}   \\ \hline
 \else
 \textbf{\begin{tabular}[r]{@{}r@{}}학교의\\개수 $m$\end{tabular}}&\multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘  \ref{ellisbnb}:\\분지한계법\end{tabular}}}  & \multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{ellisDP1}: 지원\\비용 동적 계획\end{tabular}}}  &\multicolumn{2}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{ellisDP3}:\\FPTAS, $\varepsilon= 0.5$\end{tabular}}}  & \multicolumn{2}{c}{\textbf{\begin{tabular}[c]{@{}c@{}}알고리즘 \ref{ellisDP3}:\\FPTAS, $\varepsilon= 0.05$\end{tabular}}}   \\ \hline
 \fi
-    8 &          0.05 &       (0.03) &         0.02 &      (0.01) &                0.08 &             (0.02) &                 0.28 &              (0.09) \\
-   16 &          0.37 &       (0.25) &         0.10 &      (0.03) &                0.53 &             (0.15) &                 4.39 &              (1.27) \\
-   32 &        131.58 &     (172.60) &         0.40 &      (0.10) &                3.08 &             (0.70) &                45.07 &             (15.72) \\
-   64 &             — &          (—) &         1.78 &      (0.46) &               20.91 &             (4.81) &               566.75 &            (149.18) \\
-  128 &             — &          (—) &         9.34 &      (1.98) &              121.28 &            (33.50) &              3090.48 &            (863.95) 
+     8 &          0.04 &       (0.02) &         0.01 &      (0.00) &                0.05 &             (0.01) &                 0.21 &              (0.06) \\
+    16 &          0.22 &       (0.11) &         0.07 &      (0.01) &                0.43 &             (0.10) &                 3.15 &              (0.74) \\
+    32 &        166.20 &     (422.31) &         0.31 &      (0.05) &                2.38 &             (0.38) &                33.38 &             (11.68) \\
+    64 &             — &          (—) &         1.36 &      (0.18) &               15.32 &             (2.77) &               405.73 &            (125.98) \\
+   128 &             — &          (—) &         6.52 &      (0.72) &               84.50 &            (22.59) &              2362.19 &           (1095.11) \\
+   256 &             — &          (—) &        31.23 &      (1.91) &             1085.60 &          (1186.24) &             22129.92 &           (6588.40)
 \end{tabular}%
 \caption{\label{experiment2results} \normalsize
-\ifen Time in ms to compute an optimal or $(1 - \varepsilon)$-optimal portfolio for an admissions market with heterogeneous application costs using the three algorithms developed in section \ref{hetappcosts}.
+\ifen Time in ms to compute an optimal or $(1 - \varepsilon)$-optimal portfolio for an admissions market with heterogeneous application costs using the three algorithms developed in Section \ref{hetappcosts}.
 %branch-and-bound routine (Algorithm \ref{ellisbnb}), exact dynamic program (Algorithm \ref{ellisDP1}), and the fully polynomial-time approximation scheme (Algorithm \ref{ellisDP3}).
 The branch-and-bound algorithm is impractical for large markets. \lastptofcaption
 \else  %분지한계법 (알고리즘 \ref{ellisbnb}), 정확한 동적 계획 (알고리즘 \ref{ellisDP1}), 그리고 완전 다항 시간 근사 해법 (알고리즘 \ref{ellisDP3})을
@@ -1526,18 +1527,23 @@ The branch-and-bound algorithm is impractical for large markets. \lastptofcaptio
 
 
 %\pagebreak
-\ifen \section{Conclusion} \else \section{결론}\fi\label{conclusion}
+\ifen \section{Conclusion and ideas for future research} \else \section{결론과 향후 연구}\fi\label{conclusion}
 \ifen
-This study has introduced a novel combinatorial optimization problem that we call the college application problem. It can be viewed as a kind of integer portfolio optimization problem or stochastic knapsack problem. We showed that the special case in which each college's application cost is identical can be solved in polynomial time by a greedy algorithm because the optimal solutions are nested in the budget constraint. The general problem is NP-complete. We provided three solution algorithms. The strongest from a theoretical standpoint is an FPTAS that produces a $(1-\varepsilon)$-approximate solution in $O(m^3 / \varepsilon)$-time. However, for typical college-application instances, the dynamic program based on application expenditures is both easier to implement and substantially more time efficient.
+This study has introduced a novel combinatorial optimization problem that we call the college application problem. It can be viewed as a kind of integer portfolio optimization problem or nonlinear knapsack problem. We showed that the special case in which colleges have identical application costs can be solved in polynomial time by a greedy algorithm because the optimal solutions are nested in the budget constraint. The general problem is NP-complete. We provided three solution algorithms. The strongest from a theoretical standpoint is an FPTAS that produces a $(1-\varepsilon)$-approximate solution in $O(m^3 / \varepsilon)$-time. On the other hand, for typical college-application instances, the dynamic program based on application expenditures is both easier to implement and substantially more time efficient.
+
+Three extensions of this problem appear amenable to future study.
 \else
-본 연구는 새로운 조합최적화 문제를 제안했으며 이를 대학 지원 최적화 문제라고 부른다. 정수 포트폴리오 최적화 문제 또는 확률적인 배낭 문제로 볼 수 있다. 모든 대학의 지원 비용이 동일한 특수한 경우, 탐욕 알고리즘으로 다항 시간 안에 풀 수 있음을 보였으며 최적해가 예산 제약식에 대한 포함 사슬 관계를 가지기 때문이다. 일반적인 문제는 NP-complete다. 3가지 해법을 제시했으며 이론적으로 가장 효율적인 알고리즘은 $O(m^3 / \varepsilon)$-시간 안에  $(1-\varepsilon)$-근사해를 계산하는 FPTAS이다. 그러나 전형적인 대학 지원 문제 인스턴스에 대해서, 지원 비용 지출액 기반 동적 계획 해법은 실행하기 쉬울 뿐더러 계산 시간이 상당히 짧다.
+본 연구는 새로운 조합최적화 문제를 제안했으며 이를 대학 지원 최적화 문제라고 부른다. 정수 포트폴리오 최적화 문제 또는 확률적인 배낭 문제로 볼 수 있다. 모든 대학의 지원 비용이 동일한 특수한 경우, 탐욕 알고리즘으로 다항 시간 안에 풀 수 있음을 보였으며 최적해가 예산 제약식에 대한 포함 사슬 관계를 가지기 때문이다. 일반적인 문제는 NP-complete다. 3가지 해법을 제시했으며 이론적으로 가장 효율적인 알고리즘은 $O(m^3 / \varepsilon)$-시간 안에  $(1-\varepsilon)$-근사해를 계산하는 FPTAS이다. 그 반면에 전형적인 대학 지원 문제 인스턴스에 대해서, 지원 비용 지출액 기반 동적 계획 해법은 실행하기 쉬울 뿐더러 계산 시간이 상당히 짧다.
+
+이 문제를 확장할 수 있는 향후 연구 방향 3가지를 제안한다. 
 \fi
 
 
+\ifen \subsection{Explicit treatment of risk aversion}\else \subsection{위험 회피가 명시적인 모형}\fi
 \ifen
-Two extensions of this problem appear amenable to future study. First, the familiar Markowitz portfolio optimization model includes an explicit risk-aversion term, whereas our model has settled for an implicit treatment of risk, namely the tradeoff between selective schools and safety schools inherent in the ``maximax'' objective function. However, it is possible to augment the objective function $v(\mathcal{X}) = \operatorname{E}[X]$ to incorporate a variance penalty $\beta \geq 0$ as follows:
+The familiar Markowitz portfolio optimization model includes an explicit risk-aversion term, whereas our model has settled for an implicit treatment of risk, namely the tradeoff between selective schools and safety schools inherent in the maximax objective function. However, it is possible to augment the objective function $v(\mathcal{X}) = \operatorname{E}[X]$ to incorporate a variance penalty $\beta \geq 0$ as follows:
 \else
-이 문제를 확장할 수 있는 향후 연구 방향 2가지를 제안한다. 첫번째는, 익숙한 Markowitz 포트폴리오 최적화 모형에는 명시적인 위험 회피 항이 있으며, 본 모형은 경쟁적인 학교와 안정 학교 사이의 균형으로 내포된 위험 관리 요소만 고려했다. 그러나 기본 목적함수인 $v(\mathcal{X}) = \operatorname{E}[X]$에 평균편차 페널티 $\beta \geq 0$를 다음처럼 도입할 수 있다:
+익숙한 Markowitz 포트폴리오 최적화 모형에는 명시적인 위험 회피 항이 있으며, 본 모형은 maximax 목적함수에 내포된 경쟁적인 학교와 안정 학교 사이의 균형에 의한 위험 관리 요소만 고려했다. 그러나 기본 목적함수인 $v(\mathcal{X}) = \operatorname{E}[X]$에 평균편차 페널티 $\beta \geq 0$를 다음처럼 도입할 수 있다:
 \fi
 \begin{align}
 \begin{split}
@@ -1555,14 +1561,16 @@ where $\tau_j = t_j - \beta t_j^2$. Since the first term is itself a portfolio v
 단, $\tau_j = t_j - \beta t_j^2$. 이의 첫번째 항 그 자체가 포트폴리오 가치 함수이며, 두번째 항은 포트폴리오 가치 함수의 단조 변환이다. 따라서 위에서 제시한 알고리즘을 서브루틴으로 사용하면 효율적 투자선(efficient frontier)을 탐색할 수 있어 보인다. 이때 다양한 $\alpha \geq 0$에 대해 예산 제약식과 $v(\mathcal{X}; \tau) \geq \alpha$ 하에서 $v(\mathcal{X}; t)$을 최대화하는 것이 알고리즘의 요점이다.
 \fi
 
+
+\ifen \subsection{Signaling strategies}\else \subsection{시그런 전략}\fi
 \ifen
 Another direction of further research with immediate application in college admissions is to incorporate additional signaling strategies into the problem. In the Korean admissions process, the online application form contains three multiple-choice fields, labeled \emph{ga, na,} and \emph{da} for the first three letters of the Korean alphabet, which students use to indicate the colleges to which they wish to apply. Most schools appear only in one or two of the three fields. Therefore, students are restricted not only in the number of applications they can submit, but in the combinations of schools that may coincide in a feasible application portfolio. From a portfolio optimization perspective, this is a \emph{diversification constraint,} because its primary purpose is to prevent students from applying only to top-tier schools. However, in addition to overall selectivity, the three fields also indicate different evaluation schemes: Applications filed under the \emph{ga} and {na} fields are evaluated with greater emphasis on standardized-test scores than those filed under the \emph{da} field. Some colleges appear in multiple fields and run two parallel admissions processes, each with different evaluation criteria. Therefore, if a student recognizes that she has a comparative advantage in (for example) her interview skills, she may increase her chances of admission to a competitive school by applying under the \emph{ga} field. Clearly, the optimal application strategy in this context can be quite subtle, and are a perennial subject of debate on Korean social networks.
 
-An analogous feature of the American college admissions process is known as early decision, in which at the moment of application, a student commits to enrolling in a college if admitted. In principle, students who apply with early decision may obtain a better chance of admission by signaling their eagerness to attend, but doing so removes the college's incentive to entice the student with merit-based financial aid, altering the utility calculus.
+An analogous feature of the American college admissions process is known as early decision, in which at the moment of application, a student commits to enrolling in a college if admitted. In principle, students who apply with early decision may obtain a better chance of admission by signaling their eagerness to attend, but doing so weakens the college's incentive to entice the student with merit-based financial aid, altering the utility calculus.
 \else
 향후 연구에 두번째 방향은 모형에 시그널 전략을 도입하는 것이다. 한국 입학 과정의 온라인 지원 양식에는 가군, 나군, 다군이란 3가지 선다형 칸을 채워서 지원하는 학교를 선택한다. 대부분의 학교는 모든 3개의 칸에 등장하지 않고 그 중 1~2개만 가능하다. 따라서 학생이 지원할 수 있는 학교의 `수'일 뿐만 아니라 가능한 지원 포트폴리오에 같이 들어갈 수 있는 학교의 `조합'도 제한된다. 이는 학생이 상위권 대학만 지원하지 않도록 만들어지기 때문에  다각화(diversification) 제약식으로 볼 수 있다. 그러나 대학이 어떤 군에 속하는 것은 대학 순위일 뿐더러 입학 전형 유형도 의미한다. 가군과 나군으로 지원하는 경우, 다군보다 수능 점수의 반영 비율이 높다. 또한 군 2개에 포함되는 학교도 있으며 입학 전형이 다르면서 평행한 모집 과정 2개를 운영한다. 가령, 어떤 학생이 면접 능력에 비교 우위가 있으면 경쟁적인 학교에 가군으로 지원하면 합격 확률을 높일 수 있다. 이런 맥락에서 최적의 지원 전략은 미묘한 문제이며 한국 SNS에서 자주 발생하는 화젯거리다.
 
-미국 입학 과정의 유사한 특징은 조기 전형(early decision)이다. 이는 학생이 합격하면 진학한다고 약속하고 지원하는 것을 의미한다. 조기 전형으로 지원하면 입학할 관심을 시그널할 수 있으므로 합격 확률을 높일 수 있는 반면에, 학교가 학생을 모집하려고 장학금을 수여할 동기가 없어질 수 있으므로 학생의 효용 추정이 달라진다.
+미국 입학 과정의 유사한 특징은 조기 전형(early decision)이다. 이는 학생이 합격하면 진학한다고 약속하고 지원하는 것을 의미한다. 조기 전형으로 지원하면 입학할 관심을 시그널할 수 있으므로 합격 확률을 높일 수 있는 반면에, 학교가 학생을 모집하려고 장학금을 수여할 동기가 약화할 수 있으므로 학생의 효용 추정이 달라진다.
 \fi
 
 
@@ -1571,7 +1579,7 @@ In the integer formulation of the college application problem (Problem \ref{inte
 \begin{align}
  x_{j+} + x_{j-} \leq 1, ~~ j = 1\dots m\qquad\text{and}\qquad\sum_{j=1}^m x_{j+} \leq 1
 \end{align}
-completes the problem formulation. These constraints are conformable to those of the multiple knapsack problem (Kellerer et al. 2004, chap. 10). 
+completes the formulation. These constraints are conformable to those of the multiple knapsack problem (Kellerer et al. 2004, chap. 10). 
 \else
 대학 지원 문제의 정수 모형(문제 \ref{integernlp})에서 위의 시그널 전략들을 어렵지 않게 도입하는 방식은 각 $c_j$를 $c_{j+}$와 $c_{j-}$로 나누는 것이다. 그다음에 학생이 $c_j$에 높은 관심을 시그널하면 (즉, 가군으로 선택하거나 조기 전형으로 지원하면) $x_{j+} = 1$이며 관심을 시그널 하지 않고 지원하면 (즉 가군 혹은 나군으로 지원하거나 조기 전형 없이 지원하면) $x_{j-} = 1$이 되는 이진 결정 변수를 정의한다. 그러면 해당 합격 확률 $f_{j+}$와 $f_{j-}$ 그리고 효용  $t_{j+}$와 $t_{j-}$가 알려져 있다고 가정하면 다음 같은 논리 제약식을 더해서 모형을 완성할 수 있다. 
 \begin{align}
@@ -1579,6 +1587,24 @@ completes the problem formulation. These constraints are conformable to those of
 \end{align}
 다중 배낭 문제의 제약식과 같을 꼴이다 (Kellerer et al. 2004, 10제). 
 \fi
+
+
+\ifen \subsection{Memory-efficient dynamic programs}\else \subsection{동적 계획의 메모리 소요 절감}\fi
+\ifen
+Our numerical experiments suggest that the performance of the dynamic programming algorithms is bottlenecked by not computation time, but memory usage. Reducing these algorithms' storage requirements would enable us to solve considerably larger problems.
+
+Abstractly speaking, Algorithms \ref{ellisDP1} and \ref{ellisDP3} are two-dimensional dynamic programs that represent the optimal solution by $Z[N, C]$. Here $N$ is the number of decision variables, $C$ is a constraint parameter, and $Z[n, c]$ is the optimal objective value achievable using the first $n\leq N$ decision variables when the constraint parameter is $c \leq C$. The algorithm iterates on a recursion relation that expresses $Z[n, c]$ as a function of $Z[n -1, c]$ and $Z[n -1, c']$ for some $c' \leq c$. (In Algorithm \ref{ellisDP1}, $Z$ is the maximal portfolio valuation, $N = m$, and $C =H$; in Algorithm \ref{ellisDP3},  $Z$ is the minimal application expenditures, $N = m$, and $C = |\mathcal{V}| \propto m^2 / \varepsilon$.)
+
+When such a dynamic program is implemented using a lookup table or dictionary memoization, producing the optimal solution requires $O(NC)$-time and -space. Kellerer et al. (2004, \S\,3.3) provide a technique for transforming the dynamic program $Z$ into a divide-and-conquer algorithm that produces the optimal solution in $O(N C)$-time and $O(N + C)$-space, a significant improvement. However, their technique requires the objective function to be additively separable in a certain sense that appears difficult to conform to the college application problem. 
+\else
+수리 실험 결과에 따르면 동적 계획 해법 성능의 목병 요소는 계산 시간이 아니라 메모리 소모량이다. 이 알고리즘의 메모리 소요를 절감하면 상당히 큰 문제를 풀 수 있다.
+
+추상적인 관점에서, 알고리즘 \ref{ellisDP1}과(와) 알고리즘 \ref{ellisDP3}은(는) 최적해를 $Z[N, C]$로 표현하는 2차원 동적 계획이다. 이때 $N$은 결정 변수의 수, $C$는 제약식의 모수, 그리고 $Z[n, c]$는 제약 모수가 $c \leq C$일 때 첫 $n\leq N$개의 결정 변수만 이용하는 최적해이다. 알고리즘의 구조는 $Z[n, c]$를 $Z[n -1, c]$와 어떤 $c' \leq c$에 대응하는 $Z[n -1, c']$의 함수로 표현하는 반복 관계로 탐색하는 것이다. (알고리즘 \ref{ellisDP1}에서 $Z$는 최대 포트폴리오 가치, $N = m$, 그리고 $C =H$이며, 알고리즘 \ref{ellisDP3}에서 $Z$는 최소한 지원 지출액, $N = m$, 그리고 $C= |\mathcal{V}| \propto m^2 / \varepsilon$이다.)
+
+이러한 형태의 동적 계획을 표 혹은 사전 기록으로 구현하면 최적해를 출력하는 것은 $O(NC)$-시간과 -공간을 소요한다. Kellerer외 (2004, \S\,3.3)는 동적 계획 $Z$를 $O(N C)$-시간과 $O(N + C)$-공간으로 최적해를 구하는 분할 정복(divide and conquer) 알고리즘으로 변환하는 일잔적인 방법을 제시하며 매우 유익한 기술이다. 그러나 이를 이용할 수 있는 조건 중, 목적함수는 어떤 기술적인 의미에서 가산적으로 분할되어야 하며 이를 대학 지원 문제에 적용하기 어렵다.
+\fi
+
+
 
 
 \pagebreak
@@ -1592,6 +1618,8 @@ completes the problem formulation. These constraints are conformable to those of
 김민희. 2015. ``{[대입 수시 전략]} 총 6번의 기회 $\cdots$ `상향·소신·안정' 분산 지원하라.'' 중앙일보, 8월 26일. \url{https://www.joongang.co.kr/article/18524069}.\fi
 
 Acharya, Mohan S., Asfia Armaan, and Aneeta S. Antony. 2019. ``A Comparison of Regression Models for Prediction of Graduate Admissions.'' In \emph{Second International Conference on Computational Intelligence in Data Science.} \url{https://doi.org/10.1109/ICCIDS.2019.8862140}.
+
+Balas, Egon and Eitan Zemel. 1980. ``An Algorithm for Large Zero-One Knapsack Problems.'' \emph{Operations Research} 28 (5): 1130--54. \url{https://doi.org/10.1287/opre.28.5.1130}. 
 
 Bezanson, Jeff, Alan Edelman, Stefan Karpinski, and Viral B. Shah. 2017. ``Julia: A Fresh Approach to Numerical Computing.'' \emph{SIAM Review} 59: 65–98. \url{https://doi.org/10.1137/141000671}.
 
