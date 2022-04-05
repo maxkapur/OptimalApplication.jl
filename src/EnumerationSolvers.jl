@@ -3,7 +3,7 @@
 
 Produce the optimal portfolio for the market `mkt` having identical application costs.
 """
-function optimalportfolio_enumerate(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Float64} where T
+function optimalportfolio_enumerate(mkt::SameCostsMarket{T, U})::Tuple{Vector{Int},Float64} where {T, U}
     X = zeros(T, mkt.h)
     v = 0.0
 

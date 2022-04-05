@@ -30,7 +30,7 @@ isless(c1::College, c2::College) = isless(c1.ft, c2.ft)
 Produce the optimal order of application for the market `mkt` having identical
 application costs and the corresponding portfolio valuations.
 """
-function applicationorder_list(mkt::SameCostsMarket{T}; verbose=false::Bool)::Tuple{Vector{Int},Vector{Float64}} where T
+function applicationorder_list(mkt::SameCostsMarket{T, U}; verbose=false::Bool)::Tuple{Vector{Int},Vector{Float64}} where {T, U}
     apporder = zeros(T, mkt.h)
     v = zeros(mkt.h)
 
@@ -100,7 +100,7 @@ end
 Produce the optimal order of application for the market `mkt` having identical
 application costs and the corresponding portfolio valuations.
 """
-function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vector{Float64}} where {T}
+function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vector{Float64}} where {T, U}
     apporder = zeros(T, mkt.h)
     v = zeros(mkt.h)
 
@@ -134,7 +134,7 @@ end
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 valuation table `V` for the market `mkt` with varying application costs.
 """
-function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where {T}
+function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where T
     V = zeros(mkt.m, mkt.H)
     @inbounds for j in T(1):mkt.m, h in 1:mkt.H
         if h < mkt.g[j]
@@ -187,7 +187,7 @@ end
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 value `v` for the market `mkt` with varying application costs. 
 """
-function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T}; verbose=false::Bool)::Tuple{Vector{Int},Float64} where {T}
+function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T}; verbose=false::Bool)::Tuple{Vector{Int},Float64} where T
     V_dict = Dict{Tuple{T,Int},Float64}()
     sizehint!(V_dict, mkt.m * mkt.m ÷ 2)
 
@@ -278,7 +278,7 @@ end
 Use the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio for the market `mkt` with varying application costs. 
 """
-function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose=false::Bool)::Tuple{Vector{Int},Float64} where T<:Unsigned
+function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose=false::Bool)::Tuple{Vector{Int},Float64} where T
     sp = ScaleParams(mkt, ε)
 
     G_dict = Dict{Tuple{T,Int},Int}()

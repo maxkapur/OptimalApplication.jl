@@ -2,7 +2,7 @@ const UIntTypes = DataType[UInt8, UInt16, UInt32, UInt64]
 
 
 # TO DO: Use Julian errors rather than assertions here.
-function iscoherentmarket(f::Vector{Float64}, t::Vector{Int})
+function iscoherentmarket(f::Vector{Float64}, t::Vector{<:Real})
     @assert length(f) == length(t)
     @assert all(0 .< f .≤ 1)
     @assert issorted(t)
@@ -17,17 +17,13 @@ function iscoherentmarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int})
 end
 
 
-function isnontrivialmarket(f::Vector{Float64}, t::Vector{Int}, h::Int)
+function isnontrivialmarket(f::Vector{Float64}, t::Vector{<:Real}, h::Int)
     iscoherentmarket(f, t)
     @assert 0 < h ≤ length(t)
 end
 
 
-function isnontrivialmarket(
-    f::Vector{Float64},
-    t::Vector{Int},
-    g::Vector{Int},
-    H::Int)
+function isnontrivialmarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
     iscoherentmarket(f, t, g)
     @assert 0 < H ≤ sum(g)
     @assert all(0 .< g .≤ H)
@@ -46,10 +42,10 @@ application costs. Fields:
     `omf = 1 .- f`
     `perm = sortperm(perm)`: Currently a placeholder
 """
-struct SameCostsMarket{T<:Unsigned}
+struct SameCostsMarket{T<:Unsigned, U<:Real}
     m::T
     f::Vector{Float64}
-    t::Vector{Int}
+    t::Vector{U}
     h::T
     ft::Vector{Float64}      # = f .* t
     omf::Vector{Float64}     # = 1 .- f
@@ -62,7 +58,7 @@ struct SameCostsMarket{T<:Unsigned}
     admissions probabilities `f`, utility values `t`, and application limit `h`
     and return the market object.
     """
-    function SameCostsMarket(f::Vector{Float64}, t::Vector{Int}, h::Integer)
+    function SameCostsMarket(f::Vector{Float64}, t::Vector{U}, h::Integer) where U<:Real
         isnontrivialmarket(f, t, h)
         T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
         m = T(length(f))
@@ -70,16 +66,16 @@ struct SameCostsMarket{T<:Unsigned}
         # We are current asserting that t is sorted; a placeholder for later work
         perm = T.(sortperm(t))
 
-        return new{T}(m, f, t, T(h), f .* t, 1 .- f, perm)
+        return new{T, U}(m, f, t, T(h), f .* t, 1 .- f, perm)
     end
 
     function SameCostsMarket(m::Integer)
         T = UIntTypes[findfirst(T -> m < typemax(T), UIntTypes)]
-        t = ceil.(T, -10 * log.(rand(m)))
+        t = ceil.(Int, -10 * log.(rand(m)))
         sort!(t)
         f = inv.(t .+ 10 * rand(m))
         perm = T.(1:m)
-        return new{T}(T(m), f, t, T(m ÷ 2), f .* t, 1 .- f, perm)
+        return new{T, Int}(T(m), f, t, T(m ÷ 2), f .* t, 1 .- f, perm)
     end
 end
 
@@ -127,7 +123,7 @@ struct VariedCostsMarket{T<:Unsigned}
 
     function VariedCostsMarket(m::Integer)
         T = UIntTypes[findfirst(T -> m < typemax(T), UIntTypes)]
-        t = ceil.(T, -10 * log.(rand(m)))
+        t = ceil.(Int, -10 * log.(rand(m)))
         sort!(t)
         f = inv.(t .+ 10 * rand(m))
         g = rand(5:10, m)
@@ -144,7 +140,7 @@ Perform preliminary helper calculations for `SameCostsMarket` defined by
 admissions probabilities `f`, utility values `t`, and application limit `h`
 and return the market object.
 """
-function Market(f::Vector{Float64}, t::Vector{Int}, h::Int)
+function Market(f::Vector{Float64}, t::Vector{<:Real}, h::Int)
     return SameCostsMarket(f, t, h)
 end
 
