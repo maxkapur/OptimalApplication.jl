@@ -31,7 +31,7 @@
 
 % Language selector
 \newif\ifen
-\enfalse % Change to false to export Korean
+\entrue % Change to false to export Korean
 
 
 \ifen
@@ -218,13 +218,9 @@ A brief conclusion follows.
 
 %\pagebreak
 \ifen \section{Notation and preliminary results} \else \section{표기법과 예비 결과}\fi\label{preliminaries}
-\ifen Before discussing the solution algorithms, we will introduce some additional notation and a few preliminary results that will come in handy.
-
-For the remainder of the paper, unless otherwise noted, we assume with trivial loss of generality that each $g_j \leq H$, each $f_j \in (0, 1]$, and $t_0 < t_1 \leq \cdots \leq t_m$. %Below, we will show how to transform an arbitrary instance so that $t_0 = 0$, in which case each $t_j > 0$. 
+\ifen Before discussing the solution algorithms, we will introduce additional notation and a few preliminary results. For the remainder of the paper, unless otherwise noted, we assume with trivial loss of generality that each $g_j \leq H$, $\sum g_j > H$, each $f_j \in (0, 1]$, and $t_0 < t_1 \leq \cdots \leq t_m$. %Below, we will show how to transform an arbitrary instance so that $t_0 = 0$, in which case each $t_j > 0$. 
 \else
-해법은 의논하기 전, 본 절에서 추가적인 표기법은 명시하고 몇 가지 유용한 예비 결과를 정리하고자 한다.
-
-남은 논문에서 다른 언급이 없으면, 일반성을 잃지 않고 각 $g_j \leq H$, 각 $f_j \in (0, 1]$, 그리고 $t_0 < t_1 \leq \cdots \leq t_m$이라고 가정한다. 뒤에서 임의의 인스턴스를 $t_0 = 0$이 되도록 변환하는 방법을 제시한다. % 이를 적용하면 $t_j > 0$인 가정을 세울 수 있다. 
+해법은 의논하기 전, 본 절에서 추가적인 표기법은 명시하고 몇 가지 유용한 예비 결과를 정리하고자 한다. 남은 논문에서 다른 언급이 없으면, 일반성을 잃지 않고 각 $g_j \leq H$, $\sum g_j > H$, 각 $f_j \in (0, 1]$, 그리고 $t_0 < t_1 \leq \cdots \leq t_m$이라고 가정한다. 뒤에서 임의의 인스턴스를 $t_0 = 0$이 되도록 변환하는 방법을 제시한다. % 이를 적용하면 $t_j > 0$인 가정을 세울 수 있다. 
 \fi
 
 \ifen
@@ -338,11 +334,11 @@ Apply to the $h$ schools having the highest expected utility $f_j t_j$.
 \fi
 \end{definition}
 \ifen 
-\noindent This algorithm's computation time is $O(m)$ using the \small PICK \normalsize algorithm of Blum et al. (1973).
+\noindent This algorithm's computation time is $O(m)$ using the PICK algorithm of Blum et al. (1973).
 
 The basic error of the na\"ive algorithm is that it maximizes $\operatorname{E}\left[\sum t_j Z_j \right]$ instead of $\operatorname{E}\left[\max \{t_j Z_j\} \right]$. The latter is what Alma is truly concerned with, since in the end she can attend only one school. The following example shows that the na\"ive algorithm can produce a suboptimal solution.
 \else
-\noindent Blum 외 (1973)의 \small PICK \normalsize 알고리즘을 사용하면 위의 해법의 계산 시간이 $O(m)$이다.
+\noindent Blum 외 (1973)의 PICK 알고리즘을 사용하면 위의 해법의 계산 시간이 $O(m)$이다.
 
 나이브 알고리즘의 기본 실수는 $\operatorname{E}\left[\max \{t_j Z_j\} \right]$ 대신  $\operatorname{E}\left[\sum t_j Z_j \right]$을 최대화하는 것이다. 결국에는 단 한 학교로만 진학할 수 있으므로 알마의 목적은 후자가 아닌 전자다. %학교 개별 효용의 기대 최댓값이다. 
 다음 예는 나이브 해법이 최적해가 아닌 해를 출력할 수 있음을 보인다.
@@ -358,18 +354,17 @@ Suppose $m=3$, $h=2$,  $ t= (70, 80, 90) $, and $f = (0.4, 0.4, 0.3)$.
 %\end{align*}
 Then the na\"ive algorithm picks $\mathcal{T} = \{1, 2\}$ with 
 $v(\mathcal{T}) = 70(0.4)(1-0.4) + 80(0.4) = 48.8$.
-But $\mathcal{X} = \{2, 3\}$ with￣
+But $\mathcal{X} = \{2, 3\}$ with
 $v(\mathcal{X}) = 80(0.4)(1-0.3) + 90(0.3) = 49.4$
 is the optimal solution. 
 \else
 $m=3$, $h=2$,  $ t= (70, 80, 90) $, 그리고 $f = (0.4, 0.4, 0.3)$이라고 하자. 그러면 나이브 해법은 $\mathcal{T} = \{1, 2\}$를 선택하며 그의 기대 효용은 $v(\mathcal{T}) = 70(0.4)(1-0.4) + 80(0.4) = 48.8$이다. 그러나 $\mathcal{X} = \{2, 3\}$를 선택하면 기대 효용은 $v(\mathcal{X}) = 80(0.4)(1-0.3) + 90(0.3) = 49.4$이고 이는 최적해이다.
 \fi
 \end{example}
-
 \ifen
-In fact, the na\"ive algorithm is a $(1/h)$-approximation algorithm for Alma’s problem, as expressed in the following theorem.
+\noindent In fact, the na\"ive algorithm is a $(1/h)$-approximation algorithm for Alma’s problem, as expressed in the following theorem.
 \else
-다음 정리는 나이브 해법이 알마의 문제를 위한 $(1/h)$-근사 해법임을 의미한다.
+\noindent 다음 정리는 나이브 해법이 알마의 문제를 위한 $(1/h)$-근사 해법임을 의미한다.
 \fi
 
 \begin{theorem}[\ifen Accuracy of the na\"ive algorithm\else 나이브 해법의 정확성\fi] \label{oneoverhopt}
@@ -399,11 +394,10 @@ where the final inequality follows from the concavity of the $\max\{\}$ operator
 단, 마지막 부등호는 $\max\{\}$ 연산의 볼록성에 따라 성립한다.
 \fi
 \end{proof}
-
 \ifen
-The following example establishes the tightness of the approximation factor. 
+\noindent The following example establishes the tightness of the approximation factor. 
 \else
-다음 예는 근사 계수가 타이트(tight)함을 보인다.
+\noindent 다음 예는 근사 계수가 타이트(tight)함을 보인다.
 \fi
 
 \begin{example} \label{tightexampleforoneoverhopt}
@@ -412,20 +406,27 @@ Pick any $h$ and let $m = 2h$. For a small constant $\varepsilon \in (0, 1)$, de
 \else
 임의의 $h$를 택하고 $m = 2h$라고 하자. 작은 상수  $\varepsilon \in (0, 1)$에 대해 시장을 다음처럼 구성한다.
 \fi
-\begin{align*}
- f &= \Bigl(\,\underbrace{1,  \dots, 1}_{h},\;
-\underbrace{\varepsilon^{1}, \varepsilon^{2}, \dots, \varepsilon^{h-1}, \varepsilon^{h}}_{h}\,\Bigr) \\
-\text{\ifen and\else 그리고\fi}\quad t &= \Bigl(\,\underbrace{1,  \dots, 1}_{h},\;
-\underbrace{\varepsilon^{-1}, \varepsilon^{-2}, \dots, \varepsilon^{-(h-1)}, \varepsilon^{-h}}_{h}\,\Bigr) 
-\end{align*}
+%\begin{align}
+% f &= \Bigl(\,\underbrace{1,  \dots, 1}_{h},\;
+%\underbrace{\varepsilon^{1}, \varepsilon^{2}, \dots, \varepsilon^{h-1}, \varepsilon^{h}}_{h}\,\Bigr) \\
+%\text{\ifen and\else 그리고\fi}\quad t &= \Bigl(\,\underbrace{1,  \dots, 1}_{h},\;
+%\underbrace{\varepsilon^{-1}, \varepsilon^{-2}, \dots, \varepsilon^{-(h-1)}, \varepsilon^{-h}}_{h}\,\Bigr) 
+%\end{align}
+\begin{center}
+\begin{tabular}{r|cccccccc}
+$j$   & $1$      & $\cdots$ & $h$   &$h+1$         &  $h+2$ & $\cdots$ &      $m-1$  & $m$            \\ \hline
+$f_j$ & $1$     &  $\cdots$ & $1$      & $\varepsilon^{1}$ & $\varepsilon^{2}$ & $\cdots$ & $\varepsilon^{h-1}$ & $\varepsilon^{h}$ \\
+$t_j$ & $1$      &  $\cdots$ & $1$      & $\varepsilon^{-1}$ & $\varepsilon^{-2}$ & $\cdots$ & $\varepsilon^{-(h-1)}$ & $\varepsilon^{-h}$
+\end{tabular}%
+\end{center}
 \ifen
 Since all $f_j t_j = 1$, the na\"ive algorithm can choose $\mathcal{T}_h = \{1, \dots, h\}$, with $v(\mathcal{T}_h) = 1$. But the optimal solution is $\mathcal{X}_h = \{h+1, \dots, m\}$, with
 \else
 모든 $f_j t_j = 1$이므로 나이브 해법은 $\mathcal{T}_h = \{1, \dots, h\}$를 출력할 수 있으며 $v(\mathcal{T}_h) = 1$이다. 그러나 최적해는 $\mathcal{X}_h = \{h+1, \dots, m\}$이며 그의 기대 효용은 다음과 같다.
 \fi
-\begin{equation*}
+\begin{equation}
 v(\mathcal{X}_h) = \sum_{j= h +1}^m \Bigl( f_j t_j \prod_{j' = j+1}^m (1 - f_{j'}) \Bigr) =  \sum_{j= 1}^h  (1 - \varepsilon)^{j} \approx h\ifen.\fi
-\end{equation*}
+\end{equation}
 \ifen
 Thus, as $\varepsilon$ approaches zero, we have $v(\mathcal{T}_h) / v(\mathcal{X}_h) \to 1/h$. (The optimality of $\mathcal{X}_h$ follows from the fact that it achieves the upper bound of Theorem \ref{oneoverhopt}.)
 \else
@@ -711,11 +712,10 @@ $\mathcal{C}$는 목록 대신 이진 최대 힙 구현으로 저장하는 방�
 &= v(\mathcal{X}_{h-1})  + v(\mathcal{X}_{h+1}) \qedhere
 \end{align}
 \end{proof}
-
 \ifen
-It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio for a given market, $v(\mathcal{X}_h)$ is $O(h)$. Example \ref{tightexampleforoneoverhopt}, in which $v(\mathcal{X}_h)$ can be made arbitrarily close to $h$, establishes the tightness of this bound.
+\noindent It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio for a given market, $v(\mathcal{X}_h)$ is $O(h)$. Example \ref{tightexampleforoneoverhopt}, in which $v(\mathcal{X}_h)$ can be made arbitrarily close to $h$, establishes the tightness of this bound.
 \else
-위 결과는 $\mathcal{X}_h$가 어떤 시장의 최적 $h$-포트폴리오일 때, $v(\mathcal{X}_h)$가 $O(h)$ 함수라고 의미한다. 예 \ref{tightexampleforoneoverhopt}에서 $v(\mathcal{X}_h)$를 $h$에 임의로 가깝게 조정할 수 있으므로 이 상한이 타이트함을 알 수 있다.
+\noindent 위 결과는 $\mathcal{X}_h$가 어떤 시장의 최적 $h$-포트폴리오일 때, $v(\mathcal{X}_h)$가 $O(h)$ 함수라고 의미한다. 예 \ref{tightexampleforoneoverhopt}에서 $v(\mathcal{X}_h)$를 $h$에 임의로 가깝게 조정할 수 있으므로 이 상한이 타이트함을 알 수 있다.
 \fi
 
 %To wrap up, we provide an example showing that if the entries of $Z$ are dependent, then the optimal solution may violate the nestedness property of Theorem \ref{nestedapplication}.
@@ -725,7 +725,7 @@ It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio for a given ma
 
 \ifen \subsection{A small example} \else \subsection{작은 예} \fi \label{planetsexamplesection}
 \ifen 
-Let us consider a fictional admissions market consisting of $m=8$ schools. The school data, along with the optimal solutions for each $h \leq m$, appear in Table \ref{planetsdata}.
+Let us examine a fictional admissions market consisting of $m=8$ schools. The school data, along with the optimal solutions for each $h \leq m$, appear in Table \ref{planetsdata}.
 \else 
 $m = 8$개의 학교로 구성된 가상 입학 시장을 고려하자. 학교 자료와 각 $h \leq m$에 대응하는 최적해는 표 \ref{planetsdata}에서 나타난다.
 \fi
@@ -772,18 +772,18 @@ The output of the algorithm is $\mathtt{X} = [4, 2, 8, 1, 7, 3, 5, 6]$, and the 
 \begin{table}[h!] \centering
 \small
 \begin{tabular}{r|lcccc}
-\ifen\textbf{Index $j$} & \textbf{School $c_j$} & \textbf{Utility $t_j$} & \textbf{Admit prob. $f_j$} & \textbf{Priority} & \textbf{$v(\mathcal{X}_h)$} \\ \hline
+\ifen\textbf{Index $j$} & \textbf{School $c_j$} & \textbf{Admit prob. $f_j$} & \textbf{Utility $t_j$} & \textbf{Priority} & \textbf{$v(\mathcal{X}_h)$} \\ \hline
 \else 
-\textbf{지표 $j$} & \textbf{학교 $c_j$} & \textbf{효용 $t_j$} & \textbf{합격 확률 $f_j$} & \textbf{지원 순위} & \textbf{$v(\mathcal{X}_h)$} \\ \hline  \fi
+\textbf{지표 $j$} & \textbf{학교 $c_j$} & \textbf{합격 확률 $f_j$} & \textbf{효용 $t_j$}  & \textbf{지원 순위} & \textbf{$v(\mathcal{X}_h)$} \\ \hline  \fi
 \\[-.75em]
-1 & \ifen Mercury University   \else  수성대       \fi        & 200 & 0.39 & 4   & 230.0   \\
-2 & \ifen Venus University     \else  금성대       \fi        & 250 & 0.33 & 2   & 146.7  \\
-3 & \ifen Mars University      \else  화성대       \fi        & 300 & 0.24 & 6   & 281.5  \\
-4 & \ifen Jupiter University   \else  목성대       \fi        & 350 & 0.24 & 1   & \phantom{0}84.0  \\
-5 & \ifen Saturn University    \else  토성대       \fi        & 400 & 0.05 & 7   & 288.8  \\
-6 & \ifen Uranus University    \else  천왕성대     \fi        & 450 & 0.03 & 8   & 294.1  \\
-7 & \ifen Neptune University   \else  해왕성대     \fi        & 500 & 0.10 & 5   & 257.7  \\
-8 & \ifen Pluto College        \else  명왕성대       \fi        & 550 & 0.12 & 3   & 195.1              
+1 & \ifen Mercury University   \else  수성대  \fi   & 0.39   & 200 & 4   & 230.0   \\
+2 & \ifen Venus University     \else  금성대  \fi   & 0.33   & 250 & 2   & 146.7  \\
+3 & \ifen Mars University      \else  화성대  \fi   & 0.24   & 300 & 6   & 281.5  \\
+4 & \ifen Jupiter University   \else  목성대  \fi   & 0.24   & 350 & 1   & \phantom{0}84.0  \\
+5 & \ifen Saturn University    \else  토성대  \fi   & 0.05   & 400 & 7   & 288.8  \\
+6 & \ifen Uranus University    \else  천왕성대 \fi   & 0.03   & 450 & 8   & 294.1  \\
+7 & \ifen Neptune University   \else  해왕성대 \fi   & 0.10   & 500 & 5   & 257.7  \\
+8 & \ifen Pluto College        \else  명왕성대 \fi   & 0.12   & 550 & 3   & 195.1      
 \end{tabular}
 \caption{\label{planetsdata} \normalsize
 \ifen College data and optimal application portfolios for a fictional market with $m=8$ schools. By the nestedness property (Theorem \ref{nestedapplication}), the optimal portfolio when the application limit is $h$ consists of the $h$ schools having priority $h$ or less.
@@ -833,9 +833,9 @@ Ellis's optimal college application portfolio is given by the solution to the fo
 \end{problem}
 
 \ifen
-In this section, we show that this problem is NP-complete, then provide three algorithmic solutions: an exact branch-and-bound routine, an exact dynamic program, and a fully polynomial-time approximation scheme (FPTAS).
+\noindent In this section, we show that this problem is NP-complete, then provide three algorithmic solutions: an exact branch-and-bound routine, an exact dynamic program, and a fully polynomial-time approximation scheme (FPTAS).
 \else
-본 절에서 이 문제가 NP-complete함을 보이고 3가지 해법을 제시한다: 정확한 분지한계법 해법, 정확한 동적 계획 해법, 그리고 완전 다항 시간 근사 해법 (fully polynomial-time approximation scheme, FPTAS).
+\noindent 본 절에서 이 문제가 NP-complete함을 보이고 3가지 해법을 제시한다: 정확한 분지한계법 해법, 정확한 동적 계획 해법, 그리고 완전 다항 시간 근사 해법 (fully polynomial-time approximation scheme, FPTAS).
 \fi
 
 \ifen \subsection{NP-completeness} \else \subsection{NP-completeness}\fi
@@ -919,7 +919,43 @@ Let $t = (10, 2021)$, $f = (1, 1)$, $g = (1, 500)$, and $H = 500$. Then the gree
  $t = (10, 2021)$, $f = (1, 1)$, $g = (1, 500)$, 그리고 $H = 500$이라고 하자. 그러면 탐욕 해법은 $\mathcal{X} = \{1\}$을 출력하며 이는 분명히 최적해가 아니다.
 \fi
 \end{example} 
-% as the following example suggests ...The construction above shows that the objective function of Ellis's problem can approximate that of a knapsack problem with arbitrary precision, and this algorithm
+\ifen
+We might expect to obtain a better approximate solution to Ellis's problem by solving the following knapsack problem (nevermind that it is NP-complete) as a surrogate.
+\begin{equation}
+\text{maximize}\quad \sum_{j \in \mathcal{X}} f_j t_j \qquad \text{subject to}\quad\mathcal{X}\subseteq\mathcal{C},~~\sum_{j \in \mathcal{X}} g_j \leq H
+\end{equation}
+However, upon inspection, this solution merely generalizes the na\"ive algorithm for Alma's problem (Definition \ref{naivealgorithm}). In Ellis's problem, because the number of schools in the optimal portfolio can be as large as $m-1$, the knapsack solution's approximation coefficient is $1/(m-1)$ by analogy with \eqref{oneoverhopt}. A tight example is as follows. 
+\else
+엘리스 문제의 좀 더 좋은 근사해를 찾기 위해 다음 배낭 문제를 (NP-complete함을 무시하고) 대리 문제로 푸는 것에 매력은 있다.
+\begin{equation}
+\text{maximize}\quad \sum_{j \in \mathcal{X}} f_j t_j \qquad \text{subject to}\quad\mathcal{X}\subseteq\mathcal{C},~~\sum_{j \in \mathcal{X}} g_j \leq H
+\end{equation}
+그러나 이러한 해법은 사실 알마 문제의 나이브 해법(정의 \ref{naivealgorithm})의 단순한 일반화임을 알 수 있다. 엘리스 문제에서 최적 포트폴리오에 크기가 $m-1$이 될 수 있으므로 배낭 문제 해법의 근사 계수는 \eqref{oneoverhopt}과(와) 유사하듯이 $1 / (m-1)$이다. 타이트한 예는 다음과 같다.
+\fi
+\begin{example}
+\ifen Consider the following instance of Ellis's problem, where $H = m-1$.
+\else 엘리스 문제의 다음 인스턴스를 고려하자. 단, $H = m-1$이다. \fi
+\begin{center}
+\begin{tabular}{r|cccc}
+$j$   & $1$            & $\cdots$ & $m-1$          & $m$            \\ \hline
+$f_j$ & $1$            &  $\cdots$ & $1$            & $\frac{1}{m-1}$ \\
+$t_j$ & $\frac{1}{m-1}$ &  $\cdots$ & $\frac{1}{m-1}$ & $m-1$          \\
+$g_j$ & $1$            &  $\cdots$ & $1$            & $m-1$         
+\end{tabular}%
+\end{center}
+\ifen
+The feasible solutions $\mathcal{Y} = \{1, \dots, m-1\}$ and $\mathcal{X} = \{ m\}$ each have $\sum_{j \in \mathcal{Y}} f_j t_j = \sum_{j \in \mathcal{X}} f_j t_j =  1$, and thus the knapsack algorithm can choose $\mathcal{Y}$ with $v(\mathcal{Y}) = 1/(m-1)$. But the optimal solution is  $\mathcal{X}$ with $v(\mathcal{X}) =  1$. 
+\else
+가능해 $\mathcal{Y} = \{1, \dots, m-1\}$와 $\mathcal{X} = \{ m\}$에 대해 $\sum_{j \in \mathcal{Y}} f_j t_j = \sum_{j \in \mathcal{X}} f_j t_j =  1$이므로 배낭 문제 해법은  $\mathcal{Y}$를 선택할 수 있다. 그의 가치는 $v(\mathcal{Y}) = 1/(m-1)$이다. 그러나 $\mathcal{X}$는 최적해이며 그의 가치는 $v(\mathcal{X}) =  1$이다.
+\fi
+\end{example}
+
+\ifen 
+\noindent In summary, neither a greedy algorithm nor a knapsack-based algorithm solves Ellis's problem to optimality. 
+\else
+\noindent 탐욕 해법 또는 배낭 문제 기반 해법으로 엘리스 문제의 정확한 최적해를 구할 수 없음을 의미한다.
+\fi
+
 
 \ifen \subsection{Branch-and-bound algorithm} \else \subsection{분지한계법} \fi \label{subsectionbranchbound}
 \ifen 
@@ -942,9 +978,9 @@ To begin, let us characterize the portfolio $\mathcal{X}$ as the binary vector $
 \end{align}
 \end{problem}
 \ifen
-Since the product in $v(x)$ does not exceed one, the following LP relaxation is an upper bound on the valuation of the optimal portfolio.
+\noindent Since the product in $v(x)$ does not exceed one, the following LP relaxation is an upper bound on the valuation of the optimal portfolio.
 \else
-$v(x)$에서 등장하는 곱은 1을 넘을 수 없으므로 다음 선형 완화 문제는 최적 포트폴리오 가치의 상한이 된다.
+\noindent $v(x)$에서 등장하는 곱은 1을 넘을 수 없으므로 다음 선형 완화 문제는 최적 포트폴리오 가치의 상한이 된다.
 \fi
 \begin{problem}[\ifen LP relaxation for Ellis's problem\else 엘리스의 문제를 위한 선형 완화 문제\fi] \label{LPrelaxation}
 \begin{align}
@@ -955,13 +991,12 @@ $v(x)$에서 등장하는 곱은 1을 넘을 수 없으므로 다음 선형 완�
 \end{align}
 \end{problem}
 \ifen
-Problem \ref{LPrelaxation} is a continuous knapsack problem, which is easily solved in $O(m \log m)$-time by the following greedy algorithm: Start with $x = \mathbf{0}$. While $H > 0$, select the school $j$ for which $f_j t_j / g_j$ is highest, set $x_j \gets \min\{1, H / g_j\}$, and set $H \gets H - g_j$ (Dantzig 1957). Balas and Zemel (1980, \S\,2) provide an $O(m)$ algorithm. 
+\noindent Problem \ref{LPrelaxation} is a continuous knapsack problem, which is easily solved in $O(m \log m)$-time by a greedy algorithm (Dantzig 1957). Balas and Zemel (1980, \S\,2) provide an $O(m)$ algorithm. 
 \else
-문제 \ref{LPrelaxation}은(는) ``연속 배낭 문제''라고 불리며 다음 탐욕 알고리즘을 적용하면 $O(m \log m)$-시간 안에 쉽게 풀 수 있다: $x = \mathbf{0}$로 초기화한다. $H > 0$임이 성립하는 동안, $f_j t_j / g_j$-값이 가장 큰 학교 $j$를 택한다. $x_j \gets \min\{1, H / g_j\}$ 그리고 $H \gets H - g_j$로 수정하여 반복한다 (Dantzig 1957).  $O(m)$ 알고리즘도 알려져 있다 (Balas와 Zemel 1980, \S\,2).
+\noindent 문제 \ref{LPrelaxation}은(는) ``연속 배낭 문제''라고 불리며 탐욕 알고리즘을 적용하면 $O(m \log m)$-시간 안에 쉽게 풀 수 있다 (Dantzig 1957).  $O(m)$ 알고리즘도 알려져 있다 (Balas와 Zemel 1980, \S\,2).
 \fi
 
-\ifen 
-In our branch-and-bound framework, a \emph{node} is characterized by a three-way partition of schools $\mathcal{C}= \mathcal{I} \cup \mathcal{O} \cup \mathcal{N}$ satisfying $\sum_{j \in \mathcal{I}} g_j \leq H$. $\mathcal{I}$ consists of schools that are ``in'' the application portfolio ($x_j = 1$), $\mathcal{O}$ consists of those that are ``out'' ($x_j = 0$), and $\mathcal{N}$ consists of those that are ``negotiable.'' 
+\ifen In our branch-and-bound framework, a \emph{node} is characterized by a three-way partition of schools $\mathcal{C}= \mathcal{I} \cup \mathcal{O} \cup \mathcal{N}$ satisfying $\sum_{j \in \mathcal{I}} g_j \leq H$. $\mathcal{I}$ consists of schools that are ``in'' the application portfolio ($x_j = 1$), $\mathcal{O}$ consists of those that are ``out'' ($x_j = 0$), and $\mathcal{N}$ consists of those that are ``negotiable.'' 
 %This partition induces a constant $\gamma$, transformed $t_j$-values $\bar t$, the residual budget $\mathcal{H}$, and a set $\mathcal{L}$ of pointers to the node's children, if any.
 The choice of partition induces a pair of subproblems. The first subproblem is an instance of Problem \ref{integernlp}, namely
 \else
@@ -1212,10 +1247,10 @@ Optimality follows from the foregoing discussion. Sorting $t$ is $O(m \log m)$. 
 
 \ifen \subsection{Fully polynomial-time approximation scheme}\else \subsection{완전 다항 시간 근사 해법}\fi \label{fptashead}
 \ifen 
-As with the knapsack problem, Ellis's problem admits a complementary dynamic program that iterates on the value of the cheapest portfolio instead of on the cost of the most valuable portfolio. We will use this algorithm as the basis for an FPTAS for Ellis's problem that uses $O(m^3 / \varepsilon)$-time and -space. Here we assume, with a small loss of generality, that each $t_j$ is a natural number.
+As with the knapsack problem, Ellis's problem admits a complementary dynamic program that iterates on the value of the cheapest portfolio instead of on the cost of the most valuable portfolio. We will use this algorithm as the basis for an FPTAS for Ellis's problem that uses $O(m^3 / \varepsilon)$-time and -space.% Here we assume, with a small loss of generality, that each $t_j$ is a natural number.
 %Now, we modify Algorithm \ref{ellisDP2} into a fully polynomial-time approximation scheme for Ellis's problem.
 \else
-엘리스의 문제는 배낭 문제와 같이, 가치가 가장 높은 포트폴리오의 비용 대신 비용이 가장 낮은 포트폴리오의 가치를 탐색하는 보완적인 동적 계획이 존재한다. 이를 기반으로  $O(m^3 / \varepsilon)$-시간과 -공간을 사용하는 엘리스 문제의 FPTAS를 도출할 수 있다. 여기서 일반성을 약간 제한하여 각 $t_j$가 자연수임을 가정한다.
+엘리스의 문제는 배낭 문제와 같이, 가치가 가장 높은 포트폴리오의 비용 대신 비용이 가장 낮은 포트폴리오의 가치를 탐색하는 보완적인 동적 계획이 존재한다. 이를 기반으로  $O(m^3 / \varepsilon)$-시간과 -공간을 사용하는 엘리스 문제의 FPTAS를 도출할 수 있다.% 여기서 일반성을 약간 제한하여 각 $t_j$가 자연수임을 가정한다.
 \fi
 
 
@@ -1566,7 +1601,7 @@ This study has introduced a novel combinatorial optimization problem that we cal
 \xrowht[()]{1.5em}  Greedy                & Algorithm \ref{algorithmforlargeh} &  \begin{tabular}[l]{@{}l@{}}Homogeneous \\ costs\end{tabular}    & None                  & Exact                    & $O(hm)$                   \\
 \xrowht[()]{1.5em}  \begin{tabular}[r]{@{}r@{}}Branch and\\ bound\end{tabular}   & Algorithm \ref{ellisbnb} & General          & None                  & Exact                    & $O(2^m)$                  \\
 \xrowht[()]{1.5em}  Costs DP     &  Algorithm \ref{ellisDP1}& General          & $g_j$ integer         & Exact                    & $O(Hm + m \log m)$        \\
-\xrowht[()]{1.5em}  FPTAS      &    Algorithm \ref{ellisDP3} & General          & $t_j$ integer         & $(1 - \varepsilon)$-opt. & $O(m^3 / \varepsilon)$   
+\xrowht[()]{1.5em}  FPTAS      &    Algorithm \ref{ellisDP3} & General          &  None         & $(1 - \varepsilon)$-opt. & $O(m^3 / \varepsilon)$   
 \end{tabular}%
 \caption{\label{algorithmssummary} \normalsize
 Summary of algorithms discussed in this paper.}
@@ -1580,7 +1615,7 @@ Summary of algorithms discussed in this paper.}
 \xrowht[()]{1.7em}  탐욕 해법                & 알고리즘 \ref{algorithmforlargeh} &  \begin{tabular}[l]{@{}l@{}}동일한\\ 지원 비용\end{tabular}    & 없음                  & 정확                    & $O(hm)$                   \\
 \xrowht[()]{1.7em}  \begin{tabular}[r]{@{}r@{}}분지한계법\end{tabular}   & 알고리즘 \ref{ellisbnb} & 일반 문제          & 없음                  & 정확                    & $O(2^m)$                  \\
 \xrowht[()]{1.7em}   \begin{tabular}[r]{@{}r@{}}지출액\\ 동적 계획\end{tabular}     &  알고리즘 \ref{ellisDP1}& 일반 문제          & $g_j$ 정수         & 정확                    & $O(Hm + m \log m)$        \\
-\xrowht[()]{1.7em}  FPTAS      &    알고리즘 \ref{ellisDP3} & 일반 문제          & $t_j$ 정수         & $(1 - \varepsilon)$-근사 & $O(m^3 / \varepsilon)$   
+\xrowht[()]{1.7em}  FPTAS      &    알고리즘 \ref{ellisDP3} & 일반 문제          &  없음    & $(1 - \varepsilon)$-근사 & $O(m^3 / \varepsilon)$   
 \end{tabular}%
 \caption{\label{algorithmssummary} \normalsize
 본 논문에서 다룬 해법의 요약.}
