@@ -2,10 +2,13 @@ using OptimalApplication
 using Test
 using Random
 
+# "t not sorted" warnings are OK. 
+
 # Number of markets to generate for each test
 const n_markets = 3
 
 @testset verbose = true "OptimalApplication.jl" begin
+
     @testset verbose = true "Same app. costs, t int" begin
         m = 20
 
@@ -77,6 +80,84 @@ const n_markets = 3
         end
     end
 
+    # These tests verify that permuting the problem data doesn't
+    # change the optimum
+    @testset verbose = true "Permutation" begin
+        @testset verbose = true "Same costs" begin
+            m = 6
+            f = rand(m)
+            t = rand(m)
+            h = m ÷ 2
+
+            perm = randperm(m)
+            sp = sortperm(t)
+
+            # Randomly sorted market
+            mkt1 = SameCostsMarket(f, t, h)
+            # A random permutation thereof
+            mkt2 = SameCostsMarket(f[perm], t[perm], h)
+            # Now sorted by t
+            mkt3 = SameCostsMarket(f[sp], t[sp], h)
+
+            # A random portfolio
+            x = rand(Bool, m)
+            @test valuation((1:m)[x], mkt1) ≈ valuation((1:m)[x[perm]], mkt2)
+            @test valuation((1:m)[x], mkt1) ≈ valuation((1:m)[x[sp]], mkt3)
+
+            # Optimal valuations all agree
+            x, v = optimalportfolio_enumerate(mkt3)
+            @test v ≈ valuation(applicationorder_list(mkt1)[1], mkt1)
+            @test v ≈ valuation(applicationorder_list(mkt2)[1], mkt2)
+            @test v ≈ valuation(applicationorder_list(mkt3)[1], mkt3)
+            @test v ≈ valuation(applicationorder_heap(mkt1)[1], mkt1)
+            @test v ≈ valuation(applicationorder_heap(mkt2)[1], mkt2)
+            @test v ≈ valuation(applicationorder_heap(mkt3)[1], mkt3)
+            @test v ≈ valuation(optimalportfolio_enumerate(mkt1)[1], mkt1)
+            @test v ≈ valuation(optimalportfolio_enumerate(mkt2)[1], mkt2)
+        end
+
+        @testset verbose = true "Het. costs" begin
+            m = 6
+            f = rand(m)
+            t = rand(50:60, m)
+            g = rand(5:10, m)
+            H = sum(g) ÷ 2
+
+            perm = randperm(m)
+            sp = sortperm(t)
+
+            # Randomly sorted market
+            mkt1 = VariedCostsMarket(f, t, g, H)
+            # A random permutation thereof
+            mkt2 = VariedCostsMarket(f[perm], t[perm], g[perm], H)
+            # Now sorted by t
+            mkt3 = VariedCostsMarket(f[sp], t[sp], g[sp], H)
+
+            # A random portfolio
+            x = rand(Bool, m)
+            @test valuation((1:m)[x], mkt1) ≈ valuation((1:m)[x[perm]], mkt2)
+            @test valuation((1:m)[x], mkt1) ≈ valuation((1:m)[x[sp]], mkt3)
+
+            # Optimal valuations all agree
+            x, v = optimalportfolio_enumerate(mkt3)
+            @test v ≈ valuation(optimalportfolio_branchbound(mkt1)[1], mkt1)
+            @test v ≈ valuation(optimalportfolio_branchbound(mkt2)[1], mkt2)
+            @test v ≈ valuation(optimalportfolio_branchbound(mkt3)[1], mkt3)
+            @test v ≈ valuation(optimalportfolio_dynamicprogram(mkt1)[1], mkt1)
+            @test v ≈ valuation(optimalportfolio_dynamicprogram(mkt2)[1], mkt2)
+            @test v ≈ valuation(optimalportfolio_dynamicprogram(mkt3)[1], mkt3)
+            @test v ≈ valuation(optimalportfolio_valuationtable(mkt1)[1], mkt1)
+            @test v ≈ valuation(optimalportfolio_valuationtable(mkt2)[1], mkt2)
+            @test v ≈ valuation(optimalportfolio_valuationtable(mkt3)[1], mkt3)
+            @test v ≈ valuation(optimalportfolio_enumerate(mkt1)[1], mkt1)
+            @test v ≈ valuation(optimalportfolio_enumerate(mkt2)[1], mkt2)
+
+            @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt1, 0.5)[1], mkt1)
+            @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt2, 0.5)[1], mkt2)
+            @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt3, 0.5)[1], mkt3)
+        end
+    end
+
     @testset verbose = true "Large problems" begin
         mkt = SameCostsMarket(5000)
 
@@ -94,15 +175,6 @@ const n_markets = 3
         # Dim mismatch
         f = [0.1, 0.1]
         t = [1, 2, 4]
-        g = [2, 2]
-        H = 3
-
-        @test_throws AssertionError Market(f, t, 1)
-        @test_throws AssertionError Market(f, t, g, H)
-
-        # t not sorted
-        f = [0.1, 0.1]
-        t = [7, 4]
         g = [2, 2]
         H = 3
 

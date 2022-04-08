@@ -9,7 +9,7 @@ import Printf: @sprintf
 # using BenchmarkTools
 using UnicodePlots
 
-const fullscale = true
+const fullscale = false
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.

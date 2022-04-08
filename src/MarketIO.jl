@@ -5,7 +5,6 @@ const UIntTypes = DataType[UInt8, UInt16, UInt32, UInt64]
 function iscoherentmarket(f::Vector{Float64}, t::Vector{<:Real})
     @assert length(f) == length(t)
     @assert all(0 .< f .≤ 1)
-    @assert issorted(t)
 end
 
 
@@ -13,7 +12,6 @@ function iscoherentmarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int})
     @assert length(f) == length(t)
     @assert length(f) == length(g)
     @assert all(0 .< f .≤ 1)
-    @assert issorted(t)
 end
 
 
@@ -61,21 +59,33 @@ struct SameCostsMarket{T<:Unsigned, U<:Real}
     function SameCostsMarket(f::Vector{Float64}, t::Vector{U}, h::Integer) where U<:Real
         isnontrivialmarket(f, t, h)
         T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
-        m = T(length(f))
 
         # We are current asserting that t is sorted; a placeholder for later work
         perm = T.(sortperm(t))
 
-        return new{T, U}(m, f, t, T(h), f .* t, 1 .- f, perm)
+        return new{T, U}(
+            T(length(f)),
+            f[perm],
+            t[perm],
+            T(h),
+            (f .* t)[perm],
+            (1 .- f)[perm],
+            perm)
     end
 
     function SameCostsMarket(m::Integer)
         T = UIntTypes[findfirst(T -> m < typemax(T), UIntTypes)]
         t = ceil.(Int, -10 * log.(rand(m)))
-        sort!(t)
         f = inv.(t .+ 10 * rand(m))
-        perm = T.(1:m)
-        return new{T, Int}(T(m), f, t, T(m ÷ 2), f .* t, 1 .- f, perm)
+        perm = T.(sortperm(t))
+        return new{T,Int}(
+            T(m),
+            f[perm],
+            t[perm],
+            T(m ÷ 2),
+            (f.*t)[perm],
+            (1 .- f)[perm],
+            perm)
     end
 end
 
@@ -115,21 +125,36 @@ struct VariedCostsMarket{T<:Unsigned}
     function VariedCostsMarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
         isnontrivialmarket(f, t, g, H)
         T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
-        m = T(length(f))
         perm = T.(sortperm(t))
 
-        return new{T}(m, f, t, g, H, f .* t, 1 .- f, perm)
+        return new{T}(
+            T(length(f)),
+            f[perm],
+            t[perm],
+            g[perm],
+            H,
+            (f.*t)[perm],
+            (1 .- f)[perm],
+            perm)
     end
 
     function VariedCostsMarket(m::Integer)
         T = UIntTypes[findfirst(T -> m < typemax(T), UIntTypes)]
         t = ceil.(Int, -10 * log.(rand(m)))
-        sort!(t)
         f = inv.(t .+ 10 * rand(m))
         g = rand(5:10, m)
         H = sum(g) ÷ 2
-        perm = T.(1:m)    
-        return new{T}(T(m), f, t, g, H, f .* t, 1 .- f, perm)
+        perm = T.(sortperm(t))
+
+        return new{T}(
+            T(m),
+            f[perm],
+            t[perm],
+            g[perm],
+            H,
+            (f.*t)[perm],
+            (1 .- f)[perm],
+            perm)
     end
 end
 
@@ -163,10 +188,20 @@ end
 Return the valuation of the portfolio `X` on the market `mkt`, which may be either 
 a `SameCostsMarket` or a `VariedCostsMarket`.
 """
-function valuation(X::Vector{T}, mkt::Union{SameCostsMarket{T},VariedCostsMarket{T}})::Float64 where T<:Unsigned
+function valuation(
+        X::AbstractVector{<:Integer},
+        mkt::Union{SameCostsMarket{T},VariedCostsMarket{T}};
+        invp=nothing::Union{Nothing,Vector{T}})::Float64 where T<:Unsigned
     isempty(X) && return 0.0
 
-    sort!(X)
+    X = T.(X)
+
+    # sort!(X)
+    if isnothing(invp)
+        invp = invperm(mkt.perm)
+    end
+    X[:] = sort(invp[X])
+
     h = T(length(X))
 
     if h > 1

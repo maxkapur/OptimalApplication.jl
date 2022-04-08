@@ -89,8 +89,7 @@ function applicationorder_list(mkt::SameCostsMarket{T, U}; verbose=false::Bool):
         pop!(mkt_list)
     end
 
-
-    return apporder, v
+    return mkt.perm[apporder], v
 end
 
 
@@ -100,7 +99,7 @@ end
 Produce the optimal order of application for the market `mkt` having identical
 application costs and the corresponding portfolio valuations.
 """
-function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vector{Float64}} where {T, U}
+function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vector{Float64}} where {T,U}
     apporder = zeros(T, mkt.h)
     v = zeros(mkt.h)
 
@@ -110,7 +109,7 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
         c_k = first(mkt_heap)
         v[j] = get(v, j - 1, 0) + c_k.ft
         apporder[j] = c_k.j
-    
+
         mkt_heap = BinaryMaxHeap{College{T}}(
             map(filter(c -> c.j != c_k.j, mkt_heap.valtree)) do c
                 College(
@@ -124,7 +123,7 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
         )
     end
 
-    return apporder, v
+    return mkt.perm[apporder], v
 end
 
 
@@ -134,7 +133,7 @@ end
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 valuation table `V` for the market `mkt` with varying application costs.
 """
-function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where T
+function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where {T}
     V = zeros(mkt.m, mkt.H)
     @inbounds for j in T(1):mkt.m, h in 1:mkt.H
         if h < mkt.g[j]
@@ -156,7 +155,8 @@ function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vecto
         end
     end
 
-    return X, V
+    issorted(mkt.perm) || @warn "t not sorted; table rows will differ from input"
+    return mkt.perm[X], V
 end
 
 
@@ -187,7 +187,7 @@ end
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 value `v` for the market `mkt` with varying application costs. 
 """
-function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T}; verbose=false::Bool)::Tuple{Vector{Int},Float64} where T
+function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T}; verbose=false::Bool)::Tuple{Vector{Int},Float64} where {T}
     V_dict = Dict{Tuple{T,Int},Float64}()
     sizehint!(V_dict, mkt.m * mkt.m ÷ 2)
 
@@ -214,7 +214,7 @@ function optimalportfolio_dynamicprogram(mkt::VariedCostsMarket{T}; verbose=fals
         display(V_table)
     end
 
-    return X, v
+    return mkt.perm[X], v
 end
 
 
@@ -227,7 +227,9 @@ struct ScaleParams
 
     function ScaleParams(mkt::VariedCostsMarket, ε::Float64)
         @assert 0 < ε < 1
-        P = ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.ft))))
+        P = max(0,
+                ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.ft))))
+            )
         t = mkt.t .* 2^P
         ft = mkt.f .* t
         Ū = ceil(Int, sum(ft))
@@ -278,7 +280,7 @@ end
 Use the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio for the market `mkt` with varying application costs. 
 """
-function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose=false::Bool)::Tuple{Vector{Int},Float64} where T
+function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose=false::Bool)::Tuple{Vector{Int},Float64} where {T}
     sp = ScaleParams(mkt, ε)
 
     G_dict = Dict{Tuple{T,Int},Int}()
@@ -319,10 +321,11 @@ function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose=
                 G_table[j, v] = G_dict[(j, v)]
             end
         end
-    
+
         display(G_table)
     end
 
-
-    return X, valuation(X, mkt)
+    # In the valuation we just use the identity permutation as invp
+    # To prevent wasteful permuting and then invpermuting
+    return mkt.perm[X], valuation(X, mkt; invp=1:mkt.m)
 end

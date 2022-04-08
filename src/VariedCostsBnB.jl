@@ -4,14 +4,14 @@ Contains information about a subproblem in the branch and bound scheme.
 are "negotiable" and used to generate an LP upper bound and child nodes.
 """
 mutable struct Node{T<:Unsigned}
-    I::Set{T}
-    N::Set{T}
+    I::Vector{T}
+    N::Vector{T}
     t̄::Dict{Int,Float64}
     H̄::Int
     v_I::Float64
     v_LP::Float64
 
-    function Node(I::Set{T}, N::Set{T}, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket{T}) where T
+    function Node(I::Vector{T}, N::Vector{T}, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket{T}) where T
         # For generating a new node with its LP relaxation value and empty child set
 
         # Leaf node
@@ -19,8 +19,16 @@ mutable struct Node{T<:Unsigned}
             return new{T}(I, N, t̄, H̄, v_I, v_I)
         end
 
-        j_order = collect(N)
-        j_order[:] = j_order[sortperm(collect(mkt.f[j] * t̄[j] / mkt.g[j] for j in j_order), rev = true)]
+        j_order = copy(N)
+
+        sort!(
+            j_order,
+            by = function (j)
+                mkt.f[j] * t̄[j] / mkt.g[j]
+            end,
+            rev = true,
+            alg = InsertionSort # Because typically just one item is out of place
+        )
 
         v_LP = v_I
         H_left = H̄
@@ -50,13 +58,13 @@ hash(nd::Node) = hash((nd.I, nd.N))
 With respect to the data in `mkt`, generates the child(ren) of node `nd` and writes 
 their hashes to `nd.children`.
 """
-function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Set{Node{T}} where T
+function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Vector{Node{T}} where T
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
     if isempty(fltr)
-        child = Node(nd.I, Set{T}(), nd.t̄, nd.H̄, nd.v_I, mkt)
-        return Set((child, ))
+        child = Node(nd.I, T[], nd.t̄, nd.H̄, nd.v_I, mkt)
+        return [child]
     end
 
     # School we will branch on. In principle it can by any school in fltr.
@@ -74,36 +82,36 @@ function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Set{Node{T}} 
     if mkt.g[i] < nd.H̄
         # Node with i
         t̄1 = copy(nd.t̄)
+        delete!(t̄1, i)
         @inbounds for j in keys(t̄1)
-            if t̄1[j] ≤ t̄1[i]
+            if t̄1[j] ≤ nd.t̄[i]
                 t̄1[j] *= mkt.omf[i]
             else
                 t̄1[j] -= mkt.f[i] * nd.t̄[i]
             end
         end
-        delete!(t̄1, i)
     
-        child1 = Node(union(nd.I, i), newN, t̄1, nd.H̄ - mkt.g[i],
+        child1 = Node(vcat(nd.I, i), newN, t̄1, nd.H̄ - mkt.g[i],
             nd.v_I + mkt.f[i] * nd.t̄[i],
             mkt)
     
-        return Set((child1, child2))
+        return [child1, child2]
     else
         # Then mkt.g[i] == nd.H̄
         # Leaf node with i
         t̄1 = copy(nd.t̄)
+        delete!(t̄1, i)
         for j in keys(t̄1)
-            if t̄1[j] ≤ t̄1[i]
+            if t̄1[j] ≤ nd.t̄[i]
                 t̄1[j] *= mkt.omf[i]
             else
                 t̄1[j] -= mkt.f[i] * nd.t̄[i]
             end
         end
-        delete!(t̄1, i)
     
-        child1 = Node(union(nd.I, i), Set{T}(), t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
+        child1 = Node(vcat(nd.I, i), T[], t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
     
-        return Set((child1, child2))
+        return [child1, child2]
     end
 end
 
@@ -114,12 +122,12 @@ end
 Use the branch-and-bound algorithm to produce the optimal portfolio for the
 market `mkt` with varying application costs. Intractable for large markets. 
 """
-function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit = 100000::Int, verbose = false::Bool)::Tuple{Vector{Int},Float64} where T
+function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit=100000::Int, verbose=false::Bool)::Tuple{Vector{Int},Float64} where {T}
     mkt.m ≥ 33 && @warn "Branch and bound is slow for large markets"
 
-    C = Set(T(1):mkt.m)
+    C = collect(T(1):mkt.m)
 
-    rootnode::Node{T} = Node(Set{T}(), C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
+    rootnode::Node{T} = Node(T[], C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
     LB::Float64 = 0.0
     LB_node::Node{T} = rootnode
 
@@ -136,25 +144,25 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit = 100000:
 
     for k in 1:maxit
         verbose && @show k, LB, length(tree)
-
+    
         if isempty(tree)
             # All branches have either reached leaves or fathomed: done
-            return collect(LB_node.I), LB
+            return mkt.perm[collect(LB_node.I)], LB
         else
             # Select the node with the highest UB
             # thisnode, thisnodehandle = top_with_handle(tree)
             # pop!(tree)
             # delete!(treekeys, thisnodehandle)
-        
+    
             thisnodehandle::UInt, thisnode::Node{T} = argmax(hash_nd -> hash_nd[2].v_LP, tree)
             delete!(tree, thisnodehandle)
-            
+    
             # Another option: Select the node with best obj value. Works pretty bad. 
             # thisnodehandle, thisnode = argmax(hash_nd -> hash_nd[2].v_I, tree)
             # delete!(tree, thisnodehandle)
         end
-
-        children::Set{Node{T}} = generatechildren(thisnode, mkt)
+    
+        children::Vector{Node{T}} = generatechildren(thisnode, mkt)
 
         newLB = false
         for child in children
@@ -163,18 +171,22 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit = 100000:
                 LB_node = child
                 LB = child.v_I
             end
-
+    
             # isempty(child.N) || push!(treekeys, push!(tree, child))
             if child.v_LP > LB && !isempty(child.N)
                 push!(tree, hash(child) => child)
             end
         end
-
+    
+        # verbose && map(values(tree)) do nd
+        #     println("  I: $(nd.I),  N: $(nd.N),  v: $(nd.v_I),  v_LP: $(nd.v_LP)")
+        # end
+    
         if newLB
             # for k in treekeys
             @inbounds for k in keys(tree)
                 if tree[k].v_LP < LB
-                    verbose && println("Fathoming node $k")
+                    verbose && println("  Fathoming node $(tree[k].I), $(tree[k].N)")
                     delete!(tree, k)
                     # delete!(treekeys, k)
                 end
@@ -184,5 +196,5 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit = 100000:
 
     @warn "Unable to find optimum in $maxit iterations; returning best so far.\n" *
           "         Worst-case optimality ratio: $(LB/rootnode.v_LP)"
-    return collect(LB_node.I), LB
+    return mkt.perm[collect(LB_node.I)], LB
 end
