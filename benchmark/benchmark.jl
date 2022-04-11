@@ -9,7 +9,7 @@ import Printf: @sprintf
 # using BenchmarkTools
 using UnicodePlots
 
-const fullscale = false
+const fullscale = true
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -102,17 +102,17 @@ function benchmark2()
     times_fptas = fill(Inf, length(epsilons), length(marketsizes_VCM), n_markets)
 
     @threads for j in 1:n_markets
-        println("  j = ", @sprintf("%2d",j)," of $n_markets")
+        println("  j = ", @sprintf("%2d", j), " of $n_markets")
         for (i, m) in enumerate(marketsizes_VCM), _ in 1:n_reps
             if m ≤ bnbcutoff
                 times_bnb[i, j] = min(times_bnb[i, j], @elapsed optimalportfolio_branchbound(mkts_VCM[i, j]; maxit=twottbnbcutoff))
                 # times_bnb[i, j] =
                 #     @belapsed optimalportfolio_branchbound($(mkts_VCM[i, j]); maxit=$twottbnbcutoff)
             end
-        
+
             times_dp[i, j] = min(times_dp[i, j], @elapsed optimalportfolio_dynamicprogram(mkts_VCM[i, j]))
             # times_dp[i, j] = @belapsed optimalportfolio_dynamicprogram($(mkts_VCM[i, j]))
-        
+
             for (k, epsilon) in enumerate(epsilons)
                 if m ≤ fptascutoff_m || epsilon > fptascutoff_eps
                     times_fptas[k, i, j] = min(times_fptas[k, i, j], @elapsed optimalportfolio_fptas(mkts_VCM[i, j], epsilon))

@@ -28,7 +28,7 @@ Produce the optimal portfolio for the market `mkt` having varying application co
 """
 function optimalportfolio_enumerate(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Float64} where {T}
     mkt.m ≥ 21 && @warn "Enumeration is slow for large markets"
-    
+
     let
         X = Set{T}()
         v = 0.0

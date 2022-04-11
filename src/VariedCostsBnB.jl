@@ -11,7 +11,7 @@ mutable struct Node{T<:Unsigned}
     v_I::Float64
     v_LP::Float64
 
-    function Node(I::Vector{T}, N::Vector{T}, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket{T}) where T
+    function Node(I::Vector{T}, N::Vector{T}, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket{T}) where {T}
         # For generating a new node with its LP relaxation value and empty child set
 
         # Leaf node
@@ -23,11 +23,11 @@ mutable struct Node{T<:Unsigned}
 
         sort!(
             j_order,
-            by = function (j)
+            by=function (j)
                 mkt.f[j] * t̄[j] / mkt.g[j]
             end,
-            rev = true,
-            alg = InsertionSort # Because typically just one item is out of place
+            rev=true,
+            alg=InsertionSort # Because typically just one item is out of place
         )
 
         v_LP = v_I
@@ -58,7 +58,7 @@ hash(nd::Node) = hash((nd.I, nd.N))
 With respect to the data in `mkt`, generates the child(ren) of node `nd` and writes 
 their hashes to `nd.children`.
 """
-function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Vector{Node{T}} where T
+function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Vector{Node{T}} where {T}
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
@@ -90,11 +90,11 @@ function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Vector{Node{T
                 t̄1[j] -= mkt.f[i] * nd.t̄[i]
             end
         end
-    
+
         child1 = Node(vcat(nd.I, i), newN, t̄1, nd.H̄ - mkt.g[i],
             nd.v_I + mkt.f[i] * nd.t̄[i],
             mkt)
-    
+
         return [child1, child2]
     else
         # Then mkt.g[i] == nd.H̄
@@ -108,9 +108,9 @@ function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Vector{Node{T
                 t̄1[j] -= mkt.f[i] * nd.t̄[i]
             end
         end
-    
+
         child1 = Node(vcat(nd.I, i), T[], t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
-    
+
         return [child1, child2]
     end
 end
@@ -122,10 +122,10 @@ end
 Use the branch-and-bound algorithm to produce the optimal portfolio for the
 market `mkt` with varying application costs. Intractable for large markets. 
 """
-function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit=100000::Int, verbose=false::Bool)::Tuple{Vector{Int},Float64} where {T}
+function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit::Int=100000, verbose::Bool=false)::Tuple{Vector{Int},Float64} where {T}
     mkt.m ≥ 33 && @warn "Branch and bound is slow for large markets"
 
-    C = collect(T(1):mkt.m)
+    C = collect(one(T):mkt.m)
 
     rootnode::Node{T} = Node(T[], C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
     LB::Float64 = 0.0
@@ -144,7 +144,7 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit=100000::I
 
     for k in 1:maxit
         verbose && @show k, LB, length(tree)
-    
+
         if isempty(tree)
             # All branches have either reached leaves or fathomed: done
             return mkt.perm[collect(LB_node.I)], LB
@@ -153,15 +153,15 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit=100000::I
             # thisnode, thisnodehandle = top_with_handle(tree)
             # pop!(tree)
             # delete!(treekeys, thisnodehandle)
-    
+
             thisnodehandle::UInt, thisnode::Node{T} = argmax(hash_nd -> hash_nd[2].v_LP, tree)
             delete!(tree, thisnodehandle)
-    
+
             # Another option: Select the node with best obj value. Works pretty bad. 
             # thisnodehandle, thisnode = argmax(hash_nd -> hash_nd[2].v_I, tree)
             # delete!(tree, thisnodehandle)
         end
-    
+
         children::Vector{Node{T}} = generatechildren(thisnode, mkt)
 
         newLB = false
@@ -171,17 +171,17 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit=100000::I
                 LB_node = child
                 LB = child.v_I
             end
-    
+
             # isempty(child.N) || push!(treekeys, push!(tree, child))
             if child.v_LP > LB && !isempty(child.N)
                 push!(tree, hash(child) => child)
             end
         end
-    
+
         # verbose && map(values(tree)) do nd
         #     println("  I: $(nd.I),  N: $(nd.N),  v: $(nd.v_I),  v_LP: $(nd.v_LP)")
         # end
-    
+
         if newLB
             # for k in treekeys
             @inbounds for k in keys(tree)

@@ -191,7 +191,7 @@ a `SameCostsMarket` or a `VariedCostsMarket`.
 function valuation(
         X::AbstractVector{<:Integer},
         mkt::Union{SameCostsMarket{T},VariedCostsMarket{T}};
-        invp=nothing::Union{Nothing,Vector{T}})::Float64 where T<:Unsigned
+        invp::Union{Nothing,AbstractVector{T}}=nothing)::Float64 where T<:Unsigned
     isempty(X) && return 0.0
 
     X = T.(X)
