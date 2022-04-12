@@ -9,37 +9,39 @@ const n_markets = 3
 
 @testset verbose = true "OptimalApplication.jl" begin
 
-    @testset verbose = true "Same app. costs, t int" begin
-        m = 20
+    @testset verbose = true "Same app. costs" begin
+        @testset verbose = true "t int" begin
+            m = 20
 
-        for _ in 1:n_markets
-            mkt = SameCostsMarket(m)
+            for _ in 1:n_markets
+                mkt = SameCostsMarket(m)
 
-            X_enum, vX_enum = optimalportfolio_enumerate(mkt)
-            sort!(X_enum)
-            X_heap, vX_heap = applicationorder_heap(mkt)
-            X_list, vX_list = applicationorder_list(mkt)
-            @test X_enum == sort(X_heap)
-            @test vX_enum ≈ last(vX_heap)
-            @test X_enum == sort(X_list)
-            @test vX_enum ≈ last(vX_list)
+                X_enum, vX_enum = optimalportfolio_enumerate(mkt)
+                sort!(X_enum)
+                X_heap, vX_heap = applicationorder_heap(mkt)
+                X_list, vX_list = applicationorder_list(mkt)
+                @test X_enum == sort(X_heap)
+                @test vX_enum ≈ last(vX_heap)
+                @test X_enum == sort(X_list)
+                @test vX_enum ≈ last(vX_list)
+            end
         end
-    end
 
-    @testset verbose = true "Same app. costs, t float" begin
-        m = 20
+        @testset verbose = true "t float" begin
+            m = 20
 
-        for _ in 1:n_markets
-            mkt = SameCostsMarket(rand(16), sort(12 * rand(16)), m ÷ 4)
+            for _ in 1:n_markets
+                mkt = SameCostsMarket(rand(16), sort(12 * rand(16)), m ÷ 4)
 
-            X_enum, vX_enum = optimalportfolio_enumerate(mkt)
-            sort!(X_enum)
-            X_heap, vX_heap = applicationorder_heap(mkt)
-            X_list, vX_list = applicationorder_list(mkt)
-            @test X_enum == sort(X_heap)
-            @test vX_enum ≈ last(vX_heap)
-            @test X_enum == sort(X_list)
-            @test vX_enum ≈ last(vX_list)
+                X_enum, vX_enum = optimalportfolio_enumerate(mkt)
+                sort!(X_enum)
+                X_heap, vX_heap = applicationorder_heap(mkt)
+                X_list, vX_list = applicationorder_list(mkt)
+                @test X_enum == sort(X_heap)
+                @test vX_enum ≈ last(vX_heap)
+                @test X_enum == sort(X_list)
+                @test vX_enum ≈ last(vX_list)
+            end
         end
     end
 
@@ -158,6 +160,37 @@ const n_markets = 3
         end
     end
 
+    @testset verbose = true "Edge cases" begin
+        @testset verbose = true "Same costs" begin
+            # h > m should have all schools
+            mkt = SameCostsMarket(rand(4), rand(4), 6)
+
+            @test 1:4 == sort(applicationorder_heap(mkt)[1])
+            @test 1:4 == sort(applicationorder_list(mkt)[1])
+            @test 1:4 == sort(optimalportfolio_enumerate(mkt)[1])
+        end
+
+        @testset verbose = true "Het. costs" begin
+            # H > sum(g) should have all schools
+            mkt = VariedCostsMarket(fill(0.5, 4), fill(2, 4), fill(4, 4), 20)
+
+            @test 1:4 == sort(optimalportfolio_branchbound(mkt)[1])
+            @test 1:4 == sort(optimalportfolio_valuationtable(mkt)[1])
+            @test 1:4 == sort(optimalportfolio_dynamicprogram(mkt)[1])
+            @test 1:4 == sort(optimalportfolio_fptas(mkt, 0.05)[1])
+            @test 1:4 == sort(optimalportfolio_enumerate(mkt)[1])
+
+            # g[j] > H should be excluded
+            mkt = VariedCostsMarket([0.5, 0.5, 1.0], [1, 2, 100], [3, 3, 5], 4)
+
+            @test [2] == optimalportfolio_branchbound(mkt)[1]
+            @test [2] == optimalportfolio_valuationtable(mkt)[1]
+            @test [2] == optimalportfolio_dynamicprogram(mkt)[1]
+            @test [2] == optimalportfolio_fptas(mkt, 0.25)[1]
+            @test [2] == optimalportfolio_enumerate(mkt)[1]
+        end
+    end
+
     @testset verbose = true "Large problems" begin
         mkt = SameCostsMarket(5000)
 
@@ -186,14 +219,6 @@ const n_markets = 3
         t = [4, 7]
 
         @test_throws AssertionError Market(f, t, 1)
-        @test_throws AssertionError Market(f, t, g, H)
-
-        # Some g[j] > H
-        f = [0.1, 0.1]
-        t = [4, 7]
-        g = [10, 10]
-        H = 5
-
         @test_throws AssertionError Market(f, t, g, H)
     end
 end

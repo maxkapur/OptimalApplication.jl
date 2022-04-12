@@ -125,7 +125,7 @@ This paper considers the maximization of the expected maximum value of a portfol
 
 \renewcommand{\abstractname}{요약}
 \begin{abstract}
-본 논문은 다수의 확률 변수로 구성된 포트폴리오의 기대 최댓값을 예산 조건 하에서 최대화하는 문제를 고려한다. 이를 대학 지원 최적화 문제라고 부른다. 각 확률 변수의 비용, 즉 각 대학의 지원 비용이 동일한 경우, 최적 포트폴리오는 예산 제약식으로 결정된 포함 사슬 관계 성질을 가짐을 보이고 이를 바탕으로 다항 시간 해법을 제시한다. 대학의 지원 비용이 서로 다른 경우, 문제가 NP-complete함을 증명한다. 3가지 일반적인 해법을 도출한다. 첫째는 분지한계 기반 해법이다. 둘째는 의사 다항 시간 안에 정확한 해를 출력하는 동적 계획 해법이다. 마지막으로 다른 동적 계획 기반으로 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme)이 존재함을 보인다. 수리적 실험을 통하여 알고리즘의 현실성을 보인다.
+본 논문은 다수의 확률 변수로 구성된 포트폴리오의 기대 최댓값을 예산 조건 하에서 최대화하는 문제를 고려한다. 이를 대학 지원 최적화 문제라고 부른다. 각 확률 변수의 비용, 즉 각 대학의 지원 비용이 동일한 경우, 최적 포트폴리오는 예산 제약식으로 결정된 포함 사슬 관계 성질을 가짐을 보이고 이를 바탕으로 다항 시간 해법을 제시한다. 대학의 지원 비용이 서로 다른 경우, 문제가 NP-complete함을 증명한다. 3가지 일반적인 해법을 도출한다. 첫째는 분지한계 기반 해법이다. 둘째는 의사 다항 시간 안에 정확한 해를 출력하는 동적 계획 해법이다. 마지막으로 다른 동적 계획 기반으로 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme)을 도출한다. 수리적 실험을 통하여 알고리즘의 현실성을 보인다.
 
 \ifen 본 논문은 \url{https://github.com/maxkapur/OptimalApplication}에서 전문을 한글로 공유한다. \fi
 \end{abstract}
@@ -164,9 +164,9 @@ The college application problem is not solely of theoretical interest. In the Am
 \fi
 
 \ifen
-From a methodological standpoint, as Chao (2014) remarked, college application represents a somewhat subtle asset allocation problem. In computational finance, traditional portfolio optimization models weigh the sum of expected profit across all assets against a risk term, yielding a concave maximization problem with linear constraints (Markowitz 1952; Meucci 2005). But college applicants maximize the expected value of their \emph{best} asset: If a student is admitted to her $j$th choice, then she is indifferent as to whether she gets into her $(j+1)$th choice. As a result, the valuation function that students maximize is \emph{convex} in the expected utility associated with individual applications. Risk management is implicit in the college application problem because, in a typical admissions market, college preferability is negatively correlated with competitiveness. That is, students negotiate a tradeoff between attractive, selective “reach schools” and less preferable “safety schools” where admission is a safer bet (Jeon 2015). Finally, the combinatorial nature of the college application problem makes it difficult to solve using the gradient-based techniques used in continuous portfolio optimization. Chao estimated her equilibrium model (which considers application as a \emph{cost} rather than a constraint) by clustering the schools so that $m=8$, a scale at which enumeration is tractable. We pursue a more general solution.
+From a methodological standpoint, as Fu (2014) remarked, college application represents a somewhat subtle asset allocation problem. In computational finance, traditional portfolio optimization models weigh the sum of expected profit across all assets against a risk term, yielding a concave maximization problem with linear constraints (Markowitz 1952; Meucci 2005). But college applicants maximize the expected value of their \emph{best} asset: If a student is admitted to her $j$th choice, then she is indifferent as to whether she gets into her $(j+1)$th choice. As a result, the valuation function that students maximize is \emph{convex} in the expected utility associated with individual applications. Risk management is implicit in the college application problem because, in a typical admissions market, college preferability is negatively correlated with competitiveness. That is, students negotiate a tradeoff between attractive, selective “reach schools” and less preferable “safety schools” where admission is a safer bet (Jeon 2015). Finally, the combinatorial nature of the college application problem makes it difficult to solve using the gradient-based techniques used in continuous portfolio optimization. Fu estimated her equilibrium model (which considers application as a \emph{cost} rather than a constraint) by clustering the schools so that $m=8$, a scale at which enumeration is tractable. We pursue a more general solution.
 \else
-방법론적인 관점에서 보면, Chao (2014)가 주장한 바처럼 대학 지원 전략은 약간 미묘한 자산 배분 문제이다. 재정학 분야에서 고전적 포트폴리오 최적화 모형은 전체 자산에 대한 기대 총이익에서 위험회피 항을 뺌으로 선형식으로 제약된 오목 최대화 문제를 이룬다 (Markowitz 1952; Meucci 2005). 그러나 대학 지원자는 가치가 제일 높은 단일 자산의 기대 가치를 최대화하고자 한다. 어떤 학생이 자신이 $j$번째로 선호하는 학교에 합격하면 $(j+1)$번째 학교의 합격 여부는 무관한 상황이 된다. 이는 학생이 최대화하려는 함수를 각 지원 발송의 기대 효용에 대해 오목이 아닌 볼록 함수로 만든다. 또한 입학 시장에서는 전형적으로 대학의 효용과 합격 확률이 서로 반비례하므로 대학 지원 문제는 위험 관리를 포함하게 된다. 특히 선호도가 높으며 붙기 어려운 “상향” 지원 학교(reach school)와 선호도가 낮으며 붙기 쉬운 “안정” 지원 학교(safety school) 사이의 균형을 고려해야 한다 (전민희 2015). 마지막, 대학 지원의 조합적인 본성으로 인해 연속적인 포트폴리오 최적화 문제에서 흔히 사용하는 기울기 해법으로는 풀기가 어렵다. Chao는 지원 비용을 제약 조건 대신 목적함수의 한 항으로 모형화했으며, 균형 모형의 모수를 추정하기 위해 $m=8$이 되도록 학교들의 클러스터를 먼저 구성했다. 이는 열거법을 통해 문 쉽게 풀 수 있는 규모이지만 본 연구는 더 일반적인 $m$에 대한 해법을 추구한다.
+방법론적인 관점에서 보면, Fu (2014)가 주장한 바처럼 대학 지원 전략은 약간 미묘한 자산 배분 문제이다. 재정학 분야에서 고전적 포트폴리오 최적화 모형은 전체 자산에 대한 기대 총이익에서 위험회피 항을 뺌으로 선형식으로 제약된 오목 최대화 문제를 이룬다 (Markowitz 1952; Meucci 2005). 그러나 대학 지원자는 가치가 제일 높은 단일 자산의 기대 가치를 최대화하고자 한다. 어떤 학생이 자신이 $j$번째로 선호하는 학교에 합격하면 $(j+1)$번째 학교의 합격 여부는 무관한 상황이 된다. 이는 학생이 최대화하려는 함수를 각 지원 발송의 기대 효용에 대해 오목이 아닌 볼록 함수로 만든다. 또한 입학 시장에서는 전형적으로 대학의 효용과 합격 확률이 서로 반비례하므로 대학 지원 문제는 위험 관리를 포함하게 된다. 특히 선호도가 높으며 붙기 어려운 “상향” 지원 학교(reach school)와 선호도가 낮으며 붙기 쉬운 “안정” 지원 학교(safety school) 사이의 균형을 고려해야 한다 (전민희 2015). 마지막, 대학 지원의 조합적인 본성으로 인해 연속적인 포트폴리오 최적화 문제에서 흔히 사용하는 기울기 해법으로는 풀기가 어렵다. Fu는 지원 비용을 제약 조건 대신 목적함수의 한 항으로 모형화했으며, 균형 모형의 모수를 추정하기 위해 $m=8$이 되도록 학교들의 클러스터를 먼저 구성했다. 이는 열거법을 통해 문 쉽게 풀 수 있는 규모이지만 본 연구는 더 일반적인 $m$에 대한 해법을 추구한다.
 \fi
 
 \ifen
@@ -577,17 +577,24 @@ We reduce the computation time to $O(hm)$ by taking advantage of the transformat
 \else
 정리 \ref{nestedapplication} 증명의 추론 단계에서 제시한 변환을 활용하면 계산 시간을 $O(hm)$으로 감소시킬 수 있다. $\mathcal{X}$에 $k$를 추가하면, 후보자 집합인 $\mathcal{C}\setminus \mathcal{X}$에서 $k$를 소거하고 남은 학교의 $t_j$-값을 다음처럼 수정한다.
 \fi
-\begin{proposition}[\ifen Eliminate $c_k$\else $c_k$ 소거\fi]
-\ifen For $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$, where
-\else $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$에 대해, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$이다. 단,\fi
+%\begin{proposition}[\ifen Eliminate $c_k$\else $c_k$ 소거\fi]
+%\ifen For $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$, where
+%\else $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$에 대해, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$이다. 단,\fi
+%\begin{align}\label{howtotransformfj}
+%\bar t_j = 
+%\begin{cases}
+%(1 - f_k) t_j, \quad & t_j \leq t_k \\
+%t_j - f_k t_k, \quad& t_j > t_k.
+%\end{cases}
+%\end{align}
+%\end{proposition}%
 \begin{align}\label{howtotransformfj}
 \bar t_j = 
 \begin{cases}
 (1 - f_k) t_j, \quad & t_j \leq t_k \\
-t_j - f_k t_k, \quad& t_j > t_k.
+t_j - f_k t_k, \quad& t_j > t_k
 \end{cases}
 \end{align}
-\end{proposition}%
 \ifen
 \noindent It is easy to verify that \eqref{howtotransformfj} is the composition of the two transformations (from $t$ to $\tilde t$, and from $\tilde t$ to $\bar t$) given in the proof. (We will reuse this transformation as a variable-elimination technique in the branch-and-bound algorithm presented in Subsection \ref{subsectionbranchbound}.)
 

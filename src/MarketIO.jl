@@ -5,6 +5,7 @@ const UIntTypes = DataType[UInt8, UInt16, UInt32, UInt64]
 function iscoherentmarket(f::Vector{Float64}, t::Vector{<:Real})
     @assert length(f) == length(t)
     @assert all(0 .< f .≤ 1)
+    @assert all(0 .≤ t)
 end
 
 
@@ -12,19 +13,8 @@ function iscoherentmarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int})
     @assert length(f) == length(t)
     @assert length(f) == length(g)
     @assert all(0 .< f .≤ 1)
-end
-
-
-function isnontrivialmarket(f::Vector{Float64}, t::Vector{<:Real}, h::Int)
-    iscoherentmarket(f, t)
-    @assert 0 < h ≤ length(t)
-end
-
-
-function isnontrivialmarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
-    iscoherentmarket(f, t, g)
-    @assert 0 < H ≤ sum(g)
-    @assert all(0 .< g .≤ H)
+    @assert all(0 .≤ t)
+    @assert all(0 .≤ g)
 end
 
 
@@ -57,7 +47,7 @@ struct SameCostsMarket{T<:Unsigned, U<:Real}
     and return the market object.
     """
     function SameCostsMarket(f::Vector{Float64}, t::Vector{U}, h::Integer) where U<:Real
-        isnontrivialmarket(f, t, h)
+        iscoherentmarket(f, t)
         T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
 
         # We are current asserting that t is sorted; a placeholder for later work
@@ -67,7 +57,7 @@ struct SameCostsMarket{T<:Unsigned, U<:Real}
             T(length(f)),
             f[perm],
             t[perm],
-            T(h),
+            T(min(h, length(f))),
             (f .* t)[perm],
             (1 .- f)[perm],
             perm)
@@ -123,7 +113,7 @@ struct VariedCostsMarket{T<:Unsigned}
     and application budget `H` and return the market object.
     """
     function VariedCostsMarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
-        isnontrivialmarket(f, t, g, H)
+        iscoherentmarket(f, t, g)
         T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
         perm = T.(sortperm(t))
 
@@ -132,7 +122,7 @@ struct VariedCostsMarket{T<:Unsigned}
             f[perm],
             t[perm],
             g[perm],
-            H,
+            min(H, sum(g)),
             (f.*t)[perm],
             (1 .- f)[perm],
             perm)
