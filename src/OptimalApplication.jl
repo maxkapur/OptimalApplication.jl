@@ -1,5 +1,6 @@
 module OptimalApplication
 
+using Random
 using Combinatorics: combinations, multiset_combinations
 using DataStructures
 import Base.isless
@@ -17,13 +18,16 @@ export
     optimalportfolio_enumerate,
     optimalportfolio_valuationtable,
     optimalportfolio_fptas,
-    optimalportfolio_branchbound
+    optimalportfolio_branchbound,
+    optimalportfolio_greedy,
+    optimalportfolio_simulatedannealing
 
 
 include("MarketIO.jl")
 include("EnumerationSolvers.jl")
 include("FastSolvers.jl")
 include("VariedCostsBnB.jl")
+include("HeuristicSolvers.jl")
 
 
 end

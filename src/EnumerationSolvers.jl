@@ -1,5 +1,5 @@
 """
-    optimalportfolio_enumerate(mkt::SameCostsMarket)
+    optimalportfolio_enumerate(mkt::SameCostsMarket) -> X, v
 
 Produce the optimal portfolio for the market `mkt` having identical application costs.
 """
@@ -10,7 +10,7 @@ function optimalportfolio_enumerate(mkt::SameCostsMarket{T,U})::Tuple{Vector{Int
     v = 0.0
 
     invp = invperm(mkt.perm)
-    for Y in multiset_combinations(T(1):T(mkt.m), Int(mkt.h))
+    for Y in multiset_combinations(oneunit(T):mkt.m, Int(mkt.h))
         if (w = valuation(Y, mkt; invp=invp)) > v
             v = w
             X[:] = Y
@@ -22,7 +22,7 @@ end
 
 
 """
-    optimalportfolio_enumerate(mkt::VariedCostsMarket)
+    optimalportfolio_enumerate(mkt::VariedCostsMarket) -> X, v
 
 Produce the optimal portfolio for the market `mkt` having varying application costs.
 """
@@ -34,7 +34,7 @@ function optimalportfolio_enumerate(mkt::VariedCostsMarket{T})::Tuple{Vector{Int
         v = 0.0
 
         invp = invperm(mkt.perm)
-        for Y in combinations(T(1):mkt.m)
+        for Y in combinations(oneunit(T):mkt.m)
             if (w = valuation(Y, mkt, invp=invp)) > v && sum(mkt.g[invp[Y]]) ≤ mkt.H
                 v = w
                 X = copy(Y)

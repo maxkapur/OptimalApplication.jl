@@ -25,7 +25,7 @@ isless(c1::College, c2::College) = isless(c1.ft, c2.ft)
 
 
 """
-    applicationorder_list(mkt::SameCostsMarket)
+    applicationorder_list(mkt::SameCostsMarket) -> X, V
 
 Produce the optimal order of application for the market `mkt` having identical
 application costs and the corresponding portfolio valuations.
@@ -37,15 +37,15 @@ function applicationorder_list(
     apporder = zeros(T, mkt.h)
     v = zeros(mkt.h)
 
-    mkt_list = College{T}[College(T(j), mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in one(T):mkt.m]
+    mkt_list = College{T}[College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in oneunit(T):mkt.m]
 
-    dummy_college = College(T(0), 1.0, -1.0, -1.0, 0.0)
+    dummy_college = College(zero(T), 1.0, -1.0, -1.0, 0.0)
 
     c_best::College{T}, idx_best::Int = findmax(mkt_list)
-    @inbounds for j in one(T):mkt.h
+    @inbounds for j in oneunit(T):mkt.h
         if verbose
             println("Iteration $j")
-            println("  ft: ", [mkt_list[i].ft for i in one(T):length(mkt_list)])
+            println("  ft: ", [mkt_list[i].ft for i in oneunit(T):length(mkt_list)])
             println("  Add school $(c_best.j)")
         end
 
@@ -97,7 +97,7 @@ end
 
 
 """
-    applicationorder_heap(mkt::SameCostsMarket)
+    applicationorder_heap(mkt::SameCostsMarket) -> X, V
 
 Produce the optimal order of application for the market `mkt` having identical
 application costs and the corresponding portfolio valuations.
@@ -106,9 +106,9 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
     apporder = zeros(T, mkt.h)
     v = zeros(mkt.h)
 
-    mkt_heap = BinaryMaxHeap{College{T}}(collect(College(T(j), mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in one(T):mkt.m))
+    mkt_heap = BinaryMaxHeap{College{T}}(collect(College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in oneunit(T):mkt.m))
 
-    @inbounds for j in one(T):mkt.h
+    @inbounds for j in oneunit(T):mkt.h
         c_k = first(mkt_heap)
         v[j] = get(v, j - 1, 0) + c_k.ft
         apporder[j] = c_k.j
@@ -131,14 +131,14 @@ end
 
 
 """
-    optimalportfolio_valuationtable(mkt::VariedCostsMarket)
+    optimalportfolio_valuationtable(mkt::VariedCostsMarket) -> X, V
 
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 valuation table `V` for the market `mkt` with varying application costs.
 """
 function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where {T}
     V = zeros(mkt.m, mkt.H)
-    @inbounds for j in one(T):mkt.m, h in 1:mkt.H
+    @inbounds for j in oneunit(T):mkt.m, h in 1:mkt.H
         if h < mkt.g[j]
             V[j, h] = get(V, (j - 1, h), 0)
         else
@@ -174,10 +174,10 @@ end
         if j == 0 || h == 0
             return 0.0
         elseif h < mkt.g[j]
-            push!(V_dict, (j, h) => V_recursor!(V_dict, j - one(T), h, mkt))
+            push!(V_dict, (j, h) => V_recursor!(V_dict, j - oneunit(T), h, mkt))
             return V_dict[(j, h)]
         else
-            jmo = j - one(T)
+            jmo = j - oneunit(T)
             push!(V_dict, (j, h) => max(
                 V_recursor!(V_dict, jmo, h, mkt),
                 mkt.omf[j] * V_recursor!(V_dict, jmo, h - mkt.g[j], mkt) + mkt.ft[j]
@@ -190,7 +190,7 @@ end
 
 
 """
-    optimalportfolio_dynamicprogram(mkt::VariedCostsMarket)
+    optimalportfolio_dynamicprogram(mkt::VariedCostsMarket) -> X, v
 
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
 value `v` for the market `mkt` with varying application costs. 
@@ -265,7 +265,7 @@ end
         elseif j == 0 || sp.t[j] < v || v ≥ sp.Ū
             return sp.infty
         else
-            jmo = j - one(T)
+            jmo = j - oneunit(T)
             if mkt.f[j] < 1
                 # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
                 # is trivially defined, so recording any more extreme number is meaningless
@@ -286,7 +286,7 @@ end
 
 
 """
-    optimalportfolio_fptas(mkt::VariedCostsMarket, ε)
+    optimalportfolio_fptas(mkt::VariedCostsMarket, ε) -> X, v
 
 Use the fully polynomial-time approximation scheme to produce a
 `1-ε`-optimal portfolio for the market `mkt` with varying application costs. 
@@ -338,5 +338,5 @@ function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose:
 
     # In the valuation we just use the identity permutation as invp
     # To prevent wasteful permuting and then invpermuting
-    return mkt.perm[X], valuation(X, mkt; invp=T(1):mkt.m)
+    return mkt.perm[X], valuation(X, mkt; invp=oneunit(T):mkt.m)
 end

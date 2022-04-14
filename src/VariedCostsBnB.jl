@@ -117,7 +117,7 @@ end
 
 
 """
-    optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit=10000, verbose=false)
+    optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit=10000, verbose=false) -> X, v
 
 Use the branch-and-bound algorithm to produce the optimal portfolio for the
 market `mkt` with varying application costs. Intractable for large markets. 
@@ -125,7 +125,7 @@ market `mkt` with varying application costs. Intractable for large markets.
 function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit::Int=100000, verbose::Bool=false)::Tuple{Vector{Int},Float64} where {T}
     mkt.m ≥ 33 && @warn "Branch and bound is slow for large markets"
 
-    C = collect(one(T):mkt.m)
+    C = collect(oneunit(T):mkt.m)
 
     rootnode::Node{T} = Node(T[], C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
     LB::Float64 = 0.0

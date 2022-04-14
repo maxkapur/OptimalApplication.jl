@@ -1,4 +1,17 @@
-const UIntTypes = DataType[UInt8, UInt16, UInt32, UInt64]
+"""
+    smallestunsigned(k::Integer)
+
+Identify the smallest unsigned integer type for which `k < typemax(T)`
+"""
+function smallestunsignedtype(k::Integer)::DataType
+    UIntTypes = DataType[UInt8, UInt16, UInt32, UInt64]
+
+    j = findfirst(UIntTypes) do T
+        k < typemax(T)
+    end
+
+    return UIntTypes[j]
+end
 
 
 # TO DO: Use Julian errors rather than assertions here.
@@ -30,7 +43,7 @@ application costs. Fields:
     `omf = 1 .- f`
     `perm = sortperm(perm)`: Currently a placeholder
 """
-struct SameCostsMarket{T<:Unsigned, U<:Real}
+struct SameCostsMarket{T<:Unsigned,U<:Real}
     m::T
     f::Vector{Float64}
     t::Vector{U}
@@ -46,25 +59,23 @@ struct SameCostsMarket{T<:Unsigned, U<:Real}
     admissions probabilities `f`, utility values `t`, and application limit `h`
     and return the market object.
     """
-    function SameCostsMarket(f::Vector{Float64}, t::Vector{U}, h::Integer) where U<:Real
+    function SameCostsMarket(f::Vector{Float64}, t::Vector{U}, h::Integer) where {U<:Real}
         iscoherentmarket(f, t)
-        T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
-
-        # We are current asserting that t is sorted; a placeholder for later work
+        T = smallestunsignedtype(length(f))
         perm = T.(sortperm(t))
 
-        return new{T, U}(
+        return new{T,U}(
             T(length(f)),
             f[perm],
             t[perm],
             T(min(h, length(f))),
-            (f .* t)[perm],
+            (f.*t)[perm],
             (1 .- f)[perm],
             perm)
     end
 
     function SameCostsMarket(m::Integer)
-        T = UIntTypes[findfirst(T -> m < typemax(T), UIntTypes)]
+        T = smallestunsignedtype(m)
         t = ceil.(Int, -10 * log.(rand(m)))
         f = inv.(t .+ 10 * rand(m))
         perm = T.(sortperm(t))
@@ -114,7 +125,7 @@ struct VariedCostsMarket{T<:Unsigned}
     """
     function VariedCostsMarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
         iscoherentmarket(f, t, g)
-        T = UIntTypes[findfirst(T -> length(f) < typemax(T), UIntTypes)]
+        T = smallestunsignedtype(length(f))
         perm = T.(sortperm(t))
 
         return new{T}(
@@ -129,7 +140,7 @@ struct VariedCostsMarket{T<:Unsigned}
     end
 
     function VariedCostsMarket(m::Integer)
-        T = UIntTypes[findfirst(T -> m < typemax(T), UIntTypes)]
+        T = smallestunsignedtype(m)
         t = ceil.(Int, -10 * log.(rand(m)))
         f = inv.(t .+ 10 * rand(m))
         g = rand(5:10, m)
@@ -179,9 +190,9 @@ Return the valuation of the portfolio `X` on the market `mkt`, which may be eith
 a `SameCostsMarket` or a `VariedCostsMarket`.
 """
 function valuation(
-        X::AbstractVector{<:Integer},
-        mkt::Union{SameCostsMarket{T},VariedCostsMarket{T}};
-        invp::Union{Nothing,AbstractVector{T}}=nothing)::Float64 where T<:Unsigned
+    X::AbstractVector{<:Integer},
+    mkt::Union{SameCostsMarket{T},VariedCostsMarket{T}};
+    invp::Union{Nothing,AbstractVector{T}}=nothing)::Float64 where {T<:Unsigned}
     isempty(X) && return 0.0
 
     X = T.(X)
@@ -198,7 +209,7 @@ function valuation(
         res = 0.0
         cp = reverse(cumprod(reverse(mkt.omf[X[2:end]])))
 
-        for j in T(1):T(h-1)
+        for j in T(1):T(h - 1)
             res += mkt.ft[X[j]] * cp[j]
         end
 
