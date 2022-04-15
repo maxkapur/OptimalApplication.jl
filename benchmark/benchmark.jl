@@ -9,7 +9,7 @@ import Printf: @sprintf
 # using BenchmarkTools
 using UnicodePlots
 
-const fullscale = true
+const fullscale = false
 
 # A long benchmark; tweak parameters with caution.
 # Set fullscale = false to run a smaller benchmark to check formatting etc.
@@ -18,22 +18,17 @@ const fullscale = true
 const n_reps = fullscale ? 3 : 2
 
 # Number of markets to test at each intersection of the experimental variables
-const n_markets = fullscale ? 50 : 2
+const n_markets = fullscale ? 50 : 5
 
 # Cutoffs to exclude certain large computations
-const bnbcutoff = fullscale ? 33 : 6
+const bnbcutoff = fullscale ? 33 : 10
 const twottbnbcutoff = 2^bnbcutoff
-const fptascutoff_m = fullscale ? 300 : 11
+const fptascutoff_m = fullscale ? 300 : 200
 const fptascutoff_eps = fullscale ? 0.0 : 0.1
 
-# Sizes of markets to test
-const marketsizes_SCM = fullscale ? 4 .^ (2:7) : [5, 10, 15]
-const marketsizes_VCM = fullscale ? 2 .^ (3:8) : [5, 10, 15]
-const epsilons = [0.5, 0.05]
-
-const mkts_SCM = SameCostsMarket[SameCostsMarket(m) for m in marketsizes_SCM, i in 1:n_markets]
-const mkts_VCM = VariedCostsMarket[VariedCostsMarket(m) for m in marketsizes_VCM, i in 1:n_markets]
-
+# Market sizes
+marketsizes_SCM = fullscale ? 4 .^ (2:7) : 2 .^ (3:6)
+marketsizes_VCM = fullscale ? 2 .^ (3:8) : 2 .^ (3:6)
 
 function makeunicodeplots(df::DataFrame)
     large_idx = df[!, :m] .== maximum(df[!, :m])
@@ -65,8 +60,9 @@ function printheader(s)
 end
 
 
-function benchmark1()
+function benchmark1(marketsizes_SCM = marketsizes_SCM)
     printheader("Benchmark 1: Homogeneous-cost algorithms")
+    mkts_SCM = SameCostsMarket[SameCostsMarket(m) for m in marketsizes_SCM, i in 1:n_markets]
 
     sizes = Int[m for m in marketsizes_SCM, _ in 1:n_markets]
     times_list = fill(Inf, length(marketsizes_SCM), n_markets)
@@ -93,8 +89,10 @@ function benchmark1()
 end
 
 
-function benchmark2()
+function benchmark2(marketsizes_VCM = marketsizes_VCM)
     printheader("Benchmark 2: Heterogeneous-cost algorithms")
+    epsilons = [0.5, 0.05]
+    mkts_VCM = VariedCostsMarket[VariedCostsMarket(m) for m in marketsizes_VCM, i in 1:n_markets]
 
     sizes = Int[m for m in marketsizes_VCM, _ in 1:n_markets]
     times_bnb = fill(Inf, length(marketsizes_VCM), n_markets)

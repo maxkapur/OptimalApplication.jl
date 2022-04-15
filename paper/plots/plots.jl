@@ -12,8 +12,8 @@ const accentcolor = (210, 10, 60) ./ 255
 
 function comparativestatics()
     mkt = Market([0.39, 0.33, 0.24, 0.24, 0.05, 0.03, 0.1, 0.12],
-                collect(range(start=200, step=50, length=8)),
-                8)
+        collect(range(start=200, step=50, length=8)),
+        8)
 
     apporder, v = applicationorder_list(mkt, verbose=true)
 
@@ -62,6 +62,7 @@ function samplerandom()
     mkt = VariedCostsMarket(m)
 
     X, v = optimalportfolio_dynamicprogram(mkt)
+    X[:] = invperm(mkt.perm)[X]
 
     nX = setdiff(1:m, X)
 
@@ -75,10 +76,10 @@ function samplerandom()
     scal = 3
     fig2 = Figure(resolution=(600, 600))
 
-    ax = Axis(fig2[1, 1], xlabel = "fⱼ", ylabel = "tⱼ", xlabelsize=18, ylabelsize=18)
+    ax = Axis(fig2[1, 1], xlabel="fⱼ", ylabel="tⱼ", xlabelsize=18, ylabelsize=18)
 
     scatter!(mkt.f[nX], mkt.t[nX], markersize=scal * sqrt.(mkt.g[nX]), color=RGBA(0.25, 0.25, 0.25, 0.8)) #:gray25, strokealpha=0.5)
-    scatter!(mkt.f[X], mkt.t[X], marker=:utriangle, markersize=1.6 * scal * sqrt.(mkt.g[X]), color=RGBA(accentcolor..., 0.85), label="Apply when H = $(mkt.H)")
+    scatter!(mkt.f[X], mkt.t[X], marker=:utriangle, markersize=1.6 * scal * sqrt.(mkt.g[X]), color=RGBA(accentcolor..., 0.7), label="Apply when H = $(mkt.H)")
 
     axislegend(ax, position=:rt, labelsize=16)
     text!("(Marker area: gⱼ)", position=(maximum(mkt.f), 0.9 * maximum(mkt.t)), align=(:right, :baseline), textsize=16)
@@ -86,11 +87,127 @@ function samplerandom()
     return fig2
 end
 
-fig1 = comparativestatics()
-fig2 = samplerandom()
+#   1D simulated annealing accuracy
+#   =================================
 
-save("paper/plots/h_v-example.pdf", fig1)
-save("paper/plots/h_v-example.png", fig1)
+function accuracy_simulatedannealing()
+    n_markets = 5000
+    mkt_size = 64
 
-save("paper/plots/samplemarket.pdf", fig2)
-save("paper/plots/samplemarket.png", fig2)
+    mkts = VariedCostsMarket[VariedCostsMarket(mkt_size) for _ in 1:n_markets]
+
+    v_siman = zeros(n_markets)
+    v_exact = zeros(n_markets)
+
+    Threads.@threads for i in 1:n_markets
+        v_siman[i] = optimalportfolio_simulatedannealing(mkts[i])[2]
+        v_exact[i] = optimalportfolio_dynamicprogram(mkts[i])[2]
+    end
+
+    rats = v_siman ./ v_exact
+
+    fig3 = Figure(
+        resolution=(600, 450),
+        figure_padding=(15, 25, 15, 15)
+    )
+
+    ax = Axis(
+        fig3[1, 1],
+        xlabel="accuracy ratio",
+        ylabel="count",
+        xticks=0:0.01:1.0,
+    )
+
+    hist!(ax,
+        rats,
+        bins=range(minimum(rats), 1, length=20),
+        color=RGB(accentcolor...),
+        # bar_labels=:values,
+        # label_formatter=x -> round(Int, x),
+        # label_size=12,
+        # strokewidth=0.5,
+        # strokecolor=RGB(accentcolor...),
+    )
+
+    xlims!(ax, minimum(rats), 1)
+    # xticks!(fig3, xtickrange=(0.9, 1), xticklabels=collect(0.9:0.01:1))
+    ylims!(ax, 0, nothing)
+
+    return fig3
+end
+
+
+#   2D simulated annealing accuracy
+#   =================================
+
+function accuracy_simulatedannealing_2d()
+    n_markets = 500
+
+    sizerangelog2 = (3, 11)
+
+    mkt_sizes = round.(
+        Int,
+        2.0 .^ (
+            sizerangelog2[1] .+ (sizerangelog2[2] - sizerangelog2[1]) * rand(n_markets)
+        )
+    )
+
+    mkts = VariedCostsMarket[VariedCostsMarket(s) for s in mkt_sizes]
+
+    v_siman = zeros(n_markets)
+    v_exact = zeros(n_markets)
+
+    Threads.@threads for i in 1:n_markets
+        v_siman[i] = optimalportfolio_simulatedannealing(mkts[i])[2]
+        v_exact[i] = optimalportfolio_dynamicprogram(mkts[i])[2]
+    end
+
+    rats = v_siman ./ v_exact
+
+    fig4 = Figure(
+        resolution=(600, 450),
+        figure_padding=(15, 25, 15, 15)
+    )
+
+    ax = Axis(
+        fig4[1, 1],
+        xlabel="m",
+        ylabel="accuracy ratio",
+        xscale=log2,
+        xticks=2 .^ range(sizerangelog2...),
+    )
+
+    scatter!(ax,
+        mkt_sizes,
+        rats,
+        bins=range(minimum(rats), 1, length=20),
+        color=RGBA(accentcolor..., 0.7),
+        # bar_labels=:values,
+        # label_formatter=x -> round(Int, x),
+        # label_size=12,
+        markersize=5,
+    )
+
+    # ylims!(ax, minimum(rats), 1)
+    # # xticks!(fig3, xtickrange=(0.9, 1), xticklabels=collect(0.9:0.01:1))
+    # ylims!(ax, 0, nothing)
+
+    return fig4
+end
+
+
+# fig1 = comparativestatics()
+# save("paper/plots/h_v-example.pdf", fig1)
+# save("paper/plots/h_v-example.png", fig1)
+
+# fig2 = samplerandom()
+# save("paper/plots/samplemarket.pdf", fig2)
+# save("paper/plots/samplemarket.png", fig2)
+
+# fig3 = accuracy_simulatedannealing()
+# save("paper/plots/accuracy_simulatedannealing.pdf", fig3)
+# save("paper/plots/accuracy_simulatedannealing.png", fig3)
+
+# fig4 = accuracy_simulatedannealing_2d()
+# save("paper/plots/accuracy_simulatedannealing.pdf", fig4)
+# save("paper/plots/accuracy_simulatedannealing.png", fig4)

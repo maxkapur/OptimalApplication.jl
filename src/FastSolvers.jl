@@ -113,8 +113,9 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
         v[j] = get(v, j - 1, 0) + c_k.ft
         apporder[j] = c_k.j
 
+        # These two implementations perform almost identically
         mkt_heap = BinaryMaxHeap{College{T}}(
-            map(filter(c -> c.j != c_k.j, mkt_heap.valtree)) do c
+            College{T}[
                 College(
                     c.j,
                     c.f,
@@ -122,7 +123,17 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
                     c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
                     c.omf
                 )
-            end
+                for c in mkt_heap.valtree if c.j != c_k.j
+            ]
+            # map(filter(c -> c.j != c_k.j, mkt_heap.valtree)) do c
+            #     College(
+            #         c.j,
+            #         c.f,
+            #         c.t < c_k.t ? c.t * c_k.omf : c.t - c_k.ft,
+            #         c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
+            #         c.omf
+            #     )
+            # end
         )
     end
 
@@ -285,6 +296,11 @@ end
 end
 
 
+# Function I stole from Base.Sort that does midpoint using bit hacks.
+# Performance-optimized but safe only if `lo <= hi`.
+midpoint(lo::T, hi::T) where {T<:Integer} = lo + ((hi - lo) >>> 0x01)
+
+
 """
     optimalportfolio_fptas(mkt::VariedCostsMarket, ε) -> X, v
 
@@ -297,12 +313,19 @@ function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose:
     G_dict = Dict{Tuple{T,Int},Int}()
     sizehint!(G_dict, mkt.m * mkt.m ÷ 2)
 
-    # Binary search
+    # Binary search for max{ w :  G_recursor!(G_dict, mkt.m, w, mkt, sp ≤ H }
+
+    # Should be able to use something like this with a proper by kw in searchsortedlast
+    # vs = 0:sp.Ū
+    # searchsortedlast(vs)
+
+
     v = 0
     v_UB = sp.Ū
 
-    while v + 1 < v_UB
-        mid = (v + v_UB) ÷ 2
+    @inbounds while v + 1 < v_UB
+        # mid = (v + v_UB) ÷ 2
+        mid = midpoint(v, v_UB)
 
         if G_recursor!(G_dict, mkt.m, mid, mkt, sp) > mkt.H
             v_UB = mid
@@ -333,6 +356,7 @@ function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose:
             end
         end
 
+        issorted(mkt.perm) || @warn "t not sorted; table rows will differ from input"
         display(G_table)
     end
 

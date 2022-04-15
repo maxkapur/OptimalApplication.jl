@@ -939,7 +939,7 @@ However, upon inspection, this solution merely generalizes the na\"ive algorithm
 \end{equation}
 그러나 이러한 해법은 사실 알마 문제의 나이브 해법(정의 \ref{naivealgorithm})의 단순한 일반화임을 알 수 있다. 엘리스 문제에서 최적 포트폴리오에 크기가 $m-1$이 될 수 있으므로 배낭 문제 해법의 근사 계수는 \eqref{oneoverhopt}과(와) 유사하듯이 $1 / (m-1)$이다. 타이트한 예는 다음과 같다.
 \fi
-\begin{example}
+\begin{example} \label{knapsackheuristicellis}
 \ifen Consider the following instance of Ellis's problem, where $H = m-1$.
 \else 엘리스 문제의 다음 인스턴스를 고려하자. 단, $H = m-1$이다. \fi
 \begin{center}
@@ -1333,7 +1333,7 @@ Once $G[j, v]$ has been calculated at each index, the associated portfolio can b
 \begin{algorithm}[h] 
 %\DontPrintSemicolon
 \caption{Fully polynomial-time approximation scheme for Ellis's problem.} \label{ellisDP3}
-\KwData{Utility values $t \in \mathbb{N}^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$, tolerance $\varepsilon \in (0, 1)$.}
+\KwData{Utility values $t \in  (0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$, tolerance $\varepsilon \in (0, 1)$.}
 Index schools in ascending order by $t$\;
 Set precision $P \gets \bigl\lceil\log_{10}\left(m^2 / \varepsilon \bar U\right)\bigr\rceil$\;
 %\SetKwProg{Fn}{function}{ do}{end}
@@ -1357,7 +1357,7 @@ $\mathcal{X} \gets \O$\;
 \begin{algorithm}[h] 
 %\DontPrintSemicolon
 \caption{엘리스의 문제를 위한 완전 다항 시간 근사 해법.} \label{ellisDP3}
-\KwData{효용 모수 $t \in \mathbb{N}^m$, 합격 확률 $f \in (0, 1]^m$, 지원 비용 $g \in (0, \infty)^m$, 예산 $H \in (0, \infty)^m$, 허용치 $\varepsilon \in (0, 1)$.}
+\KwData{효용 모수 $t \in  (0, \infty)}^m$, 합격 확률 $f \in (0, 1]^m$, 지원 비용 $g \in (0, \infty)^m$, 예산 $H \in (0, \infty)^m$, 허용치 $\varepsilon \in (0, 1)$.}
 $t$의 순서대로 학교를 배열한다\;
 정확도 $P \gets \bigl\lceil\log_{10}\left(m^2 / \varepsilon \bar U\right)\bigr\rceil$\;
 %\SetKwProg{Fn}{function}{ do}{end}
@@ -1456,6 +1456,40 @@ Algorithms \ref{ellisDP1} and \ref{ellisDP3} can be written using recursive func
 \fi
 
 
+\ifen \subsection{Simulated annealing} \else \subsection{Simulated annealing}\fi\label{numericalexperiments}
+Simulated annealing is a popular local-search technique for nonconvex optimization problems. Because of their inherent randomness, simulated-annealing algorithms offer no accuracy guarantee; however, they are easy to implement, computationally inexpensive, and often produce solutions with a small optimality gap. In this section, we present a simulated-annealing algorithm for Ellis's problem. It is based on the procedure for integer programs outlined by Wolsey (1998, \S\,12.3.2)
+
+To generate an initial solution, our algorithm adopts the greedy heuristic of adding schools in descending order by $f_j t_j / g_j$ until the budget is exhausted. Example \ref{knapsackheuristicellis} shows that the approximation coefficient of this solution can be as low as $1 / (m-1)$; in typical instances, it is much higher. Given a solution $\mathcal{X}$, we generate a neighbor $\mathcal{X}_n$ by copying $\mathcal{X}$, adding schools to $\mathcal{X}_n$ until it becomes infeasible, then removing elements of $\mathcal{X}$ from $\mathcal{X}_n$ until feasibility is restored. If this increases the valuation of $\mathcal{X}$, then the candidate solution is updated to equal the neighbor; if not, then the candidate solution is updated with probability $\exp\bigl(v(\mathcal{X}_n) - v(\mathcal{X}) / T\bigr)$, where $T$ is a temperature parameter. This is repeated $N$ times, and the algorithm returns the best $\mathcal{X}$ observed.
+
+ 
+\begin{algorithm}[h] 
+%\DontPrintSemicolon
+\caption{Simulated annealing for Ellis's problem.} \label{ellissimann}
+\KwData{Utility values $t  (0, \infty)^m$, admissions probabilities $f \in (0, 1]^m$, application costs $g \in (0, \infty)^m$, budget $H \in (0, \infty)^m$, initial temperature $T > 0$, temperature reduction parameter $r \in (0, 1)$, number of iterations $N$.}
+Add schools to $\mathcal{X}$ in descending order by $f_j t_j / g_j$ until the budget is exhausted\;
+\For{$i = 1 \dots N$}{
+	$\mathcal{X}_n \gets \operatorname{copy}(\mathcal{X})$\;
+	Add random schools from $\mathcal{C} \setminus \mathcal{X}$ to $\mathcal{X}_n$ until  $\mathcal{X}_n$ infeasible\;
+	Remove random schools in $\mathcal{X}$ from $\mathcal{X}_n$ until feasibility restored\;
+	$\Delta = v(\mathcal{X}_n) - v(\mathcal{X})$\;
+	\lIfElse{$\Delta \geq 0$}{$\mathcal{X} \gets \mathcal{X}_n$}
+	{$\mathcal{X} \gets \mathcal{X}_n$ with probability $\exp(\Delta / T)$}
+	$T \gets rT$\;
+}
+\Return{the best $\mathcal{X}$ found}
+\end{algorithm}
+
+\begin{proposition}
+The computation time of Algorithm \ref{ellissimann} is $O(Nm)$. 
+\end{proposition}
+
+In our numerical experiments, the output of Algorithm \ref{ellissimann} was typically quite close to optimal. 
+
+%always within 10 percent of optimality.
+
+
+
+
 %\pagebreak
 \ifen \section{Numerical experiments} \else \section{계산 실험}\fi\label{numericalexperiments}
 \ifen
@@ -1479,25 +1513,31 @@ The dynamic programs, namely Algorithms \ref{ellisDP1} and \ref{ellisDP3}, were 
 
 
 \ifen \subsection{Experimental procedure} \else \subsection{실험 방법}\fi
+We conducted three numerical experiments. Experiments 1 and 2 evaluate the computation times of our algorithms for Alma's problem and Ellis's problem, respectively. Experiment 3 investigates the empirical accuracy of the simulated-annealing heuristic as compared to an exact algorithm. 
+
 \def\nmarkets{50}
 \ifen
-The experimental procedure was as follows. First, to generate synthetic markets, we drew the $t_j$-values independently from an exponential distribution with a scale parameter of ten and rounded up to the nearest integer. To achieve partial negative correlation between $t_j$ and $f_j$, we then set $f_j = 1 / (t_j + 10\,Q)$, where $Q$ is drawn uniformly from the interval $[0, 1)$. In the first experiment, which concerns Alma's problem, we set each $g_j = 1$ and $H = h = \lfloor m/ 2 \rfloor$. In the second experiment, which concerns Ellis's problem, each $g_j$ is drawn uniformly from the set $\{5, \dots, 10\}$ and we set $H = \lfloor \frac{1}{2} \sum g_j \rfloor$. This cost distribution resembles real-world college application fees, which are often multiples of \$10 between \$50 and \$100. A typical instance is shown in Figure \ref{samplemarket}.
+To generate synthetic markets, we drew the $t_j$-values independently from an exponential distribution with a scale parameter of ten and rounded up to the nearest integer. To achieve partial negative correlation between $t_j$ and $f_j$, we then set $f_j = 1 / (t_j + 10\,Q)$, where $Q$ is drawn uniformly from the interval $[0, 1)$. In Experiment 1, which concerns Alma's problem, we set $h = \lfloor m/ 2 \rfloor$. In Experiments 2 and 3, which concern Ellis's problem, each $g_j$ is drawn uniformly from the set $\{5, \dots, 10\}$ and we set $H = \lfloor \frac{1}{2} \sum g_j \rfloor$. This cost distribution resembles real-world college application fees, which are often multiples of \$10 between \$50 and \$100. A typical instance is shown in Figure \ref{samplemarket}.
 \else
-실험 방법은 다음과 같다. 먼저, 가산 시장을 생성하기 위해 $t_j$-값을 평균이 10인 지수 분포에서 독립적으로 관측하고 정수로 올림했다. 그다음에, $t_j$와 $f_j$가 서로 부분적으로 반비례하게 만들도록 $f_j = 1 / (t_j + 10\,Q)$로 정의했다. 단, $Q$는 $[0, 1)$에서 균일한 확률로 관측한다. 알마의 문제를 고려하는 첫 번째 실험에서, 모든 $g_j = 1$ 그리고 $H = h = \lfloor m/ 2 \rfloor$으로 처리했다. 엘리스의 문제를 고려하는 두 번째 실험에서, 모든  $g_j$를 $\{5, \dots, 10\}$에서 균일한 확률로 관측했으며 $H = \lfloor \frac{1}{2} \sum g_j \rfloor$으로 처리했다. 실제 대학 지원 비용인 50과 100달러 사이에 10달러의 어떤 배수이므로 합리적인 비용 분포이다. 그림 \ref{samplemarket}에서 전형적인 인스턴스가 나타난다.
+가산 시장을 생성하기 위해 $t_j$-값을 평균이 10인 지수 분포에서 독립적으로 관측하고 정수로 올림했다. 그다음에, $t_j$와 $f_j$가 서로 부분적으로 반비례하게 만들도록 $f_j = 1 / (t_j + 10\,Q)$로 정의했다. 단, $Q$는 $[0, 1)$에서 균일한 확률로 관측한다. 알마의 문제를 고려하는 실험 1에서, $h = \lfloor m/ 2 \rfloor$으로 처리했다. 엘리스의 문제를 고려하는 실험 2와 실험 3에서, 모든  $g_j$를 $\{5, \dots, 10\}$에서 균일한 확률로 관측했으며 $H = \lfloor \frac{1}{2} \sum g_j \rfloor$으로 처리했다. 실제 대학 지원 비용인 50과 100달러 사이에 10달러의 어떤 배수이므로 합리적인 비용 분포이다. 그림 \ref{samplemarket}에서 전형적인 인스턴스가 나타난다.
 \fi
 
 \ifen
-The experimental variables were the market size $m$, the choice of algorithm, and (for Algorithm \ref{ellisDP3}) the tolerance $\varepsilon$. For each combination of the experimental variables, we generated \nmarkets~markets, and the optimal portfolio was computed three times, with the fastest of the three repetitions recorded as the computation time. We then report the mean and standard deviation across the \nmarkets~markets. Therefore, each cell of each table below represents a statistic over {\the\numexpr 3 * \nmarkets \relax}~computations. Where applicable, we do not count the time required to sort the entries of $t$.
+The experimental variables in Experiments 1 and 2 were the market size $m$, the choice of algorithm, and (for Algorithm \ref{ellisDP3}) the tolerance $\varepsilon$. For each combination of the experimental variables, we generated \nmarkets~markets, and the optimal portfolio was computed three times, with the fastest of the three repetitions recorded as the computation time. We then report the mean and standard deviation across the \nmarkets~markets. Therefore, each cell of each table below represents a statistic over {\the\numexpr 3 * \nmarkets \relax}~computations. Where applicable, we do not count the time required to sort the entries of $t$. As the simulated annealing algorithm's computation time is negligible, it was excluded from Experiment 2. 
 \else
-실험 변수로는 시장의 크기 $m$, 해법 선택, 그리고 (알고리즘 \ref{ellisDP3}인 경우) 허용치 $\varepsilon$을 고려했다. 실험 변수의 각 조합에 대해,  \nmarkets 개의 시장을 생성했으며 최적 포트폴리오를 3번 계산 한 것 중 가장 빠른 것으로 계산 시간으로 기록했다. \nmarkets 개의 시장에 대한 평균과 평균편차를 표에 나타낸다. 따라서 아래 표의 각 칸은 {\the\numexpr 3 * \nmarkets \relax}개의 계산에 대한 통계다. $t$를 배열하는 시간은 고려하지 않았다.
+실험 1과 실험 2의 실험 변수로는 시장의 크기 $m$, 해법 선택, 그리고 (알고리즘 \ref{ellisDP3}인 경우) 허용치 $\varepsilon$을 고려했다. 실험 변수의 각 조합에 대해,  \nmarkets 개의 시장을 생성했으며 최적 포트폴리오를 3번 계산 한 것 중 가장 빠른 것으로 계산 시간으로 기록했다. \nmarkets 개의 시장에 대한 평균과 평균편차를 표에 나타낸다. 따라서 아래 표의 각 칸은 {\the\numexpr 3 * \nmarkets \relax}개의 계산에 대한 통계다. $t$를 배열하는 시간은 고려하지 않았다. As the simulated annealing algorithm's computation time is negligible, it was excluded from Experiment 2. 
 \fi
+
+In Experiment 3, we generated 500 markets with sizes between $2^3$ and $2^11$ varying uniformly in the logarithm. For each market, we computed a heuristic solution using Algorithm \ref{ellissimann} and an exact solution using Algorithm \ref{ellisDP1} and calculated the optimality ratio.
+
+ 
 
 
 \ifen \subsection{Summary of results} \else \subsection{결과 정리}\fi
 \ifen
-In our first experiment, we compare the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Our results indicate that the list implementation is faster. %However, the ratio between the average times of the two implementations stays roughly constant, suggesting that a more effective heap implementation could be competitive in certain classes of problem instances. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
+Experiment 1 compared the performance of Algorithm \ref{algorithmforlargeh} for homogeneous-cost markets of various sizes when the set of candidate schools $\mathcal{C}$ is stored as a list and as a binary max heap ordered by the $f_j \bar t_j$-values. The results appear in Table \ref{experiment1results}. Our results indicate that the list implementation is faster. %However, the ratio between the average times of the two implementations stays roughly constant, suggesting that a more effective heap implementation could be competitive in certain classes of problem instances. Overall, the rate of growth is quadratic in $m$, which accords with the $O(hm)$ time complexity result of Theorem \ref{validityofalmaalgorithm}.
 \else
-첫 번째 실험에서, 동일한 지원 비용으로 정의된 크기가 다양한 시장에 대해 알고리즘 \ref{algorithmforlargeh}의 성능을 고려했다. 이를 $\mathcal{C}$를 목록 혹은 $f_j \bar t_j$-값에 따라 배열된 힙 구현으로 구성하는 경우로 나눴으며 실험 결과는 표 \ref{experiment1results}에서 등장한다. 실험 결과에 따라 목록 구현이 더 빠른 해법이었다. %그러나, 두개의 방법 사이에 계산 시간 비율은 거의 상수이므로 개선된 힙 해법이 어떤 문제 인스턴스에 대해 더 빠를 가능성이 있어 보인다. 전체적으로 계산 시간은 $m$의 제곱으로 늘아나며 이는 정리 \ref{validityofalmaalgorithm}에서 말한 $O(hm)$-시간과 동의한다.
+실험 1에서, 동일한 지원 비용으로 정의된 크기가 다양한 시장에 대해 알고리즘 \ref{algorithmforlargeh}의 성능을 고려했다. 이를 $\mathcal{C}$를 목록 혹은 $f_j \bar t_j$-값에 따라 배열된 힙 구현으로 구성하는 경우로 나눴으며 실험 결과는 표 \ref{experiment1results}에서 등장한다. 실험 결과에 따라 목록 구현이 더 빠른 해법이었다. %그러나, 두개의 방법 사이에 계산 시간 비율은 거의 상수이므로 개선된 힙 해법이 어떤 문제 인스턴스에 대해 더 빠를 가능성이 있어 보인다. 전체적으로 계산 시간은 $m$의 제곱으로 늘아나며 이는 정리 \ref{validityofalmaalgorithm}에서 말한 $O(hm)$-시간과 동의한다.
 \fi
 
 %\ifen
@@ -1507,14 +1547,16 @@ In our first experiment, we compare the performance of Algorithm \ref{algorithmf
 %\fi
 
 \ifen
-In the second experiment, we turn to the general problem, and compare the performance of the exact algorithms (Algorithms \ref{ellisbnb} and \ref{ellisDP1}) and the approximation scheme (Algorithm \ref{ellisDP3}) at tolerances 0.5 and 0.05.  The results, which appear in Table \ref{experiment2results}, broadly agree with the time complexity analyses presented above. The branch-and-bound algorithm proved impractical for even medium-sized instances. Overall, we found the exact dynamic program to be the fastest algorithm, while the FPTAS was rather slow, a result that echoes the results of computational studies on knapsack problems (Martello and Toth 1990, \S\,2.10).
+In Experiment 2, we turned to the general problem, and compared the performance of the exact algorithms (Algorithms \ref{ellisbnb} and \ref{ellisDP1}) and the approximation scheme (Algorithm \ref{ellisDP3}) at tolerances 0.5 and 0.05.  The results, which appear in Table \ref{experiment2results}, broadly agree with the time complexity analyses presented above. The branch-and-bound algorithm proved impractical for even medium-sized instances. Overall, we found the exact dynamic program to be the fastest algorithm, while the FPTAS was rather slow, a result that echoes the results of computational studies on knapsack problems (Martello and Toth 1990, \S\,2.10).
 
 The strong performance of Algorithm \ref{ellisDP1} is partly attributable to the structure of our synthetic instances, in which application costs are small integers and $H$ is proportional in expectation to $m$, meaning the expected computation time is $O(m^2)$. However, the relative advantage of Algorithm \ref{ellisDP1} is even more pronounced in real college-application instances because the typical student's application budget accommodates at most a dozen or so schools and is constant in $m$. 
 \else
-두 번째 실험에서 일반적인 문제를 고려한다. 정확한 해법 (알고리즘 \ref{ellisbnb} 및 알고리즘 \ref{ellisDP1}) 그리고 허용치를 0.5와 0.05로 설정한 근사 해법 (알고리즘 \ref{ellisDP3})의 성능을 비교한다. 실험 결과는 표 \ref{experiment1results}에서 나타나며 위에서 도출한 시간 복잡성 결과와 대략 같다. 정확한 동적계획 해법이 전책적으로 가장 빠르며 FPTAS가 약간 느린 것으로 나온 결과는 배낭 문제 해법을 비교한 기존 연구와 비슷하다 (Martello와 Toth 1990, \S\,2.10). 분지한계법은 크기가 중간인 인스턴스에도 비효율적이었다. 
+실험 2에서 일반적인 문제를 고려한다. 정확한 해법 (알고리즘 \ref{ellisbnb} 및 알고리즘 \ref{ellisDP1}) 그리고 허용치를 0.5와 0.05로 설정한 근사 해법 (알고리즘 \ref{ellisDP3})의 성능을 비교한다. 실험 결과는 표 \ref{experiment1results}에서 나타나며 위에서 도출한 시간 복잡성 결과와 대략 같다. 정확한 동적계획 해법이 전책적으로 가장 빠르며 FPTAS가 약간 느린 것으로 나온 결과는 배낭 문제 해법을 비교한 기존 연구와 비슷하다 (Martello와 Toth 1990, \S\,2.10). 분지한계법은 크기가 중간인 인스턴스에도 비효율적이었다. 
 
 알고리즘 \ref{ellisDP1}의 좋은 실험적 성능은 부분적으로 가상 인스턴스의 구조 덕이다. 가상 인스턴스의 지원 비용이 작은 정수이고 $H$가 $m$과 선형식으로 비례하는 것은 알고리즘의 기대 계산 시간이 $O(m^2)$임을 의미한다. 그러나 전형적인 학생의 지원 예산은 최대한 열 몇 개의 학교에 지원할 수 있게 하며 $m$에 대해 상수이므로, 실제 대학 지원 문제 인스턴스에 적용하면 알고리즘 \ref{ellisDP1}이 더욱 뚜렷한 상대적 우위를 발휘한다. 
 \fi
+
+Experiment 3 \dots. (WIP)
 
 
 
@@ -1522,6 +1564,17 @@ The strong performance of Algorithm \ref{ellisDP1} is partly attributable to the
 \newcommand{\lastptofcaption}{\ifen
 For each value of $m$, \nmarkets~markets were generated, and the computation time was recorded as fastest of three repetitions of the algorithm. The table shows the average time (standard deviation) over the \nmarkets~instances.
 \else 각 $m$에 대해 \nmarkets 개의 시장을 생성했으며 알고리즘을 3번 반복하여 그중 최소 계산 시간을 기록했다. 표에서 \nmarkets 개의 인스턴스에 대한 평균 (평균편차) 시간이 나타난다.\fi}
+
+
+
+\begin{figure}[h!] 
+\centering
+\includegraphics[width=0.85\textwidth]{./plots/samplemarket.pdf}
+  \caption{\label{samplemarket}
+ \ifen A typical randomly-generated instance with $m=64$ schools and its optimal application portfolio. The application costs $g_j$ were drawn uniformly from $\{5, \dots, 10\}$. The optimal portfolio was computed using Algorithm \ref{ellisDP1}.
+ \else $m=64$개의 학교로 구성된 전형적인 무작위로 생성한 인스턴스와 해당 최적 포트폴리오. 지원 비용 $g_j$는 $\{5, \dots, 10\}$에서 균일한 확률로 선정했으며 기호의 넓이와 비례된다. 최적 포트폴리오는 알고리즘 \ref{ellisDP1}(으)로 계산했다. \fi}
+\end{figure}
+
 
 \begin{table}[h!] \centering
 \small
@@ -1539,8 +1592,8 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
  16384 &         585.75 &        (2.11) &        4728.59 &      (552.25)
 \end{tabular}
 \caption{\label{experiment1results} \normalsize
-\ifen Time in ms to compute an optimal portfolio for an admissions market with homogeneous application costs using Algorithm \ref{algorithmforlargeh} when $\mathcal{C}$ is stored as a list and as a heap. \lastptofcaption~In every case, $h = m/2$. 
-\else (단위: ms) 알고리즘 \ref{algorithmforlargeh}에서 $\mathcal{C}$를 목록 또는 힙 구현으로 저장했을 때, 
+\ifen (Experiment 1.) Time in ms to compute an optimal portfolio for an admissions market with homogeneous application costs using Algorithm \ref{algorithmforlargeh} when $\mathcal{C}$ is stored as a list and as a heap. \lastptofcaption~In every case, $h = m/2$. 
+\else (실험 1.) 단위: ms. 알고리즘 \ref{algorithmforlargeh}에서 $\mathcal{C}$를 목록 또는 힙 구현으로 저장했을 때, 
 동일 지원 비용 입학 시장의 최적 지원 포트폴리오를 계산하는 시간. \lastptofcaption~모든 경우, $h = m/2$. \fi}
 \end{table}
 
@@ -1565,27 +1618,26 @@ For each value of $m$, \nmarkets~markets were generated, and the computation tim
    256 &             — &          (—) &        31.23 &      (1.91) &             1085.60 &          (1186.24) &             22129.92 &           (6588.40)
 \end{tabular}%
 \caption{\label{experiment2results} \normalsize
-\ifen Time in ms to compute an optimal or $(1 - \varepsilon)$-optimal portfolio for an admissions market with heterogeneous application costs using the three algorithms developed in Section \ref{hetappcosts}.
+\ifen (Experiment 2.) Time in ms to compute an optimal or $(1 - \varepsilon)$-optimal portfolio for an admissions market with heterogeneous application costs using the three algorithms developed in Section \ref{hetappcosts}.
 %branch-and-bound routine (Algorithm \ref{ellisbnb}), exact dynamic program (Algorithm \ref{ellisDP1}), and the fully polynomial-time approximation scheme (Algorithm \ref{ellisDP3}).
 The branch-and-bound algorithm is impractical for large markets. \lastptofcaption
 \else  %분지한계법 (알고리즘 \ref{ellisbnb}), 정확한 동적 계획 (알고리즘 \ref{ellisDP1}), 그리고 완전 다항 시간 근사 해법 (알고리즘 \ref{ellisDP3})을
-(단위: ms)  \ref{hetappcosts}절에서 도출한 3개의 알고리즘을 사용할 때, 다양한 지원 비용으로 갖춘 입학 시장의 최적 또는 $(1- \varepsilon)$-최적 포트폴리오를 계산하는 시간. 분지한계법은 큰 시장에서 비실용적이다. \lastptofcaption \fi}
+(실험 2.) 단위: ms. \ref{hetappcosts}절에서 도출한 3개의 알고리즘을 사용할 때, 다양한 지원 비용으로 갖춘 입학 시장의 최적 또는 $(1- \varepsilon)$-최적 포트폴리오를 계산하는 시간. 분지한계법은 큰 시장에서 비실용적이다. \lastptofcaption \fi}
 \end{table}
-
-
-
-
 
 
 
 
 \begin{figure}[h!] 
 \centering
-\includegraphics[width=0.85\textwidth]{./plots/samplemarket.pdf}
+\includegraphics[width=0.95\textwidth]{./plots/accuracy_simulatedannealing.pdf}
   \caption{\label{samplemarket}
- \ifen A typical randomly-generated instance with $m=64$ schools and its optimal application portfolio. The application costs $g_j$ were drawn uniformly from $\{5, \dots, 10\}$. The optimal portfolio was computed using Algorithm \ref{ellisDP1}.
- \else $m=64$개의 학교로 구성된 전형적인 무작위로 생성한 인스턴스와 해당 최적 포트폴리오. 지원 비용 $g_j$는 $\{5, \dots, 10\}$에서 균일한 확률로 선정했으며 기호의 넓이와 비례된다. 최적 포트폴리오는 알고리즘 \ref{ellisDP1}(으)로 계산했다. \fi}
+ \ifen (Experiment 3.) WIP.  The optimal portfolio was computed using Algorithm \ref{ellisDP1}.
+ \else  (실 3.) WIP.  최적 포트폴리오는 알고리즘 \ref{ellisDP1}(으)로 계산했다. \fi}
 \end{figure}
+
+
+
 
 
 

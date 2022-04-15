@@ -70,9 +70,8 @@ end
         verbose::Bool=false
     ) -> X, v
 
-Use a greedy heuristic that adds schools in decreasing order of `mkt.ft ./ mkt.g`
-to compute an approximately optimal portfolio for the market `mkt` with
-varying application costs.
+Use a simulated annealing procedure to compute a heuristically optimal portfolio
+for `mkt` and its valuation. 
 """
 function optimalportfolio_simulatedannealing(
     mkt::VariedCostsMarket{T};
