@@ -6,7 +6,6 @@ using StatsBase
 using Statistics
 using Base.Threads
 import Printf: @sprintf
-# using BenchmarkTools
 using UnicodePlots
 
 const fullscale = false
@@ -36,7 +35,8 @@ function makeunicodeplots(df::DataFrame)
         histogram(
             Vector{Float64}(df[large_idx, c]),
             ylabel=c,
-            title="Time when m = $(marketsizes_SCM[end])"
+            title="Time when m = $(marketsizes_SCM[end])",
+            canvas=BlockCanvas
         )
         for c in setdiff(names(df), ("m", "time_bnb")) if !(Inf in df[!, c])
     ]
