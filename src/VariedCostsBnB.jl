@@ -38,11 +38,9 @@ mutable struct Node{T<:Unsigned}
                 v_LP += mkt.f[j] * t̄[j]
             else
                 v_LP += mkt.f[j] * t̄[j] * H_left / mkt.g[j]
-                @goto done
+                break
             end
         end
-        # Need to use goto here for the case in which all of N fits within H̄
-        @label done
 
         return new{T}(I, N, t̄, H̄, v_I, v_LP)
     end

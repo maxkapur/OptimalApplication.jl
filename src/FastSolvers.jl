@@ -331,12 +331,8 @@ function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose:
             v_UB = mid
         else
             v = mid
-            # if G_recursor!(G_dict, mkt.m, v + 1, mkt, sp) > mkt.H
-            #     @goto foundit
-            # end
         end
     end
-    @label foundit
 
     X = T[]
 

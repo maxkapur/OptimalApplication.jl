@@ -17,13 +17,10 @@ function optimalportfolio_greedy(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},F
         if mkt.g[j] ≤ H
             push!(X, j)
             H -= mkt.g[j]
-        end
-
-        if H == 0
-            @goto full
+        else
+            break
         end
     end
-    @label full
 
     # In the valuation we just use the identity permutation as invp
     # To prevent wasteful permuting and then invpermuting
@@ -90,7 +87,7 @@ function optimalportfolio_simulatedannealing(
             ) do j
                 mkt.g[j] ≤ mkt.H
             end
-    
+
             X = T[]
             H = mkt.H
             for j in priority_order
@@ -98,11 +95,10 @@ function optimalportfolio_simulatedannealing(
                     push!(X, j)
                     H -= mkt.g[j]
                 else
-                    @goto full
+                    break
                 end
             end
-            @label full
-    
+
             X, valuation(X, mkt; invp=oneunit(T):mkt.m)
         end
     else
