@@ -76,9 +76,9 @@ for `mkt` and its valuation.
 function optimalportfolio_simulatedannealing(
     mkt::VariedCostsMarket{T};
     X0::Union{Nothing,Vector{T}}=nothing,
-    temp::Union{Nothing,Float64}=nothing,
+    temp::Float64=0.25,
     nit::Integer=500,
-    red::Float64=0.99,
+    red::Float64=0.0625,
     verbose::Bool=false
 )::Tuple{Vector{Int},Float64} where {T}
     if X0 === nothing
@@ -107,10 +107,6 @@ function optimalportfolio_simulatedannealing(
         end
     else
         X, v = copy(X0), valuation(X0, mkt)
-    end
-
-    if temp === nothing
-        temp = log(mkt.m)
     end
 
     X_best, v_best = X, v
