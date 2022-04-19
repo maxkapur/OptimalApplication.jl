@@ -46,15 +46,15 @@ mutable struct Node{T<:Unsigned}
     end
 end
 
-hash(nd::Node) = hash((nd.I, nd.N))
+
+handle(nd::Node) = Pair(hash(nd.I), hash(nd.N))
 
 
 
 """
     generatechildren(nd, mkt)
 
-With respect to the data in `mkt`, generates the child(ren) of node `nd` and writes 
-their hashes to `nd.children`.
+With respect to the data in `mkt`, generates the child(ren) of node `nd`.
 """
 function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Vector{Node{T}} where {T}
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
@@ -137,8 +137,8 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit::Int=1000
 
     # push!(treekeys, push!(tree, rootnode))
 
-    tree = Dict{UInt,Node{T}}()
-    push!(tree, hash(rootnode) => rootnode)
+    tree = Dict{Pair{UInt, UInt},Node{T}}()
+    push!(tree, handle(rootnode) => rootnode)
 
     for k in 1:maxit
         verbose && @show k, LB, length(tree)
@@ -151,10 +151,10 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit::Int=1000
             # thisnode, thisnodehandle = top_with_handle(tree)
             # pop!(tree)
             # delete!(treekeys, thisnodehandle)
-
-            thisnodehandle::UInt, thisnode::Node{T} = argmax(hash_nd -> hash_nd[2].v_LP, tree)
+        
+            thisnodehandle::Pair{UInt,UInt}, thisnode::Node{T} = argmax(handle_nd -> handle_nd[2].v_LP, tree)
             delete!(tree, thisnodehandle)
-
+        
             # Another option: Select the node with best obj value. Works pretty bad. 
             # thisnodehandle, thisnode = argmax(hash_nd -> hash_nd[2].v_I, tree)
             # delete!(tree, thisnodehandle)
@@ -172,7 +172,7 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit::Int=1000
 
             # isempty(child.N) || push!(treekeys, push!(tree, child))
             if child.v_LP > LB && !isempty(child.N)
-                push!(tree, hash(child) => child)
+                push!(tree, handle(child) => child)
             end
         end
 

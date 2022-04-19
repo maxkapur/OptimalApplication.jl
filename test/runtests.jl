@@ -7,8 +7,6 @@ using Random
 # Number of markets to generate for each test
 const n_markets = 3
 
-println("Number of threads: ", Threads.nthreads())
-
 @testset verbose = true "OptimalApplication.jl" begin
 
     @testset verbose = true "Same app. costs" begin

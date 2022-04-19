@@ -117,7 +117,7 @@
 
 
 \begin{abstract}
-This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, we show that the problem is NP-complete. We provide three algorithms for this more general setup. The first is a branch-and-bound routine. The second is an dynamic program that produces an exact solution in pseudopolynomial time. The third is a different dynamic program that yields a fully polynomial-time approximation scheme. Numerical experiments demonstrate the algorithms' practicality. 
+This paper considers the maximization of the expected maximum value of a portfolio of random variables subject to a budget constraint. We refer to this as the optimal college application problem. When each variable's cost, or each college's application fee, is identical, we show that the optimal portfolios are nested in the budget constraint, yielding an exact polynomial-time algorithm. When colleges differ in their application fees, we show that the problem is NP-complete. We provide four algorithms for this more general setup: a branch-and-bound routine, a dynamic program that produces an exact solution in pseudopolynomial time, a different dynamic program that yields a fully polynomial-time approximation scheme, and a simulated-annealing heuristic. Numerical experiments demonstrate the algorithms' accuracy and efficiency. 
 
 \ifen
 \else The full text of this paper is available in English at \url{https://github.com/maxkapur/OptimalApplication}.\fi
@@ -126,7 +126,9 @@ This paper considers the maximization of the expected maximum value of a portfol
 
 \renewcommand{\abstractname}{요약}
 \begin{abstract}
-본 논문은 다수의 확률 변수로 구성된 포트폴리오의 기대 최댓값을 예산 조건 하에서 최대화하는 문제를 고려한다. 이를 대학 지원 최적화 문제라고 부른다. 각 확률 변수의 비용, 즉 각 대학의 지원 비용이 동일한 경우, 최적 포트폴리오는 예산 제약식으로 결정된 포함 사슬 관계 성질을 가짐을 보이고 이를 바탕으로 다항 시간 해법을 제시한다. 대학의 지원 비용이 서로 다른 경우, 문제가 NP-complete함을 증명한다. 3가지 일반적인 해법을 도출한다. 첫째는 분지한계 기반 해법이다. 둘째는 의사 다항 시간 안에 정확한 해를 출력하는 동적 계획 해법이다. 마지막으로 다른 동적 계획 기반으로 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme)을 도출한다. 수리적 실험을 통하여 알고리즘의 현실성을 보인다.
+본 논문은 다수의 확률 변수로 구성된 포트폴리오의 기대 최댓값을 예산 조건 하에서 최대화하는 문제를 고려한다. 이를 대학 지원 최적화 문제라고 부른다. 각 확률 변수의 비용, 즉 각 대학의 지원 비용이 동일한 경우, 최적 포트폴리오는 예산 제약식으로 결정된 포함 사슬 관계 성질을 가짐을 보이고 이를 바탕으로 다항 시간 해법을 제시한다. 대학의 지원 비용이 서로 다른 경우, 문제가 NP-complete함을 증명한다. 일반적인 문제를 위해 4가지 해법을 제시한다. 분지한계 기반 해법, 의사 다항 시간 안에 정확한 해를 출력하는 동적 계획 해법, 다른 동적 계획 기반으로 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme), 그리고 모의 담금질(simulated annealing)을 이용한 휴리스틱 해법. 
+% 첫째는 분지한계 기반 해법이다. 둘째는 의사 다항 시간 안에 정확한 해를 출력하는 동적 계획 해법이다. 마지막으로 다른 동적 계획 기반으로 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme)을 도출한다.
+수리적 실험을 통하여 알고리즘의 정확도와 효율성을 보인다.
 
 \ifen 본 논문은 \url{https://github.com/maxkapur/OptimalApplication}에서 전문을 한글로 공유한다. \fi
 \end{abstract}
@@ -200,13 +202,13 @@ In Section \ref{homogappcosts}, we consider the special case where each $g_j = 1
 \fi
 
 \ifen
-In Section \ref{hetappcosts}, we turn to the scenario in which colleges differ in their application fees. We show that the decision form of the portfolio optimization problem is NP-complete through a polynomial reduction from the binary knapsack problem. We provide three algorithms for this more general setup. The first is a branch-and-bound routine. The second is a dynamic program that iterates on total expenditures and produces an exact solution in pseudopolynomial time, namely $O(Hm + m \log m)$. The third is a different dynamic program that iterates on truncated portfolio valuations. It yields a fully polynomial-time approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in $O(m^3 / \varepsilon)$ time.  
+In Section \ref{hetappcosts}, we turn to the scenario in which colleges differ in their application fees. We show that the decision form of the portfolio optimization problem is NP-complete through a polynomial reduction from the binary knapsack problem. We provide four algorithms for this more general setup. The first is a branch-and-bound routine. The second is a dynamic program that iterates on total expenditures and produces an exact solution in pseudopolynomial time, namely $O(Hm + m \log m)$. The third is a different dynamic program that iterates on truncated portfolio valuations. It yields a fully polynomial-time approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in $O(m^3 / \varepsilon)$ time.  The fourth is a simulated-annealing heuristic algorithm that demonstrates strong performance in our synthetic instances. 
 \else
-\ref{hetappcosts}절에서 각 학교의 지원 비용이 동일하지 않은 일반적인 상황을 다룬다. 이진 배낭 문제에서의 다항 변환을 통하여 포트폴리오 최적화 문제가 NP-complete함을 증명한다. 또한 3개의 일반적인 해법을 제안한다. 첫째는 분지한계법이다. 둘째는 총 지출액으로 탐색하는 $O(Hm + m \log m)$과 같은 의사 다항 시간 동적 계획 해법이다. 셋째는 실수값을 분수값으로 내림한 포트폴리오 가치를 탐색하는 또다른 동적 계획 해법이다. 이를 통하여 $O(m^3 / \varepsilon)$-시간 안에 $(1 - \varepsilon)$-근사해를 출력하는 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme)을 얻는다.
+\ref{hetappcosts}절에서 각 학교의 지원 비용이 동일하지 않은 일반적인 상황을 다룬다. 이진 배낭 문제에서의 다항 변환을 통하여 포트폴리오 최적화 문제가 NP-complete함을 증명한다. 또한 3개의 일반적인 해법을 제안한다. 첫째는 분지한계법이다. 둘째는 총 지출액으로 탐색하는 $O(Hm + m \log m)$과 같은 의사 다항 시간 동적 계획 해법이다. 셋째는 실수값을 분수값으로 내림한 포트폴리오 가치를 탐색하는 또다른 동적 계획 해법이다. 이를 통하여 $O(m^3 / \varepsilon)$-시간 안에 $(1 - \varepsilon)$-근사해를 출력하는 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme)을 얻는다. 넷째는 가상 인스턴스를 푸는 성능이 좋은 모의 담금질 기반 휴리스틱 알고리즘이다.
 \fi
 
 \ifen
-In Section \ref{numericalexperiments}, we present the results of computational experiments that confirm the validity and time complexity results established in the previous two sections.
+In Section \ref{numericalexperiments}, we present the results of computational experiments that confirm the validity and time complexity results established in the previous two sections. % more
 
 A brief conclusion follows.
 \else
@@ -1463,7 +1465,7 @@ Algorithms \ref{ellisDP1} and \ref{ellisDP3} can be written using recursive func
 \ifen
 Simulated annealing is a popular local-search heuristic for nonconvex optimization problems. Because of their inherent randomness, simulated-annealing algorithms offer no accuracy guarantee; however, they are easy to implement, computationally inexpensive, and often produce solutions with a small optimality gap. In this section, we present a simulated-annealing algorithm for Ellis's problem. It is based on the procedure for integer programs outlined by Wolsey (1998, \S\,12.3.2).
 \else
-모의 담금질은 비볼록 최적화 문제를 위한 인기 많은 지역 탐색 휴리스틱이다. 선천적인 확률성 때문에 모의 담금질 해법에는 보장된 정확도가 없다. 반면에 구현하기 쉽고 계산 비용이 작으면서 최적에 가까운 해를 구하는 경향이 있다. 본 항에서, 엘리스의 문제를 위한 모의 담금질 해법을 제시한다. Wolsey (1998, \S\,12.3.2)가 제시한 정수 계획 모의 담금질 해법이 바탕이 된다.
+모의 담금질은 비볼록 최적화 문제를 위한 인기 많은 지역 탐색 휴리스틱이다. 선천적인 확률성 때문에 모의 담금질 해법에는 보장된 정확도가 없다. 반면에 구현하기 쉽고 계산 비용이 적으면서 최적에 가까운 해를 구하는 경향이 있다. 본 항에서, 엘리스의 문제를 위한 모의 담금질 해법을 제시한다. Wolsey (1998, \S\,12.3.2)가 제시한 정수 계획 모의 담금질 해법이 바탕이 된다.
 \fi
 
 \ifen
@@ -1518,7 +1520,7 @@ Add schools to $\mathcal{X}$ in descending order by $f_j t_j / g_j$ until the bu
 \ifen
 \noindent In our numerical experiments, the output of Algorithm \ref{ellissimann} was typically quite close to the optimum.
 \else
-\noindent 계산 실험 결과에 따라, 알고리즘 \ref{ellissimann}의 출력은 보통 최적해에 아주 가깝다.
+\noindent 계산 실험 결과에 따라, 알고리즘 \ref{ellissimann}의 출력은 보통 최적에 아주 가깝다.
 \fi
 
 %always within 10 percent of optimality.
@@ -1572,7 +1574,7 @@ The experimental variables in Experiments 1 and 2 were the market size $m$, the 
 \ifen
 In Experiment 3, we generated 500 markets with sizes varying uniformly in the logarithm between $m = 2^3$ and $2^{11}$. For each market, we computed a heuristic solution using Algorithm \ref{ellissimann} and an exact solution using Algorithm \ref{ellisDP1} and calculated the optimality ratio. We chose to use $N = 500$ iterations in the simulated-annealing algorithm, and the temperature parameters $T = 1/4$ and $r = 1/16$ were chosen by a preliminary grid search.  
 \else
-실험 3에서, 500개의 시장을 생성했으며, 크기는 대수가 균일하게 분포되도록 $m = 2^3$과 $2^{11}$ 사이에서 무작위로 선택했다. 각 시장에  알고리즘 \ref{ellissimann}을(를) 적용하여 휴리스틱한 해를 구하고 알고리즘 \ref{ellisDP1}을(를) 적용하여 정확한 해를 구한 다음의 최적성 비율을 계산했다. 모의 담금질 반복 단계의 개수는 $N = 500$이며, 격자 탐색을 이용한 예비 실험 결과에 따라 온도 모수를 $T = 1/4$ 그리고 $r = 1/16$로 선정했다.
+실험 3에서, 500개의 시장을 생성했으며, 크기는 대수가 균일하게 분포되도록 $m = 2^3$과 $2^{11}$ 사이에서 무작위로 선택했다. 각 시장에 알고리즘 \ref{ellissimann}을(를) 적용하여 휴리스틱한 해를 구하고 알고리즘 \ref{ellisDP1}을(를) 적용하여 정확한 해를 구한 다음의 최적성 비율을 계산했다. 모의 담금질의 반복 단계 개수는 $N = 500$이며, 격자 탐색을 이용한 예비 실험 결과에 따라 온도 모수를 $T = 1/4$ 그리고 $r = 1/16$로 선정했다.
 \fi
 
 \ifen \subsection{Summary of results} \else \subsection{결과 정리}\fi
@@ -1601,7 +1603,7 @@ The strong performance of Algorithm \ref{ellisDP1} is partly attributable to the
 \ifen
 The results of Experiment 3, which evaluated the performance of the simulated-annealing heuristic in our synthetic instances, are plotted in Figure \ref{experiment3results}. In the every instance, the heuristic found a solution within 10 percent of optimality, and in the vast majority of instances, it was within 2 percent of optimality. The heuristic performs most poorly in small markets of size $m \leq 16$, but as exact algorithms are tractable at this scale, this result presents no cause for concern.
 \else
-실험 3은 가상 인스턴스를 통해 모의 담금질 휴리스틱의 현실 성능을 탐구했으며, 실험 결과는 그림 \ref{experiment3results}에서 나타난다. 모든 인스턴스에서 최적의 10\% 이내에 해를 구했으며, 대다소의 경우는 2\% 이내로 달했다. 휴리스틱의 성능은 $m \leq 16$이 되는 작은 시장에서 가장 낮았으며, 정확한 해법도 효율적으로 풀 수 있는 시장 크기이므로 염려할 이유가 없어 보인다.
+실험 3은 가상 인스턴스를 통해 모의 담금질 휴리스틱의 현실 성능을 탐구했으며, 실험 결과는 그림 \ref{experiment3results}에서 나타난다. 모든 인스턴스에서 최적의 10\% 이내에 해를 구했으며, 대다수의 경우는 2\% 이내로 달했다. 휴리스틱의 성능은 $m \leq 16$이 되는 작은 시장에서 가장 낮았으며, 정확한 해법도 효율적으로 풀 수 있는 시장 크기이므로 염려할 이유가 없어 보인다.
 \fi
 
 
@@ -1695,7 +1697,7 @@ The branch-and-bound algorithm is impractical for large markets. \lastptofcaptio
 \ifen
 This study has introduced a novel combinatorial optimization problem that we call the college application problem. It can be viewed as a kind of integer asset allocation problem or nonlinear knapsack problem. We showed that the special case in which colleges have identical application costs can be solved in polynomial time by a greedy algorithm because the optimal solutions are nested in the budget constraint. The general problem is NP-complete. We provided four solution algorithms. The strongest from a theoretical standpoint is an FPTAS that produces a $(1-\varepsilon)$-approximate solution in $O(m^3 / \varepsilon)$-time. On the other hand, for typical college-application instances, the dynamic program based on application expenditures is both easier to implement and substantially more time efficient. A heuristic simulated-annealing algorithm also exhibited strong empirical performance in our computational study. The algorithms discussed in this paper are summarized in Table \ref{algorithmssummary}.
 \else
-본 연구는 새로운 조합최적화 문제를 제안했으며 이를 대학 지원 최적화 문제라고 부른다. 일종의 정수 자산 배분 문제 또는 확률적인 배낭 문제로 볼 수 있다. 모든 대학의 지원 비용이 동일한 특수한 경우, 탐욕 알고리즘으로 다항 시간 안에 풀 수 있음을 보였으며 최적해가 예산 제약식에 대한 포함 사슬 관계를 가지기 때문이다. 일반적인 문제는 NP-complete하다. 4가지 해법을 제시했으며 이론적으로 가장 효율적인 알고리즘은 $O(m^3 / \varepsilon)$-시간 안에  $(1-\varepsilon)$-근사해를 계산하는 FPTAS이다. 그 반면에 전형적인 대학 지원 문제 인스턴스에 대해, 지원 비용 지출액 기반 동적 계획 해법은 실행하기 쉬울 뿐더러 계산 시간이 상당히 짧다. 계산 실험에서 모의 담금질 기반 휴리스틱 해법도 좋은 성능을 발휘했다. 표 \ref{algorithmssummary}에서 본 논문이 다운 알고리즘을 정리한다.
+본 연구는 새로운 조합 최적화 문제를 제안했으며 이를 대학 지원 최적화 문제라고 부른다. 일종의 정수 자산 배분 문제 또는 확률적인 배낭 문제로 볼 수 있다. 모든 대학의 지원 비용이 동일한 특수한 경우, 탐욕 알고리즘으로 다항 시간 안에 풀 수 있음을 보였으며 최적해가 예산 제약식에 대한 포함 사슬 관계를 가지기 때문이다. 일반적인 문제는 NP-complete하다. 4가지 해법을 제시했으며 이론적으로 가장 효율적인 알고리즘은 $O(m^3 / \varepsilon)$-시간 안에  $(1-\varepsilon)$-근사해를 계산하는 FPTAS이다. 그 반면에 전형적인 대학 지원 문제 인스턴스에 대해, 지원 비용 지출액 기반 동적 계획 해법은 실행하기 쉬울뿐더러 계산 시간이 상당히 짧다. 계산 실험에서 모의 담금질 기반 휴리스틱 해법도 좋은 성능을 발휘했다. 표 \ref{algorithmssummary}에서 본 논문이 다운 알고리즘을 정리한다.
 \fi
 
 \ifen
@@ -1764,7 +1766,7 @@ A parametric treatment of risk aversion may align our model more closely to real
  
 A potential application of our model is an econometric study that estimates students’ perceptions of college quality ($t_j$) from their observed application behavior ($\mathcal{X}$) under the assumption of utility maximization. Empirical research indicates that heterogeneous risk aversion is a significant source of variation in human decision-making, especially in the domains of educational choice and employment search (Kahneman 2011; Hartlaub and Schneider 2012; van Huizen and Alessie 2019). Therefore, an endogenous risk-aversion parameter would greatly enhance our model’s explanatory power in the econometric setting.
 \else
-위험 회피를 모수화한 모형은 실제 지원 행동을 더 정확하게 반영할 수 있다. ``상향·소신·안정'' 지원 학교를 대략 균일하게 분산하여 지원하는 것이 최적이란 통념이다 (전민희 2015). 입학 시장의 크기에 비한 지원 예산이 작은 경우, 본 연구에서 제시하는 알고리즘은 비슷한 전략을 추천한다 (항 \ref{planetsexamplesection}의 예제 참고). 그러나 포트폴리오에 이미 삽입한 학교에 비한 한계 가치를 반영하여 효용 모수를 할인하는 수식 \eqref{howtotransformfj}을 살펴보면, 효용이 높은 학교보다 효용이 낮은 학교에 부과되는 페널티가 큰 것을 알 수 있다. 그 결과는 지원 예산이 커질수록 본 모형의 최적 포트폴리오가 안정 지원 학교보다 상향 지원 학교를 편드는 것이다. (그림 \ref{samplemarket}에서 뚜렷히 보이는 현상이다.)
+위험 회피를 모수화한 모형은 실제 지원 행동을 더 정확하게 반영할 수 있다. ``상향·소신·안정'' 지원 학교를 대략 균일하게 분산하여 지원하는 것이 최적이란 통념이다 (전민희 2015). 입학 시장의 크기에 비해 지원 예산이 작은 경우, 본 연구에서 제시하는 알고리즘은 비슷한 전략을 추천한다 (항 \ref{planetsexamplesection}의 예제 참고). 그러나 포트폴리오에 이미 삽입한 학교를 반영한 한계 가치를 나타내도록 효용 모수를 할인하는 수식 \eqref{howtotransformfj}을 살펴보면, 효용이 높은 학교보다 효용이 낮은 학교에 부과되는 페널티가 큰 것을 알 수 있다. 그 결과는 지원 예산이 커질수록 본 모형의 최적 포트폴리오가 안정 지원 학교보다 상향 지원 학교를 편드는 것이다. (그림 \ref{samplemarket}에서 뚜렷이 보이는 현상이다.)
 
 학생의 지원 행동($\mathcal{X}$)을 관찰하고 학생이 인식하는 대학교의 질($t_j$)을 추정하는 경제 측정학 연구에서 본 논문의 모형을 그대로 응용할 수 있다. 실무 연구 결과에 따르면 위험 회피의 다양성은 인간 의사 결정 다양성의 주된 원인이 되며, 교육 선택과 취업 활동은 특히 그렇다 (Kahneman 2011; Hartlaub와 Schneider 2012; van Huizen과 Alessie 2019). 따라서 경제 측정학 맥락에서, 위험 회피 모수를 내생 변수로 도입하면 원래 모형의 묘사력을 많이 개선할 수 있다.
 \fi
@@ -1775,7 +1777,7 @@ Another direction of further research with immediate application in college admi
 
 An analogous feature of the American college admissions process is known as early decision, in which at the moment of application, a student commits to enrolling in a college if admitted. In principle, students who apply with early decision may obtain a better chance of admission by signaling their eagerness to attend, but doing so weakens the college's incentive to entice the student with merit-based financial aid, altering the utility calculus.
 \else
-향후 연구에 두 번째 방향은 모형에 시그널 전략을 도입하는 것이다. 한국 입학 과정의 온라인 지원 양식에는 가군, 나군, 다군이란 3가지 선다형 칸을 채워서 지원하는 학교를 선택한다. 대부분의 학교는 모든 3개의 칸에 등장하지 않고 그중 1~2개만 가능하다. 따라서 학생이 지원할 수 있는 학교의 `수'일 뿐만 아니라 가능한 지원 포트폴리오에 같이 들어갈 수 있는 학교의 `조합'도 제한된다. 이는 학생이 상위권 대학만 지원하지 않도록 만들어지기 때문에  다각화(diversification) 제약식으로 볼 수 있다. 그러나 대학이 어떤 군에 속하는 것은 대학 순위일 뿐더러 입학 전형 유형도 의미한다. 가군과 나군으로 지원하는 경우, 다군보다 수능 점수의 반영 비율이 높다. 또한 군 2개에 포함되는 학교도 있으며 입학 전형이 다르면서 평행한 모집 과정 2개를 운영한다. 가령, 어떤 학생이 면접 능력에 비교 우위가 있으면 경쟁적인 학교에 가군으로 지원하면 합격 확률을 높일 수 있다. 이런 맥락에서 최적의 지원 전략은 미묘한 문제이며 한국 SNS에서 자주 발생하는 화젯거리이다.
+향후 연구에 두 번째 방향은 모형에 시그널 전략을 도입하는 것이다. 한국 입학 과정의 온라인 지원 양식에는 가군, 나군, 다군이란 3가지 선다형 칸을 채워서 지원하는 학교를 선택한다. 대부분의 학교는 모든 3개의 칸에 등장하지 않고 그중 1~2개만 가능하다. 따라서 학생이 지원할 수 있는 학교의 `수'일 뿐만 아니라 가능한 지원 포트폴리오에 같이 들어갈 수 있는 학교의 `조합'도 제한된다. 이는 학생이 상위권 대학만 지원하지 않도록 만들어지기 때문에 다각화(diversification) 제약식으로 볼 수 있다. 그러나 대학이 어떤 군에 속하는 것은 대학 순위일뿐더러 입학 전형 유형도 의미한다. 가군과 나군으로 지원하는 경우, 다군보다 수능 점수의 반영 비율이 높다. 또한 군 2개에 포함되는 학교도 있으며 입학 전형이 다르면서 평행한 모집 과정 2개를 운영한다. 가령, 어떤 학생이 면접 능력에 비교 우위가 있으면 경쟁적인 학교에 가군으로 지원하면 합격 확률을 높일 수 있다. 이런 맥락에서 최적의 지원 전략은 미묘한 문제이며 한국 SNS에서 자주 발생하는 화젯거리이다.
 
 미국 입학 과정의 유사한 특징은 조기 전형(early decision)이라고 불린다. 이는 학생이 합격하면 진학한다고 약속하고 지원하는 것을 의미한다. 조기 전형으로 지원하면 입학할 관심을 시그널할 수 있으므로 합격 확률을 높일 수 있지만, 학교가 학생을 모집하려고 장학금을 수여할 동기가 약화할 수 있으므로 학생의 효용 추정이 달라진다.
 \fi
@@ -1792,7 +1794,7 @@ completes the formulation. These constraints are conformable to those of the mul
 \begin{align}
  x_{j+} + x_{j-} \leq 1, ~~ j = 1\dots m\qquad\text{그리고}\qquad\sum_{j=1}^m x_{j+} \leq 1
 \end{align}
-다중 배낭 문제의 제약식과 같을 꼴이다 (Kellerer et al. 2004, 10제). 
+다중 배낭 문제의 제약식과 같은 꼴이다 (Kellerer et al. 2004, 10제). 
 \fi
 
 

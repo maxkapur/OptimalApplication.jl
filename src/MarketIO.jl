@@ -192,15 +192,12 @@ a `SameCostsMarket` or a `VariedCostsMarket`.
 function valuation(
     X::AbstractVector{<:Integer},
     mkt::Union{SameCostsMarket{T},VariedCostsMarket{T}};
-    invp::Union{Nothing,AbstractVector{T}}=nothing)::Float64 where {T<:Unsigned}
+    invp::AbstractVector{T}=invperm(mkt.perm)
+)::Float64 where {T<:Unsigned}
     isempty(X) && return 0.0
 
     X = T.(X)
 
-    # sort!(X)
-    if isnothing(invp)
-        invp = invperm(mkt.perm)
-    end
     X[:] = sort(invp[X])
 
     h = T(length(X))

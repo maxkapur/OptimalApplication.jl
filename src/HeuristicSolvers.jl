@@ -1,10 +1,4 @@
-"""
-    optimalportfolio_greedy(mkt::VariedCostsMarket) -> X, v
-
-Use a greedy heuristic that adds schools in decreasing order of `mkt.ft ./ mkt.g`
-to compute an approximately optimal portfolio for the market `mkt` with varying application costs.
-"""
-function optimalportfolio_greedy(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Float64} where {T}
+function optimalportfolio_greedy_nopermute(mkt::VariedCostsMarket{T})::Vector{T} where {T}
     priority_order = filter(
         sortperm(mkt.ft ./ mkt.g, rev=true)
     ) do j
@@ -21,6 +15,21 @@ function optimalportfolio_greedy(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},F
             break
         end
     end
+
+    # In the valuation we just use the identity permutation as invp
+    # To prevent wasteful permuting and then invpermuting
+    return X
+end
+
+
+"""
+    optimalportfolio_greedy(mkt::VariedCostsMarket) -> X, v
+
+Use a greedy heuristic that adds schools in decreasing order of `mkt.ft ./ mkt.g`
+to compute an approximately optimal portfolio for the market `mkt` with varying application costs.
+"""
+function optimalportfolio_greedy(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Float64} where {T}
+    X = optimalportfolio_greedy_nopermute(mkt)
 
     # In the valuation we just use the identity permutation as invp
     # To prevent wasteful permuting and then invpermuting
@@ -72,38 +81,13 @@ for `mkt` and its valuation.
 """
 function optimalportfolio_simulatedannealing(
     mkt::VariedCostsMarket{T};
-    X0::Union{Nothing,Vector{T}}=nothing,
+    X0::Vector{<:Integer}=optimalportfolio_greedy_nopermute(mkt),
     temp::Float64=0.25,
     nit::Integer=500,
     red::Float64=0.0625,
     verbose::Bool=false
 )::Tuple{Vector{Int},Float64} where {T}
-    if X0 === nothing
-        # Default to the greedy solution. We code it separately so we can get
-        # X in permuted order rather than original.
-        X, v = begin
-            priority_order = filter(
-                sortperm(mkt.ft ./ mkt.g, rev=true)
-            ) do j
-                mkt.g[j] ≤ mkt.H
-            end
-
-            X = T[]
-            H = mkt.H
-            for j in priority_order
-                if mkt.g[j] ≤ H
-                    push!(X, j)
-                    H -= mkt.g[j]
-                else
-                    break
-                end
-            end
-
-            X, valuation(X, mkt; invp=oneunit(T):mkt.m)
-        end
-    else
-        X, v = copy(X0), valuation(X0, mkt)
-    end
+    X, v = T.(X0), valuation(X0, mkt)
 
     X_best, v_best = X, v
 
