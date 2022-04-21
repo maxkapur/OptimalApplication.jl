@@ -54,12 +54,12 @@ const n_markets = 3
 
                 X_enum, vX_enum = optimalportfolio_enumerate(mkt)
                 sort!(X_enum)
-                X_valtable, VX_valtable = optimalportfolio_valuationtable(mkt)
+                # X_valtable, VX_valtable = optimalportfolio_valuationtable(mkt)
                 X_dp, vX_dp = optimalportfolio_dynamicprogram(mkt)
                 X_bnb, vX_bnb = optimalportfolio_branchbound(mkt)
 
-                @test X_enum == sort(X_valtable)
-                @test vX_enum ≈ VX_valtable[mkt.m, mkt.H]
+                # @test X_enum == sort(X_valtable)
+                # @test vX_enum ≈ VX_valtable[mkt.m, mkt.H]
                 @test X_enum == sort(X_dp)
                 @test vX_enum ≈ vX_dp
                 @test X_enum == sort(X_bnb)
@@ -148,9 +148,9 @@ const n_markets = 3
             @test v ≈ valuation(optimalportfolio_dynamicprogram(mkt1)[1], mkt1)
             @test v ≈ valuation(optimalportfolio_dynamicprogram(mkt2)[1], mkt2)
             @test v ≈ valuation(optimalportfolio_dynamicprogram(mkt3)[1], mkt3)
-            @test v ≈ valuation(optimalportfolio_valuationtable(mkt1)[1], mkt1)
-            @test v ≈ valuation(optimalportfolio_valuationtable(mkt2)[1], mkt2)
-            @test v ≈ valuation(optimalportfolio_valuationtable(mkt3)[1], mkt3)
+            # @test v ≈ valuation(optimalportfolio_valuationtable(mkt1)[1], mkt1)
+            # @test v ≈ valuation(optimalportfolio_valuationtable(mkt2)[1], mkt2)
+            # @test v ≈ valuation(optimalportfolio_valuationtable(mkt3)[1], mkt3)
             @test v ≈ valuation(optimalportfolio_enumerate(mkt1)[1], mkt1)
             @test v ≈ valuation(optimalportfolio_enumerate(mkt2)[1], mkt2)
 
@@ -175,7 +175,7 @@ const n_markets = 3
             mkt = VariedCostsMarket(fill(0.5, 4), fill(2, 4), fill(4, 4), 16)
 
             @test 1:4 == sort(optimalportfolio_branchbound(mkt)[1])
-            @test 1:4 == sort(optimalportfolio_valuationtable(mkt)[1])
+            # @test 1:4 == sort(optimalportfolio_valuationtable(mkt)[1])
             @test 1:4 == sort(optimalportfolio_dynamicprogram(mkt)[1])
             @test 1:4 == sort(optimalportfolio_fptas(mkt, 0.05)[1])
             @test 1:4 == sort(optimalportfolio_enumerate(mkt)[1])
@@ -186,7 +186,7 @@ const n_markets = 3
             mkt = VariedCostsMarket([0.5, 0.5, 1.0], [1, 2, 100], [3, 3, 5], 4)
 
             @test [2] == optimalportfolio_branchbound(mkt)[1]
-            @test [2] == optimalportfolio_valuationtable(mkt)[1]
+            # @test [2] == optimalportfolio_valuationtable(mkt)[1]
             @test [2] == optimalportfolio_dynamicprogram(mkt)[1]
             @test [2] == optimalportfolio_fptas(mkt, 0.25)[1]
             @test [2] == optimalportfolio_enumerate(mkt)[1]
@@ -211,6 +211,17 @@ const n_markets = 3
         Y, w = optimalportfolio_simulatedannealing(mkt; nit=10)
         @test w == valuation(Y, mkt)
         @test w ≥ v
+
+        m = 20
+        for _ in 1:n_markets
+            mkt = VariedCostsMarket(m)
+        
+            X, v = optimalportfolio_greedy(mkt)
+            @test v == valuation(X, mkt)
+            Y, w = optimalportfolio_simulatedannealing(mkt; nit=50)
+            @test w == valuation(Y, mkt)
+            @test w ≥ v
+        end
     end
 
     @testset verbose = true "Large problems" begin

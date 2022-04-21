@@ -1,23 +1,15 @@
 """
-    College(f, t, ft, omf)
+    College(j, f, t, ft, omf)
 
-Contains a college's admissions probability `f`, utility value `t`,
+Contains a college's index `j`, admissions probability `f`, utility value `t`,
 their product `ft`, and `1 - f = omf`. Used only by `applicationorder()`.
 """
-struct College{T<:Unsigned}
-    j::T
+struct College
+    j::Int
     f::Float64
     t::Float64
     ft::Float64
     omf::Float64
-
-    function College(j::T, f::Float64, t::Real, ft::Float64, omf::Float64) where {T<:Unsigned}
-        return new{T}(j, f, t, ft, omf)
-    end
-
-    function College{T}(j::T, f::Float64, t::Real, omf::Float64) where {T<:Unsigned}
-        return new(j, f, t, f * t, omf)
-    end
 end
 
 # Overload isless() so that the heap is ordered by expected utility.
@@ -27,25 +19,40 @@ isless(c1::College, c2::College) = isless(c1.ft, c2.ft)
 """
     applicationorder_list(mkt::SameCostsMarket) -> X, V
 
-Produce the optimal order of application for the market `mkt` having identical
-application costs and the corresponding portfolio valuations.
+Produce the optimal application order `X` and associated valuations `V` 
+for the [`SameCostsMarket`](@ref) defined by `mkt`. Uses a list data structure;
+typically faster than the equivalent [`applicationorder_heap`](@ref).
+
+All `SameCostsMarket`s satisfy a nestedness property, meaning that the optimal
+portfolio when `mkt.h = h` is given by the first `h` entries of the optimal portfolio
+when `mkt.h = mkt.m`. For example:
+
+```julia-repl
+julia> mkt = SameCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], 5);
+
+julia> x, v = applicationorder_list(mkt)
+([2, 3, 5, 4, 1], [2.0, 2.7, 3.24, 3.483, 3.5154])
+
+julia> x[1:4], v[4] # optimal portfolio and valuation for h = 4 
+([2, 3, 5, 4], 3.483)
+```
 """
 function applicationorder_list(
-    mkt::SameCostsMarket{T,U};
+    mkt::SameCostsMarket;
     verbose::Bool=false
-)::Tuple{Vector{Int},Vector{Float64}} where {T,U}
-    apporder = zeros(T, mkt.h)
+)::Tuple{Vector{Int},Vector{Float64}}
+    apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
 
-    mkt_list = College{T}[College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in oneunit(T):mkt.m]
+    mkt_list = College[College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in 1:mkt.m]
 
-    dummy_college = College(zero(T), 1.0, -1.0, -1.0, 0.0)
+    dummy_college = College(0, 1.0, -1.0, -1.0, 0.0)
 
-    c_best::College{T}, idx_best::Int = findmax(mkt_list)
-    @inbounds for j in oneunit(T):mkt.h
+    c_best::College, idx_best::Int = findmax(mkt_list)
+    @inbounds for j in 1:mkt.h
         if verbose
             println("Iteration $j")
-            println("  ft: ", [mkt_list[i].ft for i in oneunit(T):length(mkt_list)])
+            println("  ft: ", [mkt_list[i].ft for i in 1:length(mkt_list)])
             println("  Add school $(c_best.j)")
         end
 
@@ -97,35 +104,40 @@ end
 
 
 """
-    applicationorder_heap(mkt::SameCostsMarket) -> X, V
+    applicationorder_list(mkt::SameCostsMarket) -> X, V
 
-Produce the optimal order of application for the market `mkt` having identical
-application costs and the corresponding portfolio valuations.
+Produce the optimal application order `X` and associated valuations `V` 
+for the [`SameCostsMarket`](@ref) defined by `mkt`. Uses a heap data structure;
+typically the equivalent [`applicationorder_list`](@ref) is faster.
+
+All `SameCostsMarket`s satisfy a nestedness property, meaning that the optimal
+portfolio when `mkt.h = h` is given by the first `h` entries of the optimal portfolio
+when `mkt.h = mkt.m`. For example:
+
+```julia-repl
+julia> mkt = SameCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], 5);
+
+julia> x, v = applicationorder_heap(mkt)
+([2, 3, 5, 4, 1], [2.0, 2.7, 3.24, 3.483, 3.5154])
+
+julia> x[1:4], v[4] # optimal portfolio and valuation for h = 4 
+([2, 3, 5, 4], 3.483)
+```
 """
-function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vector{Float64}} where {T,U}
-    apporder = zeros(T, mkt.h)
+function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{Float64}}
+    apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
 
-    mkt_heap = BinaryMaxHeap{College{T}}(collect(College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in oneunit(T):mkt.m))
+    mkt_heap = BinaryMaxHeap{College}(collect(College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in 1:mkt.m))
 
-    @inbounds for j in oneunit(T):mkt.h
+    @inbounds for j in 1:mkt.h
         c_k = first(mkt_heap)
         v[j] = get(v, j - 1, 0) + c_k.ft
         apporder[j] = c_k.j
 
         # These two implementations perform almost identically
-        mkt_heap = BinaryMaxHeap{College{T}}(
-            College{T}[
-                College(
-                    c.j,
-                    c.f,
-                    c.t < c_k.t ? c.t * c_k.omf : c.t - c_k.ft,
-                    c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
-                    c.omf
-                )
-                for c in mkt_heap.valtree if c.j != c_k.j
-            ]
-            # map(filter(c -> c.j != c_k.j, mkt_heap.valtree)) do c
+        mkt_heap = BinaryMaxHeap{College}(
+            # College{T}[
             #     College(
             #         c.j,
             #         c.f,
@@ -133,7 +145,17 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
             #         c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
             #         c.omf
             #     )
-            # end
+            #     for c in mkt_heap.valtree if c.j != c_k.j
+            # ]
+            map(filter(c -> c.j != c_k.j, mkt_heap.valtree)) do c
+                College(
+                    c.j,
+                    c.f,
+                    c.t < c_k.t ? c.t * c_k.omf : c.t - c_k.ft,
+                    c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
+                    c.omf
+                )
+            end
         )
     end
 
@@ -141,54 +163,54 @@ function applicationorder_heap(mkt::SameCostsMarket{T})::Tuple{Vector{Int},Vecto
 end
 
 
-"""
-    optimalportfolio_valuationtable(mkt::VariedCostsMarket) -> X, V
+# """
+#     optimalportfolio_valuationtable(mkt::VariedCostsMarket) -> X, V
 
-Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
-valuation table `V` for the market `mkt` with varying application costs.
-"""
-function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where {T}
-    V = zeros(mkt.m, mkt.H)
-    @inbounds for j in oneunit(T):mkt.m, h in 1:mkt.H
-        if h < mkt.g[j]
-            V[j, h] = get(V, (j - 1, h), 0)
-        else
-            V[j, h] = max(
-                get(V, (j - 1, h), 0),
-                mkt.omf[j] * get(V, (j - 1, h - mkt.g[j]), 0) + mkt.ft[j]
-            )
-        end
-    end
+# Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
+# valuation table `V` for the market `mkt` with varying application costs.
+# """
+# function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where {T}
+#     V = zeros(mkt.m, mkt.H)
+#     @inbounds for j in oneunit(T):mkt.m, h in 1:mkt.H
+#         if h < mkt.g[j]
+#             V[j, h] = get(V, (j - 1, h), 0)
+#         else
+#             V[j, h] = max(
+#                 get(V, (j - 1, h), 0),
+#                 mkt.omf[j] * get(V, (j - 1, h - mkt.g[j]), 0) + mkt.ft[j]
+#             )
+#         end
+#     end
 
-    h = mkt.H
-    X = T[]
-    for j in reverse(1:mkt.m)
-        if get(V, (j - 1, h), 0) < get(V, (j, h), 0)
-            push!(X, j)
-            h -= mkt.g[j]
-        end
-    end
+#     h = mkt.H
+#     X = T[]
+#     for j in reverse(1:mkt.m)
+#         if get(V, (j - 1, h), 0) < get(V, (j, h), 0)
+#             push!(X, j)
+#             h -= mkt.g[j]
+#         end
+#     end
 
-    issorted(mkt.perm) || @warn "t not sorted; table rows will differ from input"
-    return mkt.perm[X], V
-end
+#     issorted(mkt.perm) || @warn "t not sorted; table rows will differ from input"
+#     return mkt.perm[X], V
+# end
 
 
 # Used by dynamic program below
 @inbounds function V_recursor!(
-    V_dict::Dict{Tuple{T,Int},Float64},
-    j::T,
+    V_dict::Dict{Tuple{Int,Int},Float64},
+    j::Int,
     h::Int,
-    mkt::VariedCostsMarket{T}
-)::Float64 where {T}
+    mkt::VariedCostsMarket
+)::Float64
     return get(V_dict, (j, h)) do
         if j == 0 || h == 0
             return 0.0
         elseif h < mkt.g[j]
-            push!(V_dict, (j, h) => V_recursor!(V_dict, j - oneunit(T), h, mkt))
+            push!(V_dict, (j, h) => V_recursor!(V_dict, j - 1, h, mkt))
             return V_dict[(j, h)]
         else
-            jmo = j - oneunit(T)
+            jmo = j - 1
             push!(V_dict, (j, h) => max(
                 V_recursor!(V_dict, jmo, h, mkt),
                 mkt.omf[j] * V_recursor!(V_dict, jmo, h - mkt.g[j], mkt) + mkt.ft[j]
@@ -199,27 +221,33 @@ end
 end
 
 
-
 """
     optimalportfolio_dynamicprogram(mkt::VariedCostsMarket) -> X, v
 
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
-value `v` for the market `mkt` with varying application costs. 
+value `v` for the [`VariedCostsMarket`](@ref) defined by `mkt`. 
+
+```julia-repl
+julia> mkt = VariedCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], [2, 4, 2, 5, 1], 8);
+
+julia> optimalportfolio_dynamicprogram(mkt)
+([3, 5, 2], 3.24)
+```
 """
 function optimalportfolio_dynamicprogram(
-    mkt::VariedCostsMarket{T};
+    mkt::VariedCostsMarket;
     verbose::Bool=false
-)::Tuple{Vector{Int},Float64} where {T}
-    V_dict = Dict{Tuple{T,Int},Float64}()
+)::Tuple{Vector{Int},Float64}
+    V_dict = Dict{Tuple{Int,Int},Float64}()
     sizehint!(V_dict, mkt.m * mkt.m ÷ 2)
 
     v = V_recursor!(V_dict, mkt.m, mkt.H, mkt)
 
     h = mkt.H
-    X = T[]
+    X = Int[]
 
     for j in reverse(1:mkt.m)
-        if V_recursor!(V_dict, T(j - 1), h, mkt) < V_recursor!(V_dict, T(j), h, mkt)
+        if V_recursor!(V_dict, j - 1, h, mkt) < V_recursor!(V_dict, j, h, mkt)
             push!(X, j)
             h -= mkt.g[j]
         end
@@ -237,126 +265,4 @@ function optimalportfolio_dynamicprogram(
     end
 
     return mkt.perm[X], v
-end
-
-
-# Used by fptas below
-struct ScaleParams
-    t::Vector{Int}
-    ft::Vector{Float64}
-    Ū::Int
-    infty::Int
-
-    function ScaleParams(mkt::VariedCostsMarket, ε::Float64)
-        @assert 0 < ε < 1
-        P = max(0,
-            ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.ft))))
-        )
-        t = mkt.t .* 2^P
-        ft = mkt.f .* t
-        Ū = ceil(Int, sum(ft))
-        infty = sum(mkt.g) + 1
-
-        return new(t, ft, Ū, infty)
-    end
-end
-
-
-# Used by fptas below
-@inbounds function G_recursor!(
-    G_dict::Dict{Tuple{T,Int},Int},
-    j::T,
-    v::Int,
-    mkt::VariedCostsMarket{T},
-    sp::ScaleParams
-)::Int where {T<:Unsigned}
-    return get(G_dict, (j, v)) do
-        if v ≤ 0
-            return 0
-        elseif j == 0 || sp.t[j] < v || v ≥ sp.Ū
-            return sp.infty
-        else
-            jmo = j - oneunit(T)
-            if mkt.f[j] < 1
-                # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
-                # is trivially defined, so recording any more extreme number is meaningless
-                v_minus_Δ = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
-
-                push!(G_dict, (j, v) => min(
-                    G_recursor!(G_dict, jmo, v, mkt, sp),
-                    mkt.g[j] + G_recursor!(G_dict, jmo, v_minus_Δ, mkt, sp)
-                ))
-                return G_dict[(j, v)]
-            else
-                push!(G_dict, (j, v) => min(G_recursor!(G_dict, jmo, v, mkt, sp), mkt.g[j]))
-                return G_dict[(j, v)]
-            end
-        end
-    end
-end
-
-
-# Function I stole from Base.Sort that does midpoint using bit hacks.
-# Performance-optimized but safe only if `lo <= hi`.
-midpoint(lo::T, hi::T) where {T<:Integer} = lo + ((hi - lo) >>> 0x01)
-
-
-"""
-    optimalportfolio_fptas(mkt::VariedCostsMarket, ε) -> X, v
-
-Use the fully polynomial-time approximation scheme to produce a
-`1-ε`-optimal portfolio for the market `mkt` with varying application costs. 
-"""
-function optimalportfolio_fptas(mkt::VariedCostsMarket{T}, ε::Float64; verbose::Bool=false)::Tuple{Vector{Int},Float64} where {T}
-    sp = ScaleParams(mkt, ε)
-
-    G_dict = Dict{Tuple{T,Int},Int}()
-    sizehint!(G_dict, mkt.m * mkt.m ÷ 2)
-
-    # Binary search for max{ w :  G_recursor!(G_dict, mkt.m, w, mkt, sp ≤ H }
-
-    # Should be able to use something like this with a proper by kw in searchsortedlast
-    # vs = 0:sp.Ū
-    # searchsortedlast(vs)
-
-
-    v = 0
-    v_UB = sp.Ū
-
-    @inbounds while v + 1 < v_UB
-        # mid = (v + v_UB) ÷ 2
-        mid = midpoint(v, v_UB)
-
-        if G_recursor!(G_dict, mkt.m, mid, mkt, sp) > mkt.H
-            v_UB = mid
-        else
-            v = mid
-        end
-    end
-
-    X = T[]
-
-    for j in reverse(1:mkt.m)
-        # G_recursor!(G_dict, T(j), v, mkt, sp) < sp.infty &&
-        if G_recursor!(G_dict, T(j), v, mkt, sp) < G_recursor!(G_dict, T(j - 1), v, mkt, sp)
-            push!(X, j)
-            v = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
-        end
-    end
-
-    if verbose
-        G_table = Array{Union{Missing,Int}}(missing, mkt.m, v_UB)
-        for (j, v) in keys(G_dict)
-            if 0 < j ≤ mkt.m && 0 < v ≤ v_UB
-                G_table[j, v] = G_dict[(j, v)]
-            end
-        end
-
-        issorted(mkt.perm) || @warn "t not sorted; table rows will differ from input"
-        display(G_table)
-    end
-
-    # In the valuation we just use the identity permutation as invp
-    # To prevent wasteful permuting and then invpermuting
-    return mkt.perm[X], valuation(X, mkt; invp=oneunit(T):mkt.m)
 end

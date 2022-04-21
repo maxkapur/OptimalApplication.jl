@@ -3,20 +3,20 @@ Contains information about a subproblem in the branch and bound scheme.
 `I` is a set of schools that are "in" the portfolio and `N` is the set that 
 are "negotiable" and used to generate an LP upper bound and child nodes.
 """
-mutable struct Node{T<:Unsigned}
-    I::Vector{T}
-    N::Vector{T}
+mutable struct Node
+    I::Vector{Int}
+    N::Vector{Int}
     t̄::Dict{Int,Float64}
     H̄::Int
     v_I::Float64
     v_LP::Float64
 
-    function Node(I::Vector{T}, N::Vector{T}, t̄::Dict, H̄::Int, v_I::Float64, mkt::VariedCostsMarket{T}) where {T}
+    function Node(I::Vector{Int}, N::Vector{Int}, t̄::Dict{Int,Float64}, H̄::Int, v_I::Float64, mkt::VariedCostsMarket)
         # For generating a new node with its LP relaxation value and empty child set
 
         # Leaf node
         if isempty(N)
-            return new{T}(I, N, t̄, H̄, v_I, v_I)
+            return new(I, N, t̄, H̄, v_I, v_I)
         end
 
         j_order = copy(N)
@@ -42,7 +42,7 @@ mutable struct Node{T<:Unsigned}
             end
         end
 
-        return new{T}(I, N, t̄, H̄, v_I, v_LP)
+        return new(I, N, t̄, H̄, v_I, v_LP)
     end
 end
 
@@ -56,12 +56,12 @@ handle(nd::Node) = Pair(hash(nd.I), hash(nd.N))
 
 With respect to the data in `mkt`, generates the child(ren) of node `nd`.
 """
-function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Vector{Node{T}} where {T}
+function generatechildren(nd::Node, mkt::VariedCostsMarket)::Vector{Node}
     fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
     if isempty(fltr)
-        child = Node(nd.I, T[], nd.t̄, nd.H̄, nd.v_I, mkt)
+        child = Node(nd.I, Int[], nd.t̄, nd.H̄, nd.v_I, mkt)
         return [child]
     end
 
@@ -107,7 +107,7 @@ function generatechildren(nd::Node{T}, mkt::VariedCostsMarket{T})::Vector{Node{T
             end
         end
 
-        child1 = Node(vcat(nd.I, i), T[], t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
+        child1 = Node(vcat(nd.I, i), Int[], t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
 
         return [child1, child2]
     end
@@ -117,17 +117,24 @@ end
 """
     optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit=10000, verbose=false) -> X, v
 
-Use the branch-and-bound algorithm to produce the optimal portfolio for the
-market `mkt` with varying application costs. Intractable for large markets. 
+Use the branch-and-bound algorithm to produce the optimal portfolio for the `VariedCostsMarket`
+defined by `mkt`. Intractable for large markets. 
+
+```julia-repl
+julia> mkt = VariedCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], [2, 4, 2, 5, 1], 8);
+
+julia> optimalportfolio_branchbound(mkt)
+([2, 3, 5], 3.24)
+```
 """
-function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit::Int=100000, verbose::Bool=false)::Tuple{Vector{Int},Float64} where {T}
+function optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit::Int=100000, verbose::Bool=false)::Tuple{Vector{Int},Float64}
     mkt.m ≥ 33 && @warn "Branch and bound is slow for large markets"
 
-    C = collect(oneunit(T):mkt.m)
+    C = collect(1:mkt.m)
 
-    rootnode::Node{T} = Node(T[], C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
+    rootnode::Node = Node(Int[], C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
     LB::Float64 = 0.0
-    LB_node::Node{T} = rootnode
+    LB_node::Node = rootnode
 
     # Commented out is an implementation that stores tree as a heap. The dict is faster because
     # fathoming nodes is slow on the heap. 
@@ -137,7 +144,7 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit::Int=1000
 
     # push!(treekeys, push!(tree, rootnode))
 
-    tree = Dict{Pair{UInt, UInt},Node{T}}()
+    tree = Dict{Pair{UInt,UInt},Node}()
     push!(tree, handle(rootnode) => rootnode)
 
     for k in 1:maxit
@@ -151,16 +158,16 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket{T}; maxit::Int=1000
             # thisnode, thisnodehandle = top_with_handle(tree)
             # pop!(tree)
             # delete!(treekeys, thisnodehandle)
-        
-            thisnodehandle::Pair{UInt,UInt}, thisnode::Node{T} = argmax(handle_nd -> handle_nd[2].v_LP, tree)
+
+            thisnodehandle::Pair{UInt,UInt}, thisnode::Node = argmax(handle_nd -> handle_nd[2].v_LP, tree)
             delete!(tree, thisnodehandle)
-        
+
             # Another option: Select the node with best obj value. Works pretty bad. 
             # thisnodehandle, thisnode = argmax(hash_nd -> hash_nd[2].v_I, tree)
             # delete!(tree, thisnodehandle)
         end
 
-        children::Vector{Node{T}} = generatechildren(thisnode, mkt)
+        children::Vector{Node} = generatechildren(thisnode, mkt)
 
         newLB = false
         for child in children

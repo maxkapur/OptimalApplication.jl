@@ -16,7 +16,7 @@ export
     applicationorder_list,
     optimalportfolio_dynamicprogram,
     optimalportfolio_enumerate,
-    optimalportfolio_valuationtable,
+    # optimalportfolio_valuationtable,
     optimalportfolio_fptas,
     optimalportfolio_branchbound,
     optimalportfolio_greedy,
@@ -25,8 +25,9 @@ export
 
 include("MarketIO.jl")
 include("EnumerationSolvers.jl")
-include("FastSolvers.jl")
 include("VariedCostsBnB.jl")
+include("FastSolvers.jl")
+include("ApproximateSolvers.jl")
 include("HeuristicSolvers.jl")
 
 

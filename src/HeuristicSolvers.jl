@@ -1,11 +1,11 @@
-function optimalportfolio_greedy_nopermute(mkt::VariedCostsMarket{T})::Vector{T} where {T}
+function optimalportfolio_greedy_nopermute(mkt::VariedCostsMarket)::Vector{Int}
     priority_order = filter(
         sortperm(mkt.ft ./ mkt.g, rev=true)
     ) do j
         mkt.g[j] ≤ mkt.H
     end
 
-    X = T[]
+    X = Int[]
     H = mkt.H
     for j in priority_order
         if mkt.g[j] ≤ H
@@ -16,8 +16,6 @@ function optimalportfolio_greedy_nopermute(mkt::VariedCostsMarket{T})::Vector{T}
         end
     end
 
-    # In the valuation we just use the identity permutation as invp
-    # To prevent wasteful permuting and then invpermuting
     return X
 end
 
@@ -26,14 +24,12 @@ end
     optimalportfolio_greedy(mkt::VariedCostsMarket) -> X, v
 
 Use a greedy heuristic that adds schools in decreasing order of `mkt.ft ./ mkt.g`
-to compute an approximately optimal portfolio for the market `mkt` with varying application costs.
+to compute a heuristically optimal portfolio for the `VariedCostsMarket`
+defined by `mkt`.
 """
-function optimalportfolio_greedy(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Float64} where {T}
+function optimalportfolio_greedy(mkt::VariedCostsMarket)::Tuple{Vector{Int},Float64}
     X = optimalportfolio_greedy_nopermute(mkt)
-
-    # In the valuation we just use the identity permutation as invp
-    # To prevent wasteful permuting and then invpermuting
-    return mkt.perm[X], valuation(X, mkt; invp=oneunit(T):mkt.m)
+    return mkt.perm[X], valuation_nopermute(X, mkt)
 end
 
 
@@ -44,9 +40,9 @@ Generate a random neighbor of `X` for the market `mkt`. If `X` is feasible,
 preserve feasibility; if not, move to a feasible solution. `X` is assumed
 to refer to the sorted indices of the market. 
 """
-function neighbor(X::AbstractVector{T}, mkt::VariedCostsMarket{T})::Vector{T} where {T}
+function neighbor(X::AbstractVector{Int}, mkt::VariedCostsMarket)::Vector{Int}
     X_neighbor = copy(X)
-    Y = setdiff(oneunit(T):mkt.m, X)
+    Y = setdiff(1:mkt.m, X)
     shuffle!(X_neighbor)
     shuffle!(Y)
 
@@ -69,31 +65,31 @@ end
 """
     optimalportfolio_simulatedannealing(
         mkt::VariedCostsMarket;
-        X0::Union{Nothing,Vector{T}}=nothing,
-        temp::Union{Nothing,Float64}=nothing,
+        temp::Float64=0.25,
+        red::Float64=0.0625,
         nit::Integer=500,
-        red::Float64=0.95,
         verbose::Bool=false
     ) -> X, v
 
 Use a simulated annealing procedure to compute a heuristically optimal portfolio
-for `mkt` and its valuation. 
+for the `VariedCostsMarket` defined by `mkt`. `temp` is the initial temperature,
+`red` is the reduction factor, and `nit` is the total number of iterations.
 """
 function optimalportfolio_simulatedannealing(
-    mkt::VariedCostsMarket{T};
-    X0::Vector{<:Integer}=optimalportfolio_greedy_nopermute(mkt),
+    mkt::VariedCostsMarket;
     temp::Float64=0.25,
-    nit::Integer=500,
     red::Float64=0.0625,
+    nit::Integer=500,
     verbose::Bool=false
-)::Tuple{Vector{Int},Float64} where {T}
-    X, v = T.(X0), valuation(X0, mkt)
+)::Tuple{Vector{Int},Float64}
+    X = optimalportfolio_greedy_nopermute(mkt)
+    v = valuation_nopermute(X, mkt)
 
     X_best, v_best = X, v
 
     for i in 1:nit
         X_neighbor = neighbor(X, mkt)
-        v_neighbor = valuation(X_neighbor, mkt; invp=oneunit(T):mkt.m)
+        v_neighbor = valuation_nopermute(X_neighbor, mkt)
 
         if verbose
             println("Iteration $i, v_best = $v_best, v_neighbor = $v_neighbor")
