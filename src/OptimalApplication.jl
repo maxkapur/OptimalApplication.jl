@@ -16,7 +16,6 @@ export
     applicationorder_list,
     optimalportfolio_dynamicprogram,
     optimalportfolio_enumerate,
-    # optimalportfolio_valuationtable,
     optimalportfolio_fptas,
     optimalportfolio_branchbound,
     optimalportfolio_greedy,

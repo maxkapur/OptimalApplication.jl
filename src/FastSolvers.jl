@@ -163,39 +163,6 @@ function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{F
 end
 
 
-# """
-#     optimalportfolio_valuationtable(mkt::VariedCostsMarket) -> X, V
-
-# Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
-# valuation table `V` for the market `mkt` with varying application costs.
-# """
-# function optimalportfolio_valuationtable(mkt::VariedCostsMarket{T})::Tuple{Vector{Int},Matrix{Float64}} where {T}
-#     V = zeros(mkt.m, mkt.H)
-#     @inbounds for j in oneunit(T):mkt.m, h in 1:mkt.H
-#         if h < mkt.g[j]
-#             V[j, h] = get(V, (j - 1, h), 0)
-#         else
-#             V[j, h] = max(
-#                 get(V, (j - 1, h), 0),
-#                 mkt.omf[j] * get(V, (j - 1, h - mkt.g[j]), 0) + mkt.ft[j]
-#             )
-#         end
-#     end
-
-#     h = mkt.H
-#     X = T[]
-#     for j in reverse(1:mkt.m)
-#         if get(V, (j - 1, h), 0) < get(V, (j, h), 0)
-#             push!(X, j)
-#             h -= mkt.g[j]
-#         end
-#     end
-
-#     issorted(mkt.perm) || @warn "t not sorted; table rows will differ from input"
-#     return mkt.perm[X], V
-# end
-
-
 # Used by dynamic program below
 @inbounds function V_recursor!(
     V_dict::Dict{Tuple{Int,Int},Float64},

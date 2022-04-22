@@ -17,7 +17,6 @@ function optimalportfolio_enumerate(mkt::SameCostsMarket)::Tuple{Vector{Int},Flo
     X = zeros(Int, mkt.h)
     v = 0.0
 
-    # invp = invperm(mkt.perm)
     for Y in multiset_combinations(1:mkt.m, mkt.h)
         if (w = valuation_nopermute(Y, mkt)) > v
             v = w
@@ -49,7 +48,6 @@ function optimalportfolio_enumerate(mkt::VariedCostsMarket)::Tuple{Vector{Int},F
     X = Int[]
     v = 0.0
 
-    # invp = invperm(mkt.perm)
     for Y in combinations(1:mkt.m)
         if (w = valuation_nopermute(Y, mkt)) > v && sum(mkt.g[Y]) ≤ mkt.H
             v = w

@@ -43,7 +43,7 @@ Generate a random neighbor of `X` for the market `mkt`. If `X` is feasible,
 preserve feasibility; if not, move to a feasible solution. `X` is assumed
 to refer to the sorted indices of the market. 
 """
-function neighbor(X::AbstractVector{Int}, mkt::VariedCostsMarket)::Vector{Int}
+function neighbor(X::AbstractVector{<:Integer}, mkt::VariedCostsMarket)::Vector{Int}
     X_neighbor = copy(X)
     Y = setdiff(1:mkt.m, X)
     shuffle!(X_neighbor)

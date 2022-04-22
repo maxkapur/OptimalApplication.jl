@@ -68,7 +68,7 @@ with valuation `v`, for the [`VariedCostsMarket`](@ref) defined by `mkt`.
 function optimalportfolio_fptas(
     mkt::VariedCostsMarket,
     ε::Float64;
-verbose::Bool=false
+    verbose::Bool=false
 )::Tuple{Vector{Int},Float64}
     sp = ScaleParams(mkt, ε)
 
@@ -76,15 +76,12 @@ verbose::Bool=false
     sizehint!(G_dict, mkt.m * mkt.m ÷ 2)
 
     # Binary search for max{ w :  G_recursor!(G_dict, mkt.m, w, mkt, sp ≤ H }
-
     # Should be able to use something like this with a proper by kw in searchsortedlast
     # vs = 0:sp.Ū
-    # searchsortedlast(vs)
-
+    # searchsortedlast(vs, by = ...)
 
     v = 0
     v_UB = sp.Ū
-
     @inbounds while v + 1 < v_UB
         # mid = (v + v_UB) ÷ 2
         mid = midpoint(v, v_UB)
@@ -97,7 +94,6 @@ verbose::Bool=false
     end
 
     X = Int[]
-
     for j in reverse(1:mkt.m)
         # G_recursor!(G_dict, j, v, mkt, sp) < sp.infty &&
         if G_recursor!(G_dict, j, v, mkt, sp) < G_recursor!(G_dict, j - 1, v, mkt, sp)
@@ -118,7 +114,5 @@ verbose::Bool=false
         display(G_table)
     end
 
-    # In the valuation we just use the identity permutation as invp
-    # To prevent wasteful permuting and then invpermuting
     return mkt.perm[X], valuation_nopermute(X, mkt)
 end
