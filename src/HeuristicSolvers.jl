@@ -1,9 +1,12 @@
 function optimalportfolio_greedy_nopermute(mkt::VariedCostsMarket)::Vector{Int}
-    priority_order = filter(
-        sortperm(mkt.ft ./ mkt.g, rev=true)
-    ) do j
-        mkt.g[j] ≤ mkt.H
-    end
+    priority_order = [j for j in 1:mkt.m if mkt.g[j] ≤ mkt.H]
+    sort!(
+        priority_order,
+        by=function (j)
+            mkt.ft[j] / mkt.g[j]
+        end,
+        rev=true
+    )
 
     X = Int[]
     H = mkt.H

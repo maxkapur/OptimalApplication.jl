@@ -55,13 +55,8 @@ function collectmeanstd(df::DataFrame)
 end
 
 
-function printheader(s)
-    printstyled(s * "\n", bold=true, color=222)
-end
-
-
 function benchmark1(marketsizes_SCM = marketsizes_SCM)
-    printheader("Benchmark 1: Homogeneous-cost algorithms")
+    @info "Benchmark 1: Homogeneous-cost algorithms"
     mkts_SCM = SameCostsMarket[SameCostsMarket(m) for m in marketsizes_SCM, i in 1:n_markets]
 
     sizes = Int[m for m in marketsizes_SCM, _ in 1:n_markets]
@@ -90,7 +85,7 @@ end
 
 
 function benchmark2(marketsizes_VCM = marketsizes_VCM)
-    printheader("Benchmark 2: Heterogeneous-cost algorithms")
+    @info "Benchmark 2: Heterogeneous-cost algorithms"
     epsilons = [0.5, 0.05]
     mkts_VCM = VariedCostsMarket[VariedCostsMarket(m) for m in marketsizes_VCM, i in 1:n_markets]
 
@@ -144,7 +139,7 @@ end
 
 
 function doeverything()
-    println("Number of threads: ", Threads.nthreads())
+    @info "Benchmark parameters" fullscale n_markets n_reps nthreads()
     println()
     bm1, plts1, = benchmark1()
     display(pretty_table(bm1, formatters=fmter))
