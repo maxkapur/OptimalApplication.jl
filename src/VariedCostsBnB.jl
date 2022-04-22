@@ -34,7 +34,7 @@ mutable struct Node
 
         v_LP = v_I
         H_left = H_bar
-        for j in N
+        @inbounds for j in N
             if mkt.g[j] ≤ H_left
                 H_left -= mkt.g[j]
                 v_LP += mkt.f[j] * t_bar[j]
