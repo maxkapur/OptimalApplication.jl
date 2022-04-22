@@ -14,14 +14,8 @@ julia> optimalportfolio_enumerate(mkt)
 function optimalportfolio_enumerate(mkt::SameCostsMarket)::Tuple{Vector{Int},Float64}
     mkt.m ≥ 21 && @warn "Enumeration is slow for large markets"
 
-    X = zeros(Int, mkt.h)
-    v = 0.0
-
-    for Y in multiset_combinations(1:mkt.m, mkt.h)
-        if (w = valuation_nopermute(Y, mkt)) > v
-            v = w
-            X[:] = Y
-        end
+    v, X = maximum(multiset_combinations(1:mkt.m, mkt.h)) do X
+        return valuation_nopermute(X, mkt), X
     end
 
     return mkt.perm[X], v
@@ -45,14 +39,8 @@ julia> optimalportfolio_enumerate(mkt)
 function optimalportfolio_enumerate(mkt::VariedCostsMarket)::Tuple{Vector{Int},Float64}
     mkt.m ≥ 21 && @warn "Enumeration is slow for large markets"
 
-    X = Int[]
-    v = 0.0
-
-    for Y in combinations(1:mkt.m)
-        if (w = valuation_nopermute(Y, mkt)) > v && sum(mkt.g[Y]) ≤ mkt.H
-            v = w
-            X = Y
-        end
+    v, X = maximum(X for X in combinations(1:mkt.m) if sum(mkt.g[X]) ≤ mkt.H) do X
+        return valuation_nopermute(X, mkt), X
     end
 
     return mkt.perm[X], v
