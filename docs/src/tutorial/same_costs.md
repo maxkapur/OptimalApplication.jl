@@ -32,7 +32,7 @@ This function returns the optimal portfolio as a vector `X` of school indices, a
     Enumeration algorithms have exponential time complexity and should only be used in small instances with `m ≤ 20`.
     Their intended use is to test the validity of more-efficient solvers.
 
-# The nestedness property
+# [The nestedness property](@id nestednessproperty)
 
 The optimal solutions for this special case of the college application problem satisfy a property called the
 *nestedness property.* When ``\mathcal{X}_h`` denotes the optimal solution for a given market when the limit is ``h``,

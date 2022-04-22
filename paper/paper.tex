@@ -1245,7 +1245,7 @@ Algorithm \ref{ellisDP1} produces an optimal application portfolio for Ellis's p
 \ifen
 Optimality follows from the foregoing discussion. Sorting $t$ is $O(m \log m)$. The bottleneck step is the creation of the lookup table for $V[j, h]$ in line \ref{Vcreatedlookuptable}. Each entry is generated in unit time, and the size of the table is $O(Hm)$. 
 \else
-위 논의에 따라 최적성이 성립한다. $t$를 배열하는 시간은 $O(m \log m)$이다. 목병 단계는 \ref{Vcreatedlookuptable}줄에서 $V[j, h]$의 표를 만드는 것이다. 각 원소를 단위 시간 안에 생성할 수 있으며 표의 크기가 $O(Hm)$이다.
+위 논의에 따라 최적성이 성립한다. $t$를 배열하는 시간은 $O(m \log m)$이다. 병목 단계는 \ref{Vcreatedlookuptable}줄에서 $V[j, h]$의 표를 만드는 것이다. 각 원소를 단위 시간 안에 생성할 수 있으며 표의 크기가 $O(Hm)$이다.
 \fi
 \end{proof}
 
@@ -1437,7 +1437,7 @@ which establishes the approximation bound.
 \ifen
 (Computation time.) The bottleneck step is the creation of the lookup table in line \ref{createdlookuptable}, whose size is $m \times |\mathcal{V}|$. Since
 \else
-(계산 시간.) \ref{createdlookuptable}줄에서 표를 채우는 것이 목병 단계이며 표의 크기는 $m \times |\mathcal{V}|$이다. 그러면
+(계산 시간.) \ref{createdlookuptable}줄에서 표를 채우는 것이 병목 단계이며 표의 크기는 $m \times |\mathcal{V}|$이다. 그러면
 \fi
 \begin{equation}
 |\mathcal{V}| = \bar U \times 10^{P} + 1 = \bar U \times 10^ { \bigl\lceil\log_{10}\left(m ^2/ \varepsilon \bar U\right)\bigr\rceil} + 1
@@ -1568,7 +1568,7 @@ To generate synthetic markets, we drew the $t_j$-values independently from an ex
 \ifen
 The experimental variables in Experiments 1 and 2 were the market size $m$, the choice of algorithm, and (for Algorithm \ref{ellisDP3}) the tolerance $\varepsilon$. For each combination of the experimental variables, we generated \nmarkets~markets, and the optimal portfolio was computed three times, with the fastest of the three repetitions recorded as the computation time. We then report the mean and standard deviation across the \nmarkets~markets. Therefore, each cell of each table below represents a statistic over {\the\numexpr 3 * \nmarkets \relax}~computations. Where applicable, we do not count the time required to sort the entries of $t$. As the simulated-annealing heuristic's computation time is negligible, it was excluded from Experiment 2. 
 \else
-실험 1과 실험 2의 실험 변수로는 시장의 크기 $m$, 해법 선택, 그리고 (알고리즘 \ref{ellisDP3}인 경우) 허용치 $\varepsilon$을 고려했다. 실험 변수의 각 조합에 대해,  \nmarkets 개의 시장을 생성했으며 최적 포트폴리오를 3번 계산 한 것 중 가장 빠른 것으로 계산 시간으로 기록했다. \nmarkets 개의 시장에 대한 평균과 평균편차를 표에 나타낸다. 따라서 아래 표의 각 칸은 {\the\numexpr 3 * \nmarkets \relax}개의 계산에 대한 통계다. $t$를 배열하는 시간은 고려하지 않았다. 그리고 모의 담금질 휴리스틱의 계산 시간이 무시해도 될 정도이므로 실험 2에서 제외했다. 
+실험 1과 실험 2의 실험 변수로는 시장의 크기 $m$, 해법 선택, 그리고 (알고리즘 \ref{ellisDP3}인 경우) 허용치 $\varepsilon$을 고려했다. 실험 변수의 각 조합에 대해,  \nmarkets 개의 시장을 생성했으며 최적 포트폴리오를 3번 계산 한 것 중 가장 빠른 것으로 계산 시간으로 기록했다. \nmarkets 개의 시장에 대한 평균과 표준편차를 표에 나타낸다. 따라서 아래 표의 각 칸은 {\the\numexpr 3 * \nmarkets \relax}개의 계산에 대한 통계다. $t$를 배열하는 시간은 고려하지 않았다. 그리고 모의 담금질 휴리스틱의 계산 시간이 무시해도 될 정도이므로 실험 2에서 제외했다. 
 \fi
 
 \ifen
@@ -1612,7 +1612,7 @@ The results of Experiment 3, which evaluated the performance of the simulated-an
 
 \newcommand{\lastptofcaption}{\ifen
 For each value of $m$, \nmarkets~markets were generated, and the computation time was recorded as fastest of three repetitions of the algorithm. The table shows the average time (standard deviation) over the \nmarkets~instances.
-\else 각 $m$에 대해 \nmarkets 개의 시장을 생성했으며 알고리즘을 3번 반복하여 그중 최소 계산 시간을 기록했다. 표에서 \nmarkets 개의 인스턴스에 대한 평균 (평균편차) 시간이 나타난다.\fi}
+\else 각 $m$에 대해 \nmarkets 개의 시장을 생성했으며 알고리즘을 3번 반복하여 그중 최소 계산 시간을 기록했다. 표에서 \nmarkets 개의 인스턴스에 대한 평균 (표준편차) 시간이 나타난다.\fi}
 
 
 
@@ -1743,13 +1743,13 @@ Three extensions of this problem appear amenable to future study.
 \ifen
 The familiar Markowitz portfolio optimization model includes an explicit risk-aversion term, whereas our model has settled for an implicit treatment of risk, namely the tradeoff between selective schools and safety schools inherent in the maximax objective function. However, it is possible to augment the objective function $v(\mathcal{X}) = \operatorname{E}[X]$ to incorporate a variance penalty $\beta \geq 0$ as follows:
 \else
-익숙한 Markowitz 포트폴리오 최적화 모형에서는 명시적인 위험 회피 항이 등장하며, 본 모형은 maximax 목적함수에 내포된 경쟁적인 학교와 안정 지원 학교 사이의 균형에 의한 위험 관리 요소만 고려했다. 그러나 기본 목적함수인 $v(\mathcal{X}) = \operatorname{E}[X]$에 평균편차 페널티 $\beta \geq 0$를 다음처럼 도입할 수 있다:
+익숙한 Markowitz 포트폴리오 최적화 모형에서는 명시적인 위험 회피 항이 등장하며, 본 모형은 maximax 목적함수에 내포된 경쟁적인 학교와 안정 지원 학교 사이의 균형에 의한 위험 관리 요소만 고려했다. 그러나 기본 목적함수인 $v(\mathcal{X}) = \operatorname{E}[X]$에 표준편차 페널티 $\beta \geq 0$를 다음처럼 도입할 수 있다:
 \fi
 \begin{align}
 \begin{split}
 v_{\mathrm{\beta}}(\mathcal{X}) &=  \operatorname{E}[X] - \beta \operatorname{Var}(X) \\
 &=   \operatorname{E}[X] - \beta \left(  \operatorname{E}[X^2]  -  \operatorname{E}[X]^2 \right) \\
-& = \sum_{j\in\{0\}\cup\mathcal{X}} \Bigl( f_j t_j \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}) \Bigr)
+& = \sum_{j\in\{0\}\cup\mathcal{X}} \Bigl( f_j t_j \prod_{\substack{i \in \mathcal{￣X}: \\ i > j}} (1 - f_{i}) \Bigr)
  - \beta \sum_{j\in\{0\}\cup\mathcal{X}} \Bigl( f_j t_j^2 \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}) \Bigr)
   + \beta v(\mathcal{X})^2 \\
   &= v(\mathcal{X}; \tau) +  \beta v(\mathcal{X}; t)^2
@@ -1806,7 +1806,7 @@ Abstractly speaking, Algorithms \ref{ellisDP1} and \ref{ellisDP3} are two-dimens
 
 When such a dynamic program is implemented using a lookup table or dictionary memoization, producing the optimal solution requires $O(NC)$-time and -space. Kellerer et al. (2004, \S\,3.3) provide a technique for transforming the dynamic program $Z$ into a divide-and-conquer algorithm that produces the optimal solution in $O(N C)$-time and $O(N + C)$-space, a significant improvement. However, their technique requires the objective function to be additively separable in a certain sense that appears difficult to conform to the college application problem. 
 \else
-수리 실험 결과에 따르면 동적 계획 해법 성능의 목병 요소는 계산 시간이 아니라 메모리 소모량이다. 이 알고리즘의 메모리 소요를 절감하면 상당히 큰 문제를 풀 수 있다.
+수리 실험 결과에 따르면 동적 계획 해법 성능의 병목 요소는 계산 시간이 아니라 메모리 소모량이다. 이 알고리즘의 메모리 소요를 절감하면 상당히 큰 문제를 풀 수 있다.
 
 추상적인 관점에서, 알고리즘 \ref{ellisDP1}과(와) 알고리즘 \ref{ellisDP3}은(는) 최적해를 $Z[N, C]$로 표현하는 2차원 동적 계획이다. 이때 $N$은 결정 변수의 수, $C$는 제약식의 모수, 그리고 $Z[n, c]$는 제약 모수가 $c \leq C$일 때 첫 $n\leq N$개의 결정 변수만 이용하는 최적 목적 함숫값이다. 알고리즘의 구조는 $Z[n, c]$를 $Z[n -1, c]$와 어떤 $c' \leq c$에 대응하는 $Z[n -1, c']$의 함수로 표현하고 그 반복 관계로 탐색하는 것이다. (알고리즘 \ref{ellisDP1}에서 $Z$는 최대 포트폴리오 가치, $N = m$, 그리고 $C =H$이며, 알고리즘 \ref{ellisDP3}에서 $Z$는 최소한 지원 지출액, $N = m$, 그리고 $C= |\mathcal{V}| \propto m^2 / \varepsilon$이다.)
 

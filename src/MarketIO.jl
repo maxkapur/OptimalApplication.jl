@@ -96,9 +96,9 @@ struct SameCostsMarket{U<:Real} <: Market
     end
 
     function SameCostsMarket(m::Integer)
-        t = ceil.(Int, -10 * log.(rand(m)))
+        t = ceil.(Int, -10 * log.(rand(m))) |> sort
         f = inv.(t .+ 10 * rand(m))
-        perm = sortperm(t)
+        perm = 1:m
         return new{Int}(
             m,
             f[perm],
@@ -188,11 +188,11 @@ struct VariedCostsMarket <: Market
     end
 
     function VariedCostsMarket(m::Integer)
-        t = ceil.(Int, -10 * log.(rand(m)))
+        t = ceil.(Int, -10 * log.(rand(m))) |> sort
         f = inv.(t .+ 10 * rand(m))
         g = rand(5:10, m)
         H = sum(g) ÷ 2
-        perm = sortperm(t)
+        perm = 1:m
 
         return new(
             m,
