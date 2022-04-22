@@ -1,16 +1,16 @@
 function iscoherentmarket(f::Vector{Float64}, t::Vector{<:Real})
-    length(f) == length(t) || error(DimensionMismatch("`f` and `t` must have same length"))
-    all(0 .< f .≤ 1) || error(DomainError(f, "Must have `all(0 .< f .≤ 1)`"))
-    all(0 .≤ t) || error(DomainError(f, "Must have `all(0 .≤ t)`"))
+    length(f) == length(t) || throw(DimensionMismatch("`f` and `t` must have same length"))
+    all(0 .< f .≤ 1) || throw(DomainError(f, "Must have `all(0 .< f .≤ 1)`"))
+    all(0 .≤ t) || throw(DomainError(f, "Must have `all(0 .≤ t)`"))
 end
 
 
 function iscoherentmarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int})
-    length(f) == length(t) || error(DimensionMismatch("`f` and `t` must have same length"))
-    length(f) == length(g) || error(DimensionMismatch("`f` and `g` must have same length"))
-    all(0 .< f .≤ 1) || error(DomainError(f, "Must have `all(0 .< f .≤ 1)`"))
-    all(0 .≤ t) || error(DomainError(f, "Must have `all(0 .≤ t)`"))
-    all(0 .≤ g) || error(DomainError(f, "Must have `all(0 .≤ g)`"))
+    length(f) == length(t) || throw(DimensionMismatch("`f` and `t` must have same length"))
+    length(f) == length(g) || throw(DimensionMismatch("`f` and `g` must have same length"))
+    all(0 .< f .≤ 1) || throw(DomainError(f, "Must have `all(0 .< f .≤ 1)`"))
+    all(0 .≤ t) || throw(DomainError(f, "Must have `all(0 .≤ t)`"))
+    all(0 .≤ g) || throw(DomainError(f, "Must have `all(0 .≤ g)`"))
 end
 
 

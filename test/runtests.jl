@@ -215,7 +215,7 @@ const n_markets = 3
         m = 20
         for _ in 1:n_markets
             mkt = VariedCostsMarket(m)
-        
+
             X, v = optimalportfolio_greedy(mkt)
             @test v == valuation(X, mkt)
             Y, w = optimalportfolio_simulatedannealing(mkt; nit=50)
@@ -245,21 +245,21 @@ const n_markets = 3
         g = [2, 2]
         H = 3
 
-        @test_throws AssertionError Market(f, t, 1)
-        @test_throws AssertionError Market(f, t, g, H)
+        @test_throws DimensionMismatch Market(f, t, 1)
+        @test_throws DimensionMismatch Market(f, t, g, H)
 
         # f not in (0, 1]
         f = [5.0, 1.0]
         t = [4, 7]
 
-        @test_throws AssertionError Market(f, t, 1)
-        @test_throws AssertionError Market(f, t, g, H)
+        @test_throws DomainError Market(f, t, 1)
+        @test_throws DomainError Market(f, t, g, H)
 
         # t negative
         f = [5.0, 1.0]
         t = [4, -7]
 
-        @test_throws AssertionError Market(f, t, 1)
-        @test_throws AssertionError Market(f, t, g, H)
+        @test_throws DomainError Market(f, t, 1)
+        @test_throws DomainError Market(f, t, g, H)
     end
 end
