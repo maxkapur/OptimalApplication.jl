@@ -6,49 +6,50 @@ are "negotiable" and used to generate an LP upper bound and child nodes.
 mutable struct Node
     I::Vector{Int}
     N::Vector{Int}
-    t̄::Dict{Int,Float64}
-    H̄::Int
+    t_bar::Vector{Float64}
+    H_bar::Int
     v_I::Float64
     v_LP::Float64
 
-    function Node(I::Vector{Int}, N::Vector{Int}, t̄::Dict{Int,Float64}, H̄::Int, v_I::Float64, mkt::VariedCostsMarket)
-        # For generating a new node with its LP relaxation value and empty child set
-
+    "Generate a new node with its LP relaxation value and empty child set."
+    function Node(
+        I::Vector{Int},
+        N::Vector{Int},
+        t_bar::Vector{Float64},
+        H_bar::Int,
+        v_I::Float64,
+        mkt::VariedCostsMarket
+    )
         # Leaf node
-        if isempty(N)
-            return new(I, N, t̄, H̄, v_I, v_I)
-        end
-
-        j_order = copy(N)
+        isempty(N) && new(I, N, t_bar, H_bar, v_I, v_I)
 
         sort!(
-            j_order,
+            N,
             by=function (j)
-                mkt.f[j] * t̄[j] / mkt.g[j]
+                mkt.f[j] * t_bar[j] / mkt.g[j]
             end,
             rev=true,
-            alg=InsertionSort # Because typically just one item is out of place
+            alg=InsertionSort # Typically just one item is out of place
         )
 
         v_LP = v_I
-        H_left = H̄
-        for j in j_order
+        H_left = H_bar
+        for j in N
             if mkt.g[j] ≤ H_left
                 H_left -= mkt.g[j]
-                v_LP += mkt.f[j] * t̄[j]
+                v_LP += mkt.f[j] * t_bar[j]
             else
-                v_LP += mkt.f[j] * t̄[j] * H_left / mkt.g[j]
+                v_LP += mkt.f[j] * t_bar[j] * H_left / mkt.g[j]
                 break
             end
         end
 
-        return new(I, N, t̄, H̄, v_I, v_LP)
+        return new(I, N, t_bar, H_bar, v_I, v_LP)
     end
 end
 
 
-handle(nd::Node) = Pair(hash(nd.I), hash(nd.N))
-
+isless(n::Node, m::Node) = isless(n.v_LP, m.v_LP)
 
 
 """
@@ -57,57 +58,50 @@ handle(nd::Node) = Pair(hash(nd.I), hash(nd.N))
 With respect to the data in `mkt`, generates the child(ren) of node `nd`.
 """
 function generatechildren(nd::Node, mkt::VariedCostsMarket)::Vector{Node}
-    fltr = filter(j -> mkt.g[j] ≤ nd.H̄, nd.N)
+    newN = filter(j -> mkt.g[j] ≤ nd.H_bar, nd.N)
 
     # No way to add any school to this: just skip to the leaf node
-    if isempty(fltr)
-        child = Node(nd.I, Int[], nd.t̄, nd.H̄, nd.v_I, mkt)
+    if isempty(newN)
+        child = Node(nd.I, Int[], nd.t_bar, nd.H_bar, nd.v_I, mkt)
         return [child]
     end
 
-    # School we will branch on. In principle it can by any school in fltr.
-    # i = argmax(j -> mkt.f[j] * nd.t̄[j] / mkt.g[j], fltr)
-    i = argmax(j -> mkt.f[j] * nd.t̄[j], fltr)
-
-    newN = setdiff(nd.N, i)
+    # School we will branch on. In principle it can by any school in newN.
+    i = popfirst!(newN) # = argmax(j -> mkt.f[j] * nd.t_bar[j], newN) by sortation policy
 
     # Node without i
-    t̄2 = copy(nd.t̄)
-    delete!(t̄2, i)
+    child2 = Node(nd.I, newN, nd.t_bar, nd.H_bar, nd.v_I, mkt)
 
-    child2 = Node(nd.I, newN, t̄2, nd.H̄, nd.v_I, mkt)
-
-    if mkt.g[i] < nd.H̄
+    if mkt.g[i] < nd.H_bar
         # Node with i
-        t̄1 = copy(nd.t̄)
-        delete!(t̄1, i)
-        @inbounds for j in keys(t̄1)
-            if t̄1[j] ≤ nd.t̄[i]
-                t̄1[j] *= mkt.omf[i]
+        t_bar1 = copy(nd.t_bar)
+        @inbounds for j in newN
+            if t_bar1[j] ≤ nd.t_bar[i]
+                t_bar1[j] *= mkt.omf[i]
             else
-                t̄1[j] -= mkt.f[i] * nd.t̄[i]
+                t_bar1[j] -= mkt.f[i] * nd.t_bar[i]
             end
         end
 
-        child1 = Node(vcat(nd.I, i), newN, t̄1, nd.H̄ - mkt.g[i],
-            nd.v_I + mkt.f[i] * nd.t̄[i],
-            mkt)
+        child1 = Node(
+            vcat(nd.I, i),
+            newN,
+            t_bar1,
+            nd.H_bar - mkt.g[i],
+            nd.v_I + mkt.f[i] * nd.t_bar[i],
+            mkt
+        )
 
         return [child1, child2]
     else
-        # Then mkt.g[i] == nd.H̄
-        # Leaf node with i
-        t̄1 = copy(nd.t̄)
-        delete!(t̄1, i)
-        for j in keys(t̄1)
-            if t̄1[j] ≤ nd.t̄[i]
-                t̄1[j] *= mkt.omf[i]
-            else
-                t̄1[j] -= mkt.f[i] * nd.t̄[i]
-            end
-        end
-
-        child1 = Node(vcat(nd.I, i), Int[], t̄1, 0, nd.v_I + mkt.f[i] * nd.t̄[i], mkt)
+        child1 = Node(
+            vcat(nd.I, i),
+            Int[],
+            Float64[], # nd.t_bar
+            0,
+            nd.v_I + mkt.f[i] * nd.t_bar[i],
+            mkt
+        )
 
         return [child1, child2]
     end
@@ -132,69 +126,27 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit::Int=100000,
 
     C = collect(1:mkt.m)
 
-    rootnode::Node = Node(Int[], C, Dict(zip(1:mkt.m, Float64.(mkt.t))), mkt.H, 0.0, mkt)
+    rootnode::Node = Node(Int[], C, Float64.(mkt.t), mkt.H, 0.0, mkt)
     LB::Float64 = 0.0
     LB_node::Node = rootnode
-
-    # Commented out is an implementation that stores tree as a heap. The dict is faster because
-    # fathoming nodes is slow on the heap. 
-
-    # tree = MutableBinaryMaxHeap{Node{eltype(C)}}()        
-    # treekeys = Set{Int}()
-
-    # push!(treekeys, push!(tree, rootnode))
-
-    tree = Dict{Pair{UInt,UInt},Node}()
-    push!(tree, handle(rootnode) => rootnode)
+    tree = BinaryMaxHeap{Node}([rootnode])
 
     for k in 1:maxit
         verbose && @show k, LB, length(tree)
 
-        if isempty(tree)
-            # All branches have either reached leaves or fathomed: done
-            return mkt.perm[collect(LB_node.I)], LB
-        else
-            # Select the node with the highest UB
-            # thisnode, thisnodehandle = top_with_handle(tree)
-            # pop!(tree)
-            # delete!(treekeys, thisnodehandle)
+        # All branches have either reached leaves or fathomed: done
+        isempty(tree) && return mkt.perm[collect(LB_node.I)], LB
 
-            thisnodehandle::Pair{UInt,UInt}, thisnode::Node = argmax(handle_nd -> handle_nd[2].v_LP, tree)
-            delete!(tree, thisnodehandle)
+        # Inspect the node with the highest UB
+        children::Vector{Node} = generatechildren(pop!(tree), mkt)
 
-            # Another option: Select the node with best obj value. Works pretty bad. 
-            # thisnodehandle, thisnode = argmax(hash_nd -> hash_nd[2].v_I, tree)
-            # delete!(tree, thisnodehandle)
-        end
-
-        children::Vector{Node} = generatechildren(thisnode, mkt)
-
-        newLB = false
         for child in children
-            if child.v_I > LB
-                newLB = true
-                LB_node = child
-                LB = child.v_I
-            end
-
-            # isempty(child.N) || push!(treekeys, push!(tree, child))
-            if child.v_LP > LB && !isempty(child.N)
-                push!(tree, handle(child) => child)
-            end
-        end
-
-        # verbose && map(values(tree)) do nd
-        #     println("  I: $(nd.I),  N: $(nd.N),  v: $(nd.v_I),  v_LP: $(nd.v_LP)")
-        # end
-
-        if newLB
-            # for k in treekeys
-            @inbounds for k in keys(tree)
-                if tree[k].v_LP < LB
-                    verbose && println("  Fathoming node $(tree[k].I), $(tree[k].N)")
-                    delete!(tree, k)
-                    # delete!(treekeys, k)
+            if child.v_LP > LB
+                if child.v_I > LB
+                    LB_node = child
+                    LB = child.v_I
                 end
+                isempty(child.N) || push!(tree, child)
             end
         end
     end
