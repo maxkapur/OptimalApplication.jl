@@ -227,20 +227,19 @@ function Market(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
 end
 
 
-function valuation_nopermute(
+function valuation_nopermute_sorted(
     X::AbstractVector{<:Integer},
     mkt::Market;
 )::Float64
     isempty(X) && return 0.0
-    X = sort(X)
+    # @assert issorted(X)
     h = length(X)
     if h > 1
-        res = 0.0
+        res = mkt.ft[X[end]]
         cp = reverse(cumprod(reverse(mkt.omf[X[2:end]])))
         for j in 1:h-1
             res += mkt.ft[X[j]] * cp[j]
         end
-        res += mkt.ft[X[end]]
         return res
     else
         return mkt.ft[X[1]]
@@ -277,5 +276,5 @@ function valuation(
     mkt::Market;
     invp::AbstractVector{<:Integer}=invperm(mkt.perm)
 )::Float64
-    return valuation_nopermute(invp[X], mkt)
+    return valuation_nopermute_sorted(sort(invp[X]), mkt)
 end

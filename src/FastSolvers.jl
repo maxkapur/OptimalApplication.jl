@@ -43,10 +43,7 @@ function applicationorder_list(
 )::Tuple{Vector{Int},Vector{Float64}}
     apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
-
     mkt_list = College[College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in 1:mkt.m]
-
-    dummy_college = College(0, 1.0, -1.0, -1.0, 0.0)
 
     c_best::College, idx_best::Int = findmax(mkt_list)
     @inbounds for j in 1:mkt.h
@@ -59,7 +56,7 @@ function applicationorder_list(
         v[j] = get(v, j - 1, 0) + c_best.ft
         apporder[j] = c_best.j
 
-        next_c_best::College = dummy_college
+        next_c_best::College = College(0, 1.0, -1.0, -1.0, 0.0)
         next_idx_best::Int = 0
 
         for i in 1:idx_best-1
@@ -141,8 +138,8 @@ function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{F
             #     College(
             #         c.j,
             #         c.f,
-            #         c.t < c_k.t ? c.t * c_k.omf : c.t - c_k.ft,
-            #         c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
+            #         c.j < c_k.j ? c.t * c_k.omf : c.t - c_k.ft,
+            #         c.j < c_k.j ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
             #         c.omf
             #     )
             #     for c in mkt_heap.valtree if c.j != c_k.j
@@ -151,8 +148,8 @@ function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{F
                 College(
                     c.j,
                     c.f,
-                    c.t < c_k.t ? c.t * c_k.omf : c.t - c_k.ft,
-                    c.t < c_k.t ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
+                    c.j < c_k.j ? c.t * c_k.omf : c.t - c_k.ft,
+                    c.j < c_k.j ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
                     c.omf
                 )
             end

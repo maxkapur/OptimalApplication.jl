@@ -94,7 +94,7 @@ function optimalportfolio_fptas(
     end
 
     X = Int[]
-    for j in reverse(1:mkt.m)
+    @inbounds for j in reverse(1:mkt.m)
         # G_recursor!(G_dict, j, v, mkt, sp) < sp.infty &&
         if G_recursor!(G_dict, j, v, mkt, sp) < G_recursor!(G_dict, j - 1, v, mkt, sp)
             push!(X, j)
@@ -114,5 +114,5 @@ function optimalportfolio_fptas(
         display(G_table)
     end
 
-    return mkt.perm[X], valuation_nopermute(X, mkt)
+    return mkt.perm[X], valuation_nopermute_sorted(sort(X), mkt)
 end

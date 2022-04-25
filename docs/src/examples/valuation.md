@@ -58,7 +58,7 @@ priority = invperm(X)
 pretty_table(
     Any[f t priority V[priority]], 
     header = ["f", "t", "priority", "valuation"],
-    header_crayon = crayon"bold green",
+    header_crayon = crayon"bold yellow",
 )
 ```
 

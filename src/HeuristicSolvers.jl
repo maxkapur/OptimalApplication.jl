@@ -32,7 +32,8 @@ defined by `mkt`.
 """
 function optimalportfolio_greedy(mkt::VariedCostsMarket)::Tuple{Vector{Int},Float64}
     X = optimalportfolio_greedy_nopermute(mkt)
-    return mkt.perm[X], valuation_nopermute(X, mkt)
+    sort!(X)
+    return mkt.perm[X], valuation_nopermute_sorted(X, mkt)
 end
 
 
@@ -86,13 +87,15 @@ function optimalportfolio_simulatedannealing(
     verbose::Bool=false
 )::Tuple{Vector{Int},Float64}
     X = optimalportfolio_greedy_nopermute(mkt)
-    v = valuation_nopermute(X, mkt)
+    sort!(X)
+    v = valuation_nopermute_sorted(X, mkt)
 
     X_best, v_best = X, v
 
     for i in 1:nit
         X_neighbor = neighbor(X, mkt)
-        v_neighbor = valuation_nopermute(X_neighbor, mkt)
+        sort!(X_neighbor)
+        v_neighbor = valuation_nopermute_sorted(X_neighbor, mkt)
 
         if verbose
             println("Iteration $i, v_best = $v_best, v_neighbor = $v_neighbor")

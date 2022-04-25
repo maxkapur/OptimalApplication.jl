@@ -6,6 +6,7 @@ DocMeta.setdocmeta!(OptimalApplication, :DocTestSetup, :(using OptimalApplicatio
 makedocs(
     sitename="OptimalApplication",
     modules=[OptimalApplication],
+    format=Documenter.HTML(ansicolor=true),
     # format = Documenter.HTML(prettyurls = false), # For local browsing
     pages=Any[
         "Home"=>"index.md",
@@ -23,7 +24,7 @@ makedocs(
         ],
         "Examples"=>[
             "Valuation curve" => "examples/valuation.md",
-            "Reach/safety schools" => "examples/reach_safety.md",
+            "Reach & safety schools" => "examples/reach_safety.md",
         ],
     ],
 )
