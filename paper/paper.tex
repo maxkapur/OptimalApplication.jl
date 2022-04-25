@@ -185,11 +185,14 @@ We take special interest in the validity of greedy optimization algorithms for t
 \fi
 
 \ifen
-For certain classes of optimization problems, such as maximizing a submodular set function over a cardinality constraint, a greedy algorithm is known to be a good approximate solution and exact under certain additional assumptions (Fisher et al. 1978). For other problems, notably the binary knapsack problem, the most intuitive greedy algorithm can be made to perform arbitrarily poorly (Vazirani 2001). We show results for the college application problem that mirror those for knapsack: In the special case where each $g_j = 1$, the optimal portfolio satisfy a nestedness property that is equivalent to the validity of the greedy algorithm. This case mirrors the centralized college application process in Korea, where there is no application fee, but students are allowed to apply to only three schools during the main admissions cycle. Unfortunately, the nestedness property does not hold in the general case, nor does the greedy algorithm offer any performance guarantee. Instead, we offer a branch-and-bound routine, a pseudopolynomial-time algorithm that is tractable for typical college market instances, and an approximation scheme that produces a $(1 - \varepsilon)$-optimal solution in fully polynomial time.
+For certain classes of optimization problems, such as maximizing a submodular set function over a cardinality constraint, a greedy algorithm is known to be a good approximate solution and exact under certain additional assumptions (Fisher et al. 1978). For other problems, notably the binary knapsack problem, the most intuitive greedy algorithm can be made to perform arbitrarily poorly (Vazirani 2001). We show results for the college application problem that mirror those for knapsack: In the special case where each $g_j = 1$, the optimal portfolio satisfy a nestedness property that is equivalent to the validity of the greedy algorithm. This case mirrors the centralized college application process in Korea, where there is no application fee, but students are allowed to apply to only three schools during the main admissions cycle. Unfortunately, the nestedness property does not hold in the general case, nor does the greedy algorithm offer any performance guarantee. Instead, we offer a branch-and-bound routine, a pseudopolynomial-time algorithm that is tractable for typical college market instances, and a fully polynomial-time approximation scheme (FPTAS).
 \else
-탐욕 알고리즘이 좋은 근사해거나 정확한 알고리즘이 되는 최적화 모형들이 알려져 있다. 집합 크기 제약 하에서 하위 모듈 집합 함수(submodular set function)를 최대화하는 문제가 대표적인 예다 (Fisher 외 1978). 반면에 이진 배낭 문제 같은 경우에서는 가장 직관적인 탐욕 알고리즘이 최적과 거리가 먼 해를 출력하는 예를 만들 수 있다 (Vazirani 2001). 대학 지원 문제와 배낭 문제가 서로 매우 유사함을 보인다. 모든 $g_j=1$인 특수한 경우에서, 최적 포트폴리오가 탐욕 알고리즘의 타당성과 동등한 포함 사슬 관계를 만족하는 것을 증명한다. 이 경우는 지원 비용이 없으며 정시 모집 기간에 학교 3개에만 지원할 수 있는 한국 입학 과정과 같다. 그러나 일반적인 경우에서 포함 사슬 관계가 성립하지 않을뿐더러 탐욕 알고리즘이 어떤 근사 계수를 보장할 수 없을 보일 수 있다. 대신 분지한계법, 전형적인 입학 시장 인스턴스에 대해 효율적인 의사 다항 시간 동적 계획, 그리고 완전 다항 시간 안에 $(1 - \varepsilon)$-근사해를 출력하는 알고리즘 등 3가지 해법을 제안한다. 
+탐욕 알고리즘이 좋은 근사해거나 정확한 알고리즘이 되는 최적화 모형들이 알려져 있다. 집합 크기 제약 하에서 하위 모듈 집합 함수(submodular set function)를 최대화하는 문제가 대표적인 예다 (Fisher 외 1978). 반면에 이진 배낭 문제 같은 경우에서는 가장 직관적인 탐욕 알고리즘이 최적과 거리가 먼 해를 출력하는 예를 만들 수 있다 (Vazirani 2001). 대학 지원 문제와 배낭 문제가 서로 매우 유사함을 보인다. 모든 $g_j=1$인 특수한 경우에서, 최적 포트폴리오가 탐욕 알고리즘의 타당성과 동등한 포함 사슬 관계를 만족하는 것을 증명한다. 이 경우는 지원 비용이 없으며 정시 모집 기간에 학교 3개에만 지원할 수 있는 한국 입학 과정과 같다. 그러나 일반적인 경우에서 포함 사슬 관계가 성립하지 않을뿐더러 탐욕 알고리즘이 어떤 근사 계수를 보장할 수 없을 보일 수 있다. 대신 분지한계법, 전형적인 입학 시장 인스턴스에 대해 효율적인 의사 다항 시간 동적 계획, 그리고 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme, FPTAS)을 제시한다.
 \fi
 
+% following sentence buries the lede
+% decide how to handle FPTAS abbrev
+Although our research employs more elementary techniques, we remark that the objective function of \ref{headlineproblem} is a nondecreasing submodular function, and our approximation results are tighter than those that arise in the generic case. Fisher et al.'s result (1978), for example, implies that the greedy algorithm is asymptotically $(1 - 1/e)$-optimal for the $g_1 = 1$ case of the college application problem, whereas we show that the same algorithm is exact. Using relaxation techniques, a nearly equivalent approximation ratio is achievable when maximizing a submodular set function over knapsack constraints or matroids (Calinescu et al. 2011; Kulik et al. 2013). In the college application problem, the existence of the FPTAS supersedes these results.
 
 \ifen \subsection{Structure of this paper} \else \subsection{본 논문의 구성}\fi
 \ifen Section \ref{preliminaries} introduces some additional notation and assumptions that can be imposed without loss of generality. 
@@ -298,6 +301,25 @@ v(\mathcal{X}; \bar t_j) &= \sum_{j\in \{0\}\cup\mathcal{X}}  \bar t_j p_j(\math
 \end{proof}
 
 
+%% Work text from nestedness proof into here, or probably better to just rewrite
+
+%Now, we present a variable-elimination technique that will prove useful throughout the paper. Suppose that the student has already resolved to apply to $c_k$, and the remainder of her decision consists of determining which \emph{other} schools to apply to. We can write her total application portfolio as $\mathcal{X} = \mathcal{Y} \cup \{k\}$, and we are interested in devising a function $w(\mathcal{Y})$ that orders portfolios according to how well they ``complement'' the singleton portfolio $\{k\}$.  To construct $w(\mathcal{Y})$ .. %this part is like the proof
+%
+%\begin{proposition}[\ifen Eliminate $c_k$\else $c_k$ 소거\fi]
+%\ifen For $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$, where
+%\else $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$에 대해, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$이다. 단,\fi
+%\begin{align}\label{howtotransformfj}
+%\bar t_j = 
+%\begin{cases}
+%(1 - f_k) t_j, \quad & t_j \leq t_k \\
+%t_j - f_k t_k, \quad& t_j > t_k.
+%\end{cases}
+%\end{align}
+%\end{proposition}%
+% It is easy to verify that this is the composition ... 
+
+%% Prove submodularity
+
 
 
 \ifen \section{Homogeneous application costs}  \else \section{동일한 지원 비용} \fi \label{homogappcosts}
@@ -339,11 +361,11 @@ Apply to the $h$ schools having the highest expected utility $f_j t_j$.
 \ifen 
 \noindent This algorithm's computation time is $O(m)$ using the PICK algorithm of Blum et al. (1973).
 
-The basic error of the na\"ive algorithm is that it maximizes $\operatorname{E}\left[\sum t_j Z_j \right]$ instead of $\operatorname{E}\left[\max \{t_j Z_j\} \right]$. The latter is what Alma is truly concerned with, since in the end she can attend only one school. The following example shows that the na\"ive algorithm can produce a suboptimal solution.
+The basic error of the na\"ive algorithm is that it maximizes $\operatorname{E}\left[\,\sum t_j Z_j\, \right]$ instead of $\operatorname{E}\left[\max \{t_j Z_j\} \right]$. The latter is what Alma is truly concerned with, since in the end she can attend only one school. The following example shows that the na\"ive algorithm can produce a suboptimal solution.
 \else
 \noindent Blum 외 (1973)의 PICK 알고리즘을 사용하면 위의 해법의 계산 시간이 $O(m)$이다.
 
-나이브 알고리즘의 기본 실수는 $\operatorname{E}\left[\max \{t_j Z_j\} \right]$ 대신  $\operatorname{E}\left[\sum t_j Z_j \right]$을 최대화하는 것이다. 결국에는 단 한 학교로만 진학할 수 있으므로 알마의 목적은 후자가 아닌 전자다. %학교 개별 효용의 기대 최댓값이다. 
+나이브 알고리즘의 기본 실수는 $\operatorname{E}\left[\max \{t_j Z_j\} \right]$ 대신  $\operatorname{E}\left[\,\sum t_j Z_j\,\right]$을 최대화하는 것이다. 결국에는 단 한 학교로만 진학할 수 있으므로 알마의 목적은 후자가 아닌 전자다. %학교 개별 효용의 기대 최댓값이다. 
 다음 예는 나이브 해법이 최적해가 아닌 해를 출력할 수 있음을 보인다.
 \fi
 \begin{example}
@@ -580,17 +602,6 @@ We reduce the computation time to $O(hm)$ by taking advantage of the transformat
 \else
 정리 \ref{nestedapplication} 증명의 추론 단계에서 제시한 변환을 활용하면 계산 시간을 $O(hm)$으로 감소시킬 수 있다. $\mathcal{X}$에 $k$를 추가하면, 후보자 집합인 $\mathcal{C}\setminus \mathcal{X}$에서 $k$를 소거하고 남은 학교의 $t_j$-값을 다음처럼 수정한다.
 \fi
-%\begin{proposition}[\ifen Eliminate $c_k$\else $c_k$ 소거\fi]
-%\ifen For $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$, where
-%\else $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$에 대해, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$이다. 단,\fi
-%\begin{align}\label{howtotransformfj}
-%\bar t_j = 
-%\begin{cases}
-%(1 - f_k) t_j, \quad & t_j \leq t_k \\
-%t_j - f_k t_k, \quad& t_j > t_k.
-%\end{cases}
-%\end{align}
-%\end{proposition}%
 \begin{align}\label{howtotransformfj}
 \bar t_j = 
 \begin{cases}
@@ -1572,7 +1583,7 @@ The experimental variables in Experiments 1 and 2 were the market size $m$, the 
 \fi
 
 \ifen
-In Experiment 3, we generated 500 markets with sizes varying uniformly in the logarithm between $m = 2^3$ and $2^{11}$. For each market, we computed a heuristic solution using Algorithm \ref{ellissimann} and an exact solution using Algorithm \ref{ellisDP1} and calculated the optimality ratio. We chose to use $N = 500$ iterations in the simulated-annealing algorithm, and the temperature parameters $T = 1/4$ and $r = 1/16$ were chosen by a preliminary grid search.  
+In Experiment 3, we generated 500 markets with sizes varying uniformly in the logarithm between $m = 2^3$ and $2^{11}$. For each market, we computed a heuristic solution using Algorithm \ref{ellissimann} and an exact solution using Algorithm \ref{ellisDP1} and calculated the optimality ratio. We chose to use $N = 500$ iterations in the simulated-annealing algorithm, and the temperature parameters $T = 1/4$ and $r = 1/16$ were selected by a preliminary grid search.  
 \else
 실험 3에서, 500개의 시장을 생성했으며, 크기는 대수가 균일하게 분포되도록 $m = 2^3$과 $2^{11}$ 사이에서 무작위로 선택했다. 각 시장에 알고리즘 \ref{ellissimann}을(를) 적용하여 휴리스틱한 해를 구하고 알고리즘 \ref{ellisDP1}을(를) 적용하여 정확한 해를 구한 다음의 최적성 비율을 계산했다. 모의 담금질의 반복 단계 개수는 $N = 500$이며, 격자 탐색을 이용한 예비 실험 결과에 따라 온도 모수를 $T = 1/4$ 그리고 $r = 1/16$로 선정했다.
 \fi
@@ -1788,13 +1799,14 @@ In the integer formulation of the college application problem (Problem \ref{inte
 \begin{align}
  x_{j+} + x_{j-} \leq 1, ~~ j = 1\dots m\qquad\text{and}\qquad\sum_{j=1}^m x_{j+} \leq 1
 \end{align}
-completes the formulation. These constraints are conformable to those of the multiple knapsack problem (Kellerer et al. 2004, chap. 10). 
+completes the formulation. These are knapsack constraints; therefore, the algorithm of Kulik et al. (2013) can be used to obtain a $(1 - 1/e + \varepsilon)$-approximate solution for this problem. When the budget constraint is a cardinality constraint (as in Alma's problem), we note that adding these constraints yields a matriodal solution set, and Calinescu et al. (2011)'s algorithm yields an alternative solution, albeit with the same approximation coefficient of $1 - 1/e + \varepsilon$. %These constraints are conformable to those of the multiple knapsack problem (Kellerer et al. 2004, chap. 10). 
 \else
 대학 지원 문제의 정수 모형(문제 \ref{integernlp})에서 위의 시그널 전략들을 어렵지 않게 도입하는 방식은 각 $c_j$를 $c_{j+}$와 $c_{j-}$로 나누는 것이다. 그다음에 학생이 $c_j$에 높은 관심을 시그널하면 (즉, 가군으로 선택하거나 조기 전형으로 지원하면) $x_{j+} = 1$이며 관심을 시그널 하지 않고 지원하면 (즉 가군 혹은 나군으로 지원하거나 조기 전형 없이 지원하면) $x_{j-} = 1$이 되는 이진 결정 변수를 정의한다. 해당 합격 확률 $f_{j+}$와 $f_{j-}$ 그리고 효용  $t_{j+}$와 $t_{j-}$가 알려져 있으면, 다음 같은 논리 제약식을 더하면 모형을 완성할 수 있다. 
 \begin{align}
  x_{j+} + x_{j-} \leq 1, ~~ j = 1\dots m\qquad\text{그리고}\qquad\sum_{j=1}^m x_{j+} \leq 1
 \end{align}
-다중 배낭 문제의 제약식과 같은 꼴이다 (Kellerer et al. 2004, 10제). 
+These are knapsack constraints; therefore, the algorithm of Kulik et al. (2013) can be used to obtain a $(1 - 1/e + \varepsilon)$-approximate solution for this problem. When the budget constraint is a cardinality constraint (as in Alma's problem), we note that adding these constraints yields a matriodal solution set, and Calinescu et al. (2011)'s algorithm yields an alternative solution, albeit with the same approximation coefficient of $1 - 1/e + \varepsilon$.
+%다중 배낭 문제의 제약식과 같은 꼴이다 (Kellerer et al. 2004, 10제). 
 \fi
 
 
@@ -1814,6 +1826,36 @@ When such a dynamic program is implemented using a lookup table or dictionary me
 \fi
 
 
+\section{Appendix}
+
+N.B. these results will be worked into the body soon.
+
+\begin{definition}[Submodular set function]
+Given a ground set $\mathcal{C}$ and function $v : 2^{\mathcal{C}} \mapsto \mathbb{R}$, $v(\mathcal{X})$ is called a \emph{submodular set function} if and only if $v(\mathcal{X}) + v(\mathcal{Y}) \geq v(\mathcal{X}\cup\mathcal{Y}) + v(\mathcal{X}\cap\mathcal{Y})$
+for all $\mathcal{X}, \mathcal{Y} \subseteq \mathcal{C}$. Furthermore, if $ v(\mathcal{X}\cup\{k\}) - v(\mathcal{X}) \geq 0$ for all $\mathcal{X} \subset \mathcal{C}$ and $k \in \mathcal{C} \setminus \mathcal{X}$, $v(\mathcal{X})$ is said to be a \emph{nondecreasing} submodular set function.
+\end{definition}
+
+\begin{theorem}
+The college application portfolio valuation function
+$v(\mathcal{X})$ % = \sum_{j\in\mathcal{X}} \Bigl( f_j t_j \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}) \Bigr)\]
+is a nondecreasing submodular set function.
+\end{theorem}
+
+\begin{proof}
+It is self-evident that $v(\mathcal{X})$ is nondecreasing. To establish its submodularity, we apply proposition 2.1.iii of Nemhauser and Wolsey (1978) and show that
+\begin{equation}\label{nemhauseriii}
+v(\mathcal{X} \cup \{j\}) - v(\mathcal{X}) \geq 
+v(\mathcal{X} \cup \{j, k\}) - v(\mathcal{X} \cup \{k\})
+\end{equation}
+for $\mathcal{X} \subset \mathcal{C}$ and $j \neq k \in \mathcal{C} \setminus \mathcal{X}$. By repeatedly eliminating the schools in $\mathcal{X}$ according to \eqref{howtotransformfj}, we can obtain a portfolio valuation function $w(\mathcal{Y}; t)$ such that $w(\mathcal{Y}) = v(\mathcal{X} \cup \mathcal{Y}) + \text{const.}$ for any $\mathcal{Y} \subseteq \mathcal{C} \setminus \mathcal{X}$. Therefore, \eqref{nemhauseriii} is equivalent to
+\begin{align}
+& w(\{j\}) - w(\varnothing) \geq w(\{j, k\}) - w(\{k\}) \\
+\iff \qquad &w(\{j\})  +  w(\{k\})  \geq w(\{j, k\})  \\
+\iff \qquad &\operatorname{E}[\,\bar t_j Z_j\,] + \operatorname{E}[\,\bar t_k Z_k\,] 
+\geq \operatorname{E}\bigl[\max\{ \bar t_j Z_j, \bar t_k Z_k \} \bigr]
+\end{align}
+which is plainly true. 
+\end{proof}
 
 
 \pagebreak
@@ -1836,6 +1878,9 @@ Blum,  Manuel, Robert W. Floyd, Vaughan Pratt, Ronald L. Rivest, and Robert E. T
 
 Budish, Eric. 2011. ``The Combinatorial Assignment Problem: Approximate Competitive Equilibrium from Equal Incomes.'' \emph{Journal of Political Economy} 119 (6): 1061--1103. \url{https://doi.org/10.1086/664613}. 
 
+% 1 - 1/e opt for the problem in the title
+Calinescu, Gruia, Chandra Chekuri, Martin Pál, and Jan Vondrák. 2011. ``Maximizing a Monotone Submodular Function Subject to a Matroid Constraint.'' \emph{SIAM Journal on Computing} 40 (6): 1740--66. \url{https://doi.org/10.1137/080733991}.
+
 Carraway, Robert, Robert Schmidt, and Lawrence Weatherford. 1993. ``An Algorithm for Maximizing Target Achievement in the Stochastic Knapsack Problem with Normal Returns.'' \emph{Naval Research Logistics} 40 (2): 161--73. \url{https://doi.org/10.1002/nav.3220400203}.
 
 Cormen, Thomas, Charles Leiserson, and Ronald Rivest. 1990. \emph{Introduction to Algorithms.} Cambridge, MA: The MIT Press.
@@ -1845,6 +1890,9 @@ Dantzig, George B. 1957. ``Discrete-Variable Extremum Problems.'' \emph{Operatio
 Dean, Brian, Michel Goemans, and Jan Vondr\'ak. 2008. ``Approximating the Stochastic Knapsack Problem: The Benefit of Adaptivity.'' \emph{Mathematics of Operations Research} 33 (4): 945--64. \url{https://doi.org/10.1287/moor.1080.0330}.
 
 Kellerer, Hans, Ulrich Pferschy, and David Pisinger. 2004. \emph{Knapsack Problems.} Berlin: Springer.
+
+%1 - 1/ e for monotonic submodular with knapsack constraints, i.e. Ellis with 가나다
+Kulik, Ariel, Hadas Shachnai, and Tami Tamir. 2013. ``Approximations for Monotone and Nonmonotone Submodular Maximization with Knapsack Constraints.'' \emph{Mathematics of Operations Research} 38 (4): 729--39. \url{https://doi.org/10.1287/moor.2013.0592}.
 
 \ifen Jeon, Minhee. 2015. ``[College application strategy] Six chances total\dots divide applications across reach, target, and safety schools'' (in Korean). Jungang Ilbo, Aug. 26. \url{https://doi.org/10.1086/664613}\fi
 
