@@ -32,7 +32,7 @@
 
 % Language selector
 \newif\ifen
-\entrue% Change to false to export Korean
+\enfalse% Change to false to export Korean
 
 
 \ifen
@@ -169,7 +169,7 @@ The college application problem is not solely of theoretical interest. In the Am
 \ifen
 From a methodological standpoint, as Fu (2014) remarked, college application represents a somewhat subtle asset allocation problem. In computational finance, traditional portfolio optimization models weigh the sum of expected profit across all assets against a risk term, yielding a concave maximization problem with linear constraints (Markowitz 1952; Meucci 2005). But college applicants maximize the expected value of their \emph{best} asset: If a student is admitted to her $j$th choice, then she is indifferent as to whether she gets into her $(j+1)$th choice. As a result, the valuation function that students maximize is \emph{convex} in the expected utility associated with individual applications. Risk management is implicit in the college application problem because, in a typical admissions market, college preferability is negatively correlated with competitiveness. That is, students negotiate a tradeoff between attractive, selective “reach schools” and less preferable “safety schools” where admission is a safer bet (Jeon 2015). Finally, the combinatorial nature of the college application problem makes it difficult to solve using the gradient-based techniques used in continuous portfolio optimization. Fu estimated her equilibrium model (which considers application as a \emph{cost} rather than a constraint) by clustering the schools so that $m=8$, a scale at which enumeration is tractable. We pursue a more general solution.
 \else
-방법론적인 관점에서 보면, Fu (2014)가 주장한 바처럼 대학 지원 전략은 약간 미묘한 자산 배분 문제이다. 재정학 분야에서 고전적 포트폴리오 최적화 모형은 전체 자산에 대한 기대 총이익에서 위험회피 항을 뺌으로 선형식으로 제약된 오목 최대화 문제를 이룬다 (Markowitz 1952; Meucci 2005). 그러나 대학 지원자는 가치가 제일 높은 단일 자산의 기대 가치를 최대화하고자 한다. 어떤 학생이 자신이 $j$번째로 선호하는 학교에 합격하면 $(j+1)$번째 학교의 합격 여부는 무관한 상황이 된다. 이는 학생이 최대화하려는 함수를 각 지원 발송의 기대 효용에 대해 오목이 아닌 볼록 함수로 만든다. 또한 입학 시장에서는 전형적으로 대학의 효용과 합격 확률이 서로 반비례하므로 대학 지원 문제는 위험 관리를 포함하게 된다. 특히 선호도가 높으며 붙기 어려운 “상향” 지원 학교(reach school)와 선호도가 낮으며 붙기 쉬운 “안정” 지원 학교(safety school) 사이의 균형을 고려해야 한다 (전민희 2015). 마지막, 대학 지원의 조합적인 본성으로 인해 연속적인 포트폴리오 최적화 문제에서 흔히 사용하는 기울기 해법으로는 풀기가 어렵다. Fu는 지원 비용을 제약 조건 대신 목적함수의 한 항으로 모형화했으며, 균형 모형의 모수를 추정하기 위해 $m=8$이 되도록 학교들의 클러스터를 먼저 구성했다. 이는 열거법을 통해 문 쉽게 풀 수 있는 규모이지만 본 연구는 더 일반적인 $m$에 대한 해법을 추구한다.
+방법론적인 관점에서 보면, Fu (2014)가 주장한 바처럼 대학 지원 전략은 약간 미묘한 자산 배분 문제이다. 재정학 분야에서 고전적 포트폴리오 최적화 모형은 전체 자산에 대한 기대 총이익에서 위험회피 항을 뺌으로 선형식으로 제약된 오목 최대화 문제를 이룬다 (Markowitz 1952; Meucci 2005). 그러나 대학 지원자는 가치가 제일 높은 단일 자산의 기대 가치를 최대화하고자 한다. 어떤 학생이 자신이 $j$번째로 선호하는 학교에 합격하면 $(j+1)$번째 학교의 합격 여부는 무관한 상황이 된다. 이는 학생이 최대화하려는 함수를 각 지원 발송의 기대 효용에 대해 오목이 아닌 볼록 함수로 만든다. 또한 입학 시장에서는 전형적으로 대학의 효용과 합격 확률이 서로 반비례하므로 대학 지원 문제는 위험 관리를 포함하게 된다. 특히 선호도가 높으며 붙기 어려운 “상향” 지원 학교(reach school)와 선호도가 낮으며 붙기 쉬운 “안정” 지원 학교(safety school) 사이의 균형을 고려해야 한다 (전민희 2015). 마지막, 대학 지원의 조합적인 본질로 인해 연속적인 포트폴리오 최적화 문제에서 흔히 사용하는 기울기 해법으로는 풀기가 어렵다. Fu는 지원 비용을 제약 조건 대신 목적함수의 한 항으로 모형화했으며, 균형 모형의 모수를 추정하기 위해 $m=8$이 되도록 학교들의 클러스터를 먼저 구성했다. 이는 열거법을 통해 문 쉽게 풀 수 있는 규모이지만 본 연구는 더 일반적인 $m$에 대한 해법을 추구한다.
 \fi
 
 \ifen
@@ -187,16 +187,19 @@ We take special interest in the validity of greedy optimization algorithms for t
 \ifen
 For certain classes of optimization problems, such as maximizing a submodular set function over a cardinality constraint, a greedy algorithm is known to be a good approximate solution and exact under certain additional assumptions (Fisher et al. 1978). For other problems, notably the binary knapsack problem, the most intuitive greedy algorithm can be made to perform arbitrarily poorly (Vazirani 2001). We show results for the college application problem that mirror those for knapsack: In the special case where each $g_j = 1$, the optimal portfolio satisfy a nestedness property that is equivalent to the validity of the greedy algorithm. This case mirrors the centralized college application process in Korea, where there is no application fee, but students are allowed to apply to only three schools during the main admissions cycle. Unfortunately, the nestedness property does not hold in the general case, nor does the greedy algorithm offer any performance guarantee. Instead, we offer a branch-and-bound routine, a pseudopolynomial-time algorithm that is tractable for typical college market instances, and a fully polynomial-time approximation scheme (FPTAS).
 \else
-탐욕 알고리즘이 좋은 근사해거나 정확한 알고리즘이 되는 최적화 모형들이 알려져 있다. 집합 크기 제약 하에서 하위 모듈 집합 함수(submodular set function)를 최대화하는 문제가 대표적인 예다 (Fisher 외 1978). 반면에 이진 배낭 문제 같은 경우에서는 가장 직관적인 탐욕 알고리즘이 최적과 거리가 먼 해를 출력하는 예를 만들 수 있다 (Vazirani 2001). 대학 지원 문제와 배낭 문제가 서로 매우 유사함을 보인다. 모든 $g_j=1$인 특수한 경우에서, 최적 포트폴리오가 탐욕 알고리즘의 타당성과 동등한 포함 사슬 관계를 만족하는 것을 증명한다. 이 경우는 지원 비용이 없으며 정시 모집 기간에 학교 3개에만 지원할 수 있는 한국 입학 과정과 같다. 그러나 일반적인 경우에서 포함 사슬 관계가 성립하지 않을뿐더러 탐욕 알고리즘이 어떤 근사 계수를 보장할 수 없을 보일 수 있다. 대신 분지한계법, 전형적인 입학 시장 인스턴스에 대해 효율적인 의사 다항 시간 동적 계획, 그리고 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme, FPTAS)을 제시한다.
+탐욕 알고리즘이 좋은 근사해거나 정확한 알고리즘이 되는 최적화 모형들이 알려져 있다. 집합 크기 제약 하에서 submodular한 집합 함수를 최대화하는 문제가 대표적인 예다 (Fisher 외 1978). 반면에 이진 배낭 문제 같은 경우에서는 가장 직관적인 탐욕 알고리즘이 최적과 거리가 먼 해를 출력하는 예를 만들 수 있다 (Vazirani 2001). 대학 지원 문제와 배낭 문제가 서로 매우 유사함을 보인다. 모든 $g_j=1$인 특수한 경우에서, 최적 포트폴리오가 탐욕 알고리즘의 타당성과 동등한 포함 사슬 관계를 만족하는 것을 증명한다. 이 경우는 지원 비용이 없으며 정시 모집 기간에 학교 3개에만 지원할 수 있는 한국 입학 과정과 같다. 그러나 일반적인 경우에서 포함 사슬 관계가 성립하지 않을뿐더러 탐욕 알고리즘이 어떤 근사 계수를 보장할 수 없을 보일 수 있다. 대신 분지한계법, 전형적인 입학 시장 인스턴스에 대해 효율적인 의사 다항 시간 동적 계획, 그리고 완전 다항 시간 근사 해법(fully polynomial-time approximation scheme, FPTAS)을 제시한다.
 \fi
 
-% following sentence buries the lede
-% decide how to handle FPTAS abbrev
-Although our research employs more elementary techniques, we remark that the objective function of \ref{headlineproblem} is a nondecreasing submodular function, and our approximation results are tighter than those that arise in the generic case. Fisher et al.'s result (1978), for example, implies that the greedy algorithm is asymptotically $(1 - 1/e)$-optimal for the $g_1 = 1$ case of the college application problem, whereas we show that the same algorithm is exact. Using relaxation techniques, a nearly equivalent approximation ratio is achievable when maximizing a submodular set function over knapsack constraints or matroids (Calinescu et al. 2011; Kulik et al. 2013). In the college application problem, the existence of the FPTAS supersedes these results.
+% following sentence buries the lede（
+\ifen
+Finally, we remark that the objective function of \ref{headlineproblem} is a nondecreasing submodular function. However, our research employs more elementary analytical techniques, and our approximation results are tighter than those associated with generic submodular maximization algorithms. For example, a well-known result of Fisher et al. (1978) implies that the greedy algorithm is asymptotically $(1 - 1/e)$-optimal for the $g_j = 1$ case of the college application problem, whereas we show that the same algorithm is exact. When maximizing a submodular set function over knapsack constraints or matroids, a nearly equivalent approximation ratio is achievable using relaxation techniques (Calinescu et al. 2011; Kulik et al. 2013). But in the general case of the college application problem, the existence of the FPTAS supersedes these results.
+\else
+마지막으로, \ref{headlineproblem}의 목적함수는 submodular하며 단조 증가하는 함수이다. 그런데, 본 연구는 더 기초적인 분석 기술을 이용하며, 일반적인 submodular 최대화 알고리즘보다 좋은 근사 계수를 얻게 된다. 예를 들어 Fisher 외 (1978)의 잘 알려진 결과에 따라, 대학 지원 문제의 $g_j = 1$인 경우에서 탐욕 해법의 점근적 근사 계수가 $(1 - 1/e)$이 되며, 본 논문에서 같은 해법이 정확함을 보인다. 다중 배낭 제약식 혹은 매트로이드 위에서 submodular 집합 함수를 최대하는 문제에서, 완화 기술을 활용하면 거의 동등한 근사 계수를 이뤄 낼 수 있다 (Calinescu et al. 2011; Kulik et al. 2013). 그러나 일반적인 대학 지원 문제에서, FPTAS의 존재성은 그 결과를 대체한다.
+\fi
 
 \ifen \subsection{Structure of this paper} \else \subsection{본 논문의 구성}\fi
-\ifen Section \ref{preliminaries} introduces some additional notation and assumptions that can be imposed without loss of generality. 
-\else \ref{preliminaries}절은 표기법과 일반성을 제한하지 않는 편의적 가정을 제시한다.\fi
+\ifen Section \ref{preliminaries} introduces some additional notation and assumptions that can be imposed without loss of generality. We also introduce a useful variable-elimination technique and prove that the objective function is submodular.
+\else \ref{preliminaries}절은 표기법과 일반성을 제한하지 않는 편의적 가정을 제시한다. 유용한 변수 소거 기술도 제시하고 목적함수가 submodularity함을 증명한다.\fi
 
 \ifen
 In Section \ref{homogappcosts}, we consider the special case where each $g_j = 1$ and $H$ is an integer $h \leq m$.  We show that an intuitive heuristic is in fact a $1/h$-approximation algorithm. Then, we show that the optimal portfolios are nested in the budget constraint, which yields an exact algorithm that runs in $O(hm)$-time.
@@ -211,13 +214,13 @@ In Section \ref{hetappcosts}, we turn to the scenario in which colleges differ i
 \fi
 
 \ifen
-In Section \ref{numericalexperiments}, we present the results of computational experiments that confirm the validity and time complexity results established in the previous two sections. % more
+In Section \ref{numericalexperiments}, we present the results of computational experiments that confirm the validity and time complexity results established in the previous two sections. We also investigate the empirical accuracy of the simulated-annealing heuristic.
 
-A brief conclusion follows.
+In the conclusion, we identify possible improvements to our solution algorithms and introduce a few extensions of the model that capture the features of real-world admissions processes.
 \else
-\ref{numericalexperiments}절에서 위에서 도출한 타당성과 계산 복잡성을 확인하는 계산 실험 결과를 정리한다. 
+\ref{numericalexperiments}절에서 위에서 도출한 타당성과 계산 복잡성을 확인하는 계산 실험 결과를 정리한다. 모의 담금질 휴리스틱의 정확도도 탐구한다.
 
-그리고 간단한 결론을 제시한다.
+결론에서, 해법을 개선할 수 있는 요소를 언급하고, 실제 지원 과정의 특징을 묘사하도록 원래 모형을 확장할 수 있는 기술 몇 가지 소개한다.
 \fi
 
 
@@ -228,6 +231,8 @@ A brief conclusion follows.
 \else
 해법은 의논하기 전, 본 절에서 추가적인 표기법은 명시하고 몇 가지 유용한 예비 결과를 정리하고자 한다. 남은 논문에서 다른 언급이 없으면, 일반성을 잃지 않고 각 $g_j \leq H$, $\sum g_j > H$, 각 $f_j \in (0, 1]$, 그리고 $t_0 < t_1 \leq \cdots \leq t_m$이라고 가정한다. 뒤에서 임의의 인스턴스를 $t_0 = 0$이 되도록 변환하는 방법을 제시한다. % 이를 적용하면 $t_j > 0$인 가정을 세울 수 있다. 
 \fi
+
+\ifen \subsection{Refining the objective function} \else \subsection{목적함수의 정제} \fi
 
 \ifen
 We refer to the set $\mathcal{X} \subseteq \mathcal{C}$ of schools to which a student applies as her \emph{application portfolio.} The expected utility the student receives from $\mathcal{X}$ is called its \emph{valuation}. %Let $x$ denote the same encoded as a binary vector, where $x_j=1 \iff j\in \mathcal{X}$ for $j=1\dots m$.
@@ -301,24 +306,128 @@ v(\mathcal{X}; \bar t_j) &= \sum_{j\in \{0\}\cup\mathcal{X}}  \bar t_j p_j(\math
 \end{proof}
 
 
-%% Work text from nestedness proof into here, or probably better to just rewrite
 
-%Now, we present a variable-elimination technique that will prove useful throughout the paper. Suppose that the student has already resolved to apply to $c_k$, and the remainder of her decision consists of determining which \emph{other} schools to apply to. We can write her total application portfolio as $\mathcal{X} = \mathcal{Y} \cup \{k\}$, and we are interested in devising a function $w(\mathcal{Y})$ that orders portfolios according to how well they ``complement'' the singleton portfolio $\{k\}$.  To construct $w(\mathcal{Y})$ .. %this part is like the proof
-%
-%\begin{proposition}[\ifen Eliminate $c_k$\else $c_k$ 소거\fi]
-%\ifen For $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$, where
-%\else $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$에 대해, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$이다. 단,\fi
-%\begin{align}\label{howtotransformfj}
-%\bar t_j = 
-%\begin{cases}
-%(1 - f_k) t_j, \quad & t_j \leq t_k \\
-%t_j - f_k t_k, \quad& t_j > t_k.
-%\end{cases}
-%\end{align}
-%\end{proposition}%
-% It is easy to verify that this is the composition ... 
+\subsection{A variable-elimination technique}
+\ifen
+Now, we present a variable-elimination technique that will prove useful throughout the paper.\footnote{We thank Yim Seho for pointing out this useful transformation.} Suppose that the student has already resolved to apply to $c_k$, and the remainder of her decision consists of determining which \emph{other} schools to apply to. Writing her total application portfolio as $\mathcal{X} = \mathcal{Y} \cup \{k\}$, we devise a function $w(\mathcal{Y})$ that orders portfolios according to how well they ``complement'' the singleton portfolio $\{k\}$. Specifically, the difference between $v(\mathcal{Y} \cup\{k\})$ and $w(\mathcal{Y})$ is the constant $f_k t_k$.
+\else
+본 항에서 남은 논문에서 활용되는 변수 소거 기술을 소개한다.\footnote{이 유용한 변환을 발견한 임세호에게 감사를 표한다.} 학생이 $c_k$에 지원하기로 결심하고, 남은 결정 공간은 어떤 다른 학교에 지원하는 것으로 제한된다고 하자. 전체 지원 포트폴리오를 $\mathcal{X} = \mathcal{Y} \cup \{k\}$일 때, $\mathcal{Y} \subseteq \mathcal{C} \setminus \{k\}$인 포트폴리오와 $\{k\}$ 사이의 \mbox{`보완성'을} 평가하는 함수 $w(\mathcal{Y})$를 도출할 수 있다. 단, $v(\mathcal{Y} \cup\{k\})$와 $w(\mathcal{Y})$ 사이에서 $f_k t_k$ 같은 상수 차이가 발생한다.
+\fi 
 
-%% Prove submodularity
+\ifen
+To construct $w(\mathcal{Y})$, let $\tilde t_j$ denote the expected utility the student receives from school $c_j$ \emph{given} that she has been admitted to $c_j$ and applied to $c_k$. For $j < k$ (including $j = 0$), this is $\tilde t_j = (1- f_k) t_j + f_k t_k$; for $j > k $, this is $\tilde t_j = t_j$. This means that 
+\begin{equation}\label{Vyastildet}
+v(\mathcal{Y}\cup\{k\}) = \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y}).\end{equation}
+The transformation to $\tilde t$ does not change the order of the $t_j$-values. Therefore, the expression on the right side of \eqref{Vyastildet} is itself a portfolio valuation function. In the corresponding market, $t$ is replaced by $\tilde t$ and $\mathcal{C}$ is replaced by $\mathcal{C}\setminus\{k\}$. To restore our convention that $t_0 = 0$, we obtain $w(\mathcal{Y})$ by taking $\bar t_j = \tilde t_j - \tilde t_0$ for all $j \neq k$ and letting
+\begin{equation}  \label{wYvXminusconst}
+w(\mathcal{Y})
+= \sum_{j \in \{0\} \cup \mathcal{Y}} \bar t_j p_j(\mathcal{Y})
+= \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y})- \tilde t_0
+= v(\mathcal{Y}\cup\{k\}) -  f_k t_k \end{equation}
+where the second equality follows from Theorem \ref{assumetzerozero}. The validity of this transformation is summarized in the following theorem, where we write $v(\mathcal{X}; \bar t)$ instead of $w(\mathcal{Y})$ to emphasize that $w(\mathcal{Y})$ is, in form, a portfolio valuation function. 
+\else
+$w(\mathcal{Y})$를 구성하기 위해, 알마가 $c_j$에 합격한 상황에서 $c_k$에 지원했을 때 $c_j$에서 받는 조건부 기대 효용을 $\tilde t_j$라고 하자. $j = 0$을 포함한 $j < k$에 대해 이값은 $\tilde t_j = t_j (1- f_k) + t_k f_k$이며, $j > k $에 대해 $\tilde t_j = t_j$임을 알 수 있다. 따라서 
+\begin{equation}\label{Vyastildet}
+v(\mathcal{Y}\cup\{k\}) = \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y}).\end{equation}
+$\tilde t$로 변환하면 $t_j$의 순서가 변하지 않기 때문에 \eqref{Vyastildet}의 우변 그 자체가 포트폴리오 가치 함수이다. $t$를 $\tilde t$로, $\mathcal{C}$를 $\mathcal{C}\setminus \{k\}$로 대체하면 대응하는 시장이 된다. 그다음에 $t_0 = 0$이 되도록 $\bar t_j = \tilde t_j - \tilde t_0$으로 정의하고 $w(\mathcal{Y})$를 다음처럼 얻을 수 있다. 
+\begin{equation}  \label{wYvXminusconst}
+w(\mathcal{Y})
+= \sum_{j \in \{0\} \cup \mathcal{Y}} \bar t_j p_j(\mathcal{Y})
+= \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y})- \tilde t_0
+= v(\mathcal{Y}\cup\{k\}) -  f_k t_k \end{equation}
+두 번째 등호는 정리 \ref{assumetzerozero}에 따라 성립한다. 다음 정리는 이 변환의 타당성을 의미한다. 단, $w(\mathcal{Y})$가 포트폴리오 가치 함수 형태를 가지는 것을 강조하기 위해 $w(\mathcal{Y})$ 대신 $v(\mathcal{X}; \bar t)$처럼 표기한다.
+\fi
+
+\begin{theorem}[\ifen Eliminate $c_k$\else $c_k$ 소거 기술\fi] \label{eliminationtheorem}
+\ifen For $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$, where
+\else $\mathcal{X} \subseteq \mathcal{C} \setminus \{k\}$에 대해, $v(\mathcal{X}\cup\{k\}; t)  = v(\mathcal{X}; \bar t) + f_k t_k$이다. 단,\fi
+\begin{align}\label{howtotransformtj}
+\bar t_j = 
+\begin{cases}
+(1 - f_k) t_j, \quad & t_j \leq t_k \\
+t_j - f_k t_k, \quad& t_j > t_k.
+\end{cases}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+\ifen It is easy to verify that \eqref{howtotransformtj} is the composition of the two transformations (from $t$ to $\tilde t$, and from $\tilde t$ to $\bar t$) discussed above.
+\else \eqref{howtotransformtj}이(가) 위에서 논의한 2개의 변환($t$에서 $\tilde t$로, 그리고 $\tilde t$에서 $\bar t$로)의 합성임을 쉽게 확인할 수 있다. \fi
+\end{proof}
+
+\ifen
+\noindent The transformation \eqref{howtotransformtj} can be applied iteratively to accommodate the case where the student has already resolved to apply to multiple schools.
+\else
+\noindent 학생이 다수의 학교에 지원하기로 결심한 경우를 반영하기 위해, \eqref{howtotransformtj}의 변화를 반복적으로 적용할 수 있다.
+\fi
+
+
+\ifen \subsection{Submodularity of the objective function} \else \subsection{목적함수의 submodularity} \fi
+\ifen 
+Now, we show that the portfolio valuation function is submodular. This result is primarily of taxonomical interest and may be safely skipped. Our solution algorithms for the college application problem are better than generic algorithms for submodular maximization, and we prove their validity using elementary analysis.
+\else
+목적함수가 submodular함을 보이자. 이 결과는 주로 분류학적인 흥미를 가지며 건너뛰어도 연속성에 지장을 주지 않는다. 일반적인 submodular 최대화 알고리즘보다 본 연구가 제시하는 대학 지원 최적화 해법이 더 좋으며, 기초적인 분석을 통해 그의 타당성을 증명한다.
+\fi
+
+\ifen
+\begin{definition}[Submodular set function]
+Given a ground set $\mathcal{C}$ and function $v : 2^{\mathcal{C}} \mapsto \mathbb{R}$, $v(\mathcal{X})$ is called a \emph{submodular set function} if and only if $v(\mathcal{X}) + v(\mathcal{Y}) \geq v(\mathcal{X}\cup\mathcal{Y}) + v(\mathcal{X}\cap\mathcal{Y})$
+for all $\mathcal{X}, \mathcal{Y} \subseteq \mathcal{C}$. Furthermore, if $ v(\mathcal{X}\cup\{k\}) - v(\mathcal{X}) \geq 0$ for all $\mathcal{X} \subset \mathcal{C}$ and $k \in \mathcal{C} \setminus \mathcal{X}$, $v(\mathcal{X})$ is said to be a \emph{nondecreasing} submodular set function.
+\end{definition}
+\else
+\begin{definition}[Submodular한 집합 함수]
+고려 집합 $\mathcal{C}$ 그리고 함수 $v : 2^{\mathcal{C}} \mapsto \mathbb{R}$가 주어질 때, $v(\mathcal{X})$가 submodular한 집합 함수가 되는 필수충분 조건은, 모든 $\mathcal{X}, \mathcal{Y} \subseteq \mathcal{C}$에 대해 $v(\mathcal{X}) + v(\mathcal{Y}) \geq v(\mathcal{X}\cup\mathcal{Y}) + v(\mathcal{X}\cap\mathcal{Y})$이 성립하는 것이다. 또한 모든 $\mathcal{X} \subset \mathcal{C}$와 $k \in \mathcal{C} \setminus \mathcal{X}$에 대해 $v(\mathcal{X}\cup\{k\}) - v(\mathcal{X}) \geq 0$이면, $v(\mathcal{X})$가 단조 증가하는 submodular한 집합 함수라고 부른다.
+\end{definition}
+\fi
+
+\ifen
+\begin{theorem}
+The college application portfolio valuation function
+$v(\mathcal{X})$ % = \sum_{j\in\mathcal{X}} \Bigl( f_j t_j \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}) \Bigr)\]
+is a nondecreasing submodular set function.
+\end{theorem}
+\else
+\begin{theorem}
+대학 지원의 포트폴리오 가치 함수 $v(\mathcal{X})$는 submodular한 집합 함수이다.
+\end{theorem}
+\fi
+
+
+
+\ifen
+\begin{proof}
+It is self-evident that $v(\mathcal{X})$ is nondecreasing. To establish its submodularity, we apply proposition 2.1.iii of Nemhauser and Wolsey (1978) and show that
+\begin{equation}\label{nemhauseriii}
+v(\mathcal{X} \cup \{j\}) - v(\mathcal{X}) \geq 
+v(\mathcal{X} \cup \{j, k\}) - v(\mathcal{X} \cup \{k\})
+\end{equation}
+for $\mathcal{X} \subset \mathcal{C}$ and $j \neq k \in \mathcal{C} \setminus \mathcal{X}$. By repeatedly eliminating the schools in $\mathcal{X}$ according to \eqref{howtotransformtj}, we can obtain a portfolio valuation function $w(\mathcal{Y})$ with parameter $\bar t$ such that $w(\mathcal{Y}) = v(\mathcal{X} \cup \mathcal{Y}) + \text{const.}$ for any $\mathcal{Y} \subseteq \mathcal{C} \setminus \mathcal{X}$. Therefore, \eqref{nemhauseriii} is equivalent to
+\begin{align}
+& w(\{j\}) - w(\varnothing) \geq w(\{j, k\}) - w(\{k\}) \\
+\iff \qquad &w(\{j\})  +  w(\{k\})  \geq w(\{j, k\})  \\
+\iff \qquad &\operatorname{E}[\,\bar t_j Z_j\,] + \operatorname{E}[\,\bar t_k Z_k\,] 
+\geq \operatorname{E}\bigl[\max\{ \bar t_j Z_j, \bar t_k Z_k \} \bigr]
+\end{align}
+which is plainly true. 
+\end{proof}
+\else
+\begin{proof}
+$v(\mathcal{X})$가 단조 증가하는 것은 자명하다. Submodularity를 보이기 위해, Nemhauser와 Wolsey (1978)의 제의 2.1.iii을 적용하여 모든 $\mathcal{X} \subset \mathcal{C}$ 그리고 $j \neq k \in \mathcal{C} \setminus \mathcal{X}$에 대해 다음이 성립함을 보이자.
+\begin{equation}\label{nemhauseriii}
+v(\mathcal{X} \cup \{j\}) - v(\mathcal{X}) \geq 
+v(\mathcal{X} \cup \{j, k\}) - v(\mathcal{X} \cup \{k\})
+\end{equation}
+\eqref{howtotransformtj}에 따라 $\mathcal{X}$에 속한 학교를 반복적으로 소거하면 모수 $\bar t$로 갖춘 포트폴리오 함수 $w(\mathcal{Y})$를 얻을 수 있으며,  모든 $\mathcal{Y} \subseteq \mathcal{C} \setminus \mathcal{X}$에 대해 $w(\mathcal{Y}) = v(\mathcal{X} \cup \mathcal{Y}) + \text{const.}$가 성립한다. 따라서 \eqref{nemhauseriii}은(는) 다음 부등식과 동등하다.
+\begin{align}
+& w(\{j\}) - w(\varnothing) \geq w(\{j, k\}) - w(\{k\}) \\
+\iff \qquad &w(\{j\})  +  w(\{k\})  \geq w(\{j, k\})  \\
+\iff \qquad &\operatorname{E}[\,\bar t_j Z_j\,] + \operatorname{E}[\,\bar t_k Z_k\,] 
+\geq \operatorname{E}\bigl[\max\{ \bar t_j Z_j, \bar t_k Z_k \} \bigr]
+\end{align}
+마지막 부등식은 분명히 참이다.
+\end{proof}
+\fi
+
 
 
 
@@ -553,23 +662,30 @@ v(\mathcal{X}_{h+1})&= v(\mathcal{Y}_{h} \cup \{k\}) \\
 \ifen is a contradiction.
 \else 모순이다.\fi
 
-\ifen Now suppose that $k \in \mathcal{X}_h$. We can write $\mathcal{X}_h = \mathcal{Y}_{h-1} \cup \{k\}$, where $ \mathcal{Y}_{h-1}$ is some portfolio of size $h-1$. It suffices to show that $ \mathcal{Y}_{h-1} \subset \mathcal{Y}_h$. By definition, $\mathcal{Y}_{h-1}$ (respectively, $\mathcal{Y}_{h}$) maximizes the function $v(\mathcal{Y}\cup\{k\})$ over portfolios of size $h-1$ (respectively, $h$) that do not include $k$. That is, $\mathcal{Y}_{h-1}$ and $\mathcal{Y}_h$ are the optimal \emph{complements} to the singleton portfolio $\{k\}$.
-\else 이제 $k \in \mathcal{X}_h$인 경우를 고려하자. 그러면 크기 $h-1$인 어떤 포트폴리오 $\mathcal{Y}_{h-1}$에 대해 $\mathcal{X}_h = \mathcal{Y}_{h-1} \cup \{k\}$으로 표현할 수 있다. $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$임을 보이면 충분하다. 정의에 따라 $\mathcal{Y}_{h-1}$ ($\mathcal{Y}_{h}$)는 크기가 $h-1$ ($h$)인 포트폴리오 중에 함수 $v(\mathcal{Y}\cup\{k\})$를 최대화한다. 다시 말해 $\mathcal{Y}_{h-1}$과 $\mathcal{Y}_h$는 각각 단일 원소 포트폴리오 $\{k\}$와 최적으로 `보완적인' 학교 집합이다. \fi
+\ifen Now suppose that $k \in \mathcal{X}_h$. We can write $\mathcal{X}_h = \mathcal{Y}_{h-1} \cup \{k\}$, where $ \mathcal{Y}_{h-1}$ is some portfolio of size $h-1$. It suffices to show that $ \mathcal{Y}_{h-1} \subset \mathcal{Y}_h$. By definition, $\mathcal{Y}_{h-1}$ (respectively, $\mathcal{Y}_{h}$) maximizes the function $v(\mathcal{Y}\cup\{k\})$ over portfolios of size $h-1$ (respectively, $h$) that do not include $k$. That is, $\mathcal{Y}_{h-1}$ and $\mathcal{Y}_h$ are the optimal complements to the singleton portfolio $\{k\}$.
 
-\ifen We will use the function $w(\mathcal{Y})$ to grade portfolios $\mathcal{Y} \subseteq \mathcal{C} \setminus \{k\}$ according to how well they complement $\{k\}$. To construct $w(\mathcal{Y})$, let $\tilde t_j$ denote the expected utility Alma receives from school $c_j$ \emph{given} that she has been admitted to $c_j$ and applied to $c_k$. For $j < k$, including $j = 0$, this is $\tilde t_j = (1- f_k) t_j + f_k t_k$; for $j > k $, this is $\tilde t_j = t_j$. This means that 
-\else 함수 $w(\mathcal{Y})$를 이용하여 $\mathcal{Y} \subseteq \mathcal{C} \setminus \{k\}$인 포트폴리오와 $\{k\}$ 사이의 \mbox{`보완성'을} 평가하자. $w(\mathcal{Y})$를 구성하기 위해, 알마가 $c_j$에 합격한 상황에서 $c_k$에 지원했을 때 $c_j$에서 받는 조건부 기대 효용을 $\tilde t_j$라고 하자. $j = 0$을 포함한 $j < k$에 대해 이값은 $\tilde t_j = t_j (1- f_k) + t_k f_k$이며, $j > k $에 대해 $\tilde t_j = t_j$임을 알 수 있다. 따라서 \fi
-\begin{equation}\label{Vyastildet}
-v(\mathcal{Y}\cup\{k\}) = \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y}).\end{equation}
-\ifen The transformation to $\tilde t$ does not change the order of the $t_j$-values. Therefore, the expression on the right side of \eqref{Vyastildet} is itself a portfolio valuation function. In the corresponding market, $t$ is replaced by $\tilde t$ and $\mathcal{C}$ is replaced by $\mathcal{C}\setminus\{k\}$. Now, we obtain $w(\mathcal{Y})$ through one more transformation: Define $\bar t_j = \tilde t_j - \tilde t_0$ so that $t_0 = 0$ and let
-\else $\tilde t$로 변환하면 $t_j$의 순서가 변하지 않기 때문에 \eqref{Vyastildet}의 우변 그 자체가 포트폴리오 가치 함수이다. $t$를 $\tilde t$로, $\mathcal{C}$를 $\mathcal{C}\setminus \{k\}$로 대체하면 대응하는 시장이 된다. 이제 또 하나의 변환을 적용한다. $t_0 = 0$이 되도록 $\bar t_j = \tilde t_j - \tilde t_0$으로 정의하고 $w(\mathcal{Y})$를 다음과 같이 얻을 수 있다. \fi
-\begin{equation}  \label{wYvXminusconst}
-w(\mathcal{Y})
-= \sum_{j \in \{0\} \cup \mathcal{Y}} \bar t_j p_j(\mathcal{Y})
-= \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y})- \tilde t_0
-= v(\mathcal{Y}\cup\{k\}) -  f_k t_k \end{equation}
-\ifen where the second equality follows from Theorem \ref{assumetzerozero}. This identity says that the optimal complements to $\{k\}$, given by $\mathcal{Y}_{h-1}$ and $\mathcal{Y}_h$, are themselves optimal portfolios of size $h-1$ and $h$ for the market whose objective function is $w(\mathcal{Y})$. Since $\bar t_0 = 0$ in the latter market, the inductive hypothesis implies that $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$, which completes the proof.\footnote{We thank Yim Seho for discovering this useful transformation.}
-\else 두 번째 등호는 정리 \ref{assumetzerozero}에 따라 성립한다. 이 등호는, $\{k\}$와 최적으로 보완적인 $\mathcal{Y}_{h-1}$과 $\mathcal{Y}_h$는 목적함수가 $w(\mathcal{Y})$인 시장에서 각각 크기가 $h-1$과 $h$인 최적 포트폴리오임을 의미한다. 새로운 시장에서 $\bar t_0 = 0$이므로 귀납법 가설을 적용하면 $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$임을 알 수 있다. 따라서 증명이 완성된다.\footnote{이 유용한 변환을 발견한 임세호에게 감사를 표한다.} \fi
+Applying Theorem \ref{eliminationtheorem}, we eliminate $c_k$, transform the remaining $t_j$-values to $\bar t_j$ according to \eqref{howtotransformtj}, and obtain a function $w(\mathcal{Y}) = v(\mathcal{Y} \cup \{k\}) - f_k t_k$ that grades portfolios $\mathcal{Y} \subseteq \mathcal{C} \setminus \{k\}$ according to how well they complement $\{k\}$. Since $w(\mathcal{Y})$ is itself a portfolio valuation funtion and $\bar t_0 = 0$, the inductive hypothesis implies that $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$, which completes the proof.
+
+\else 이제 $k \in \mathcal{X}_h$인 경우를 고려하자. 그러면 크기 $h-1$인 어떤 포트폴리오 $\mathcal{Y}_{h-1}$에 대해 $\mathcal{X}_h = \mathcal{Y}_{h-1} \cup \{k\}$으로 표현할 수 있다. $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$임을 보이면 충분하다. 정의에 따라 $\mathcal{Y}_{h-1}$ ($\mathcal{Y}_{h}$)는 크기가 $h-1$ ($h$)인 포트폴리오 중에 함수 $v(\mathcal{Y}\cup\{k\})$를 최대화한다. 다시 말해 $\mathcal{Y}_{h-1}$과 $\mathcal{Y}_h$는 각각 단일 원소 포트폴리오 $\{k\}$와 최적으로 보완적인 학교 집합이다. 
+
+정리 \ref{eliminationtheorem}을(를) 적용하여 $c_k$를 소거하고 남은 $t_j$-값을 \eqref{howtotransformtj}에 따라 $\bar t_j$로 변환한다. 그러면 $\mathcal{Y} \subseteq \mathcal{C} \setminus \{k\}$인 포트폴리오와 $\{k\}$ 사이의 보완성을 평가하는 함수 $w(\mathcal{Y})$를 얻는다. $w(\mathcal{Y})$ 그 자체가 포트폴리오 가치 함수이며 $\bar t_0 = 0$이므로, 귀납법 가설에 따라 $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$이고 증명이 완성된다.
+\fi
 \end{proof}
+
+
+%\ifen We will use the function $w(\mathcal{Y})$ to grade portfolios $\mathcal{Y} \subseteq \mathcal{C} \setminus \{k\}$ according to how well they complement $\{k\}$. To construct $w(\mathcal{Y})$, let $\tilde t_j$ denote the expected utility Alma receives from school $c_j$ \emph{given} that she has been admitted to $c_j$ and applied to $c_k$. For $j < k$, including $j = 0$, this is $\tilde t_j = (1- f_k) t_j + f_k t_k$; for $j > k $, this is $\tilde t_j = t_j$. This means that 
+%\else 함수 $w(\mathcal{Y})$를 이용하여 $\mathcal{Y} \subseteq \mathcal{C} \setminus \{k\}$인 포트폴리오와 $\{k\}$ 사이의 \mbox{`보완성'을} 평가하자. $w(\mathcal{Y})$를 구성하기 위해, 알마가 $c_j$에 합격한 상황에서 $c_k$에 지원했을 때 $c_j$에서 받는 조건부 기대 효용을 $\tilde t_j$라고 하자. $j = 0$을 포함한 $j < k$에 대해 이값은 $\tilde t_j = t_j (1- f_k) + t_k f_k$이며, $j > k $에 대해 $\tilde t_j = t_j$임을 알 수 있다. 따라서 \fi
+%\begin{equation}\label{Vyastildet}
+%v(\mathcal{Y}\cup\{k\}) = \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y}).\end{equation}
+%\ifen The transformation to $\tilde t$ does not change the order of the $t_j$-values. Therefore, the expression on the right side of \eqref{Vyastildet} is itself a portfolio valuation function. In the corresponding market, $t$ is replaced by $\tilde t$ and $\mathcal{C}$ is replaced by $\mathcal{C}\setminus\{k\}$. Now, we obtain $w(\mathcal{Y})$ through one more transformation: Define $\bar t_j = \tilde t_j - \tilde t_0$ so that $t_0 = 0$ and let
+%\else $\tilde t$로 변환하면 $t_j$의 순서가 변하지 않기 때문에 \eqref{Vyastildet}의 우변 그 자체가 포트폴리오 가치 함수이다. $t$를 $\tilde t$로, $\mathcal{C}$를 $\mathcal{C}\setminus \{k\}$로 대체하면 대응하는 시장이 된다. 이제 또 하나의 변환을 적용한다. $t_0 = 0$이 되도록 $\bar t_j = \tilde t_j - \tilde t_0$으로 정의하고 $w(\mathcal{Y})$를 다음과 같이 얻을 수 있다. \fi
+%\begin{equation}  \label{wYvXminusconst}
+%w(\mathcal{Y})
+%= \sum_{j \in \{0\} \cup \mathcal{Y}} \bar t_j p_j(\mathcal{Y})
+%= \sum_{j \in \{0\} \cup \mathcal{Y}} \tilde t_j p_j(\mathcal{Y})- \tilde t_0
+%= v(\mathcal{Y}\cup\{k\}) -  f_k t_k \end{equation}
+%\ifen where the second equality follows from Theorem \ref{assumetzerozero}. This identity says that the optimal complements to $\{k\}$, given by $\mathcal{Y}_{h-1}$ and $\mathcal{Y}_h$, are themselves optimal portfolios of size $h-1$ and $h$ for the market whose objective function is $w(\mathcal{Y})$. Since $\bar t_0 = 0$ in the latter market, the inductive hypothesis implies that $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$, which completes the proof.\footnote{We thank Yim Seho for discovering this useful transformation.}
+%\else 두 번째 등호는 정리 \ref{assumetzerozero}에 따라 성립한다. 이 등호는, $\{k\}$와 최적으로 보완적인 $\mathcal{Y}_{h-1}$과 $\mathcal{Y}_h$는 목적함수가 $w(\mathcal{Y})$인 시장에서 각각 크기가 $h-1$과 $h$인 최적 포트폴리오임을 의미한다. 새로운 시장에서 $\bar t_0 = 0$이므로 귀납법 가설을 적용하면 $\mathcal{Y}_{h-1} \subset \mathcal{Y}_h$임을 알 수 있다. 따라서 증명이 완성된다.\footnote{이 유용한 변환을 발견한 임세호에게 감사를 표한다.} \fi
 
 
 
@@ -598,32 +714,13 @@ w(\mathcal{Y})
 %\end{proof}
 
 \ifen 
-We reduce the computation time to $O(hm)$ by taking advantage of the transformation from the inductive step in the proof of Theorem \ref{nestedapplication}. Once school $k$ is added to $\mathcal{X}$, we eliminate it from the set $\mathcal{C}\setminus \mathcal{X}$ of candidates, and update the $t_j$-values of the remaining schools according to the following relation.
+We reduce the computation time to $O(hm)$ by taking advantage of the transformation from Theorem \ref{eliminationtheorem}. Once school $k$ is added to $\mathcal{X}$, we eliminate it from the set $\mathcal{C}\setminus \mathcal{X}$ of candidates, and update the $t_j$-values of the remaining schools according to \eqref{howtotransformtj}. Now, the \emph{next} school added must be the optimal singleton portfolio in the modified market. But the optimal singleton portfolio consists simply of the school with the highest value of $f_j \bar t_j$. Therefore, by updating the $t_j$-values at each iteration according to \eqref{howtotransformtj}, we eliminate the need to compute $v(\mathcal{X})$ entirely. Moreover, this algorithm does not require the schools to be indexed in ascending order by $t_j$, which removes the $O(m\log m)$ sorting cost.
 \else
-정리 \ref{nestedapplication} 증명의 추론 단계에서 제시한 변환을 활용하면 계산 시간을 $O(hm)$으로 감소시킬 수 있다. $\mathcal{X}$에 $k$를 추가하면, 후보자 집합인 $\mathcal{C}\setminus \mathcal{X}$에서 $k$를 소거하고 남은 학교의 $t_j$-값을 다음처럼 수정한다.
-\fi
-\begin{align}\label{howtotransformfj}
-\bar t_j = 
-\begin{cases}
-(1 - f_k) t_j, \quad & t_j \leq t_k \\
-t_j - f_k t_k, \quad& t_j > t_k
-\end{cases}
-\end{align}
-\ifen
-\noindent It is easy to verify that \eqref{howtotransformfj} is the composition of the two transformations (from $t$ to $\tilde t$, and from $\tilde t$ to $\bar t$) given in the proof. (We will reuse this transformation as a variable-elimination technique in the branch-and-bound algorithm presented in Subsection \ref{subsectionbranchbound}.)
-
-Now, the \emph{next} school added must be the optimal singleton portfolio in the modified market. But the optimal singleton portfolio consists simply of the school with the highest value of $f_j \bar t_j$. Therefore, by updating the $t_j$-values at each iteration according to \eqref{howtotransformfj}, we eliminate the need to compute $v(\mathcal{X})$ entirely. Moreover, this algorithm does not require the schools to be indexed in ascending order by $t_j$, which removes the $O(m\log m)$ sorting cost.
-\else
-\noindent \eqref{howtotransformfj}이(가) 증명에서 정의한 2개의 변환($t$에서 $\tilde t$로, 그리고 $\tilde t$에서 $\bar t$로)의 합성임을 쉽게 확인할 수 있다. (항 \ref{subsectionbranchbound}에서 제시하는 분지한계법에서 이 변환을 변수 소거법으로 재활용한다.)
-
-그러면 다음으로 추가하는 학교는 수정된 시장의 최적 단일 원소 포트폴리오가 되어야 한다. 그런데 최적 단일 원소 포트폴리오는 단순히 $f_j \bar t_j$가 가장 큰 학교로 이루어진다. 따라서 각 반복 단계에서 \eqref{howtotransformfj}을(를) 이용하여 $t_j$-값을 수정하면 $v(\mathcal{X})$를 계산할 필요가 완전히 없어진다. 게다가 이 알고리즘에서 $t_j$를 배열할 필요가 없으므로 $O(m\log m)$인 배열 비용이 사라진다. 
-\fi
-
+정리 \ref{eliminationtheorem}에서 제시한 변환을 활용하면 계산 시간을 $O(hm)$으로 감소시킬 수 있다. $\mathcal{X}$에 $k$를 추가하면, 후보자 집합인 $\mathcal{C}\setminus \mathcal{X}$에서 $k$를 소거하고 남은 학교의 $t_j$-값을 \eqref{howtotransformtj}에 따라 수정한다. 그러면 다음으로 추가하는 학교는 수정된 시장의 최적 단일 원소 포트폴리오가 되어야 한다. 그런데 최적 단일 원소 포트폴리오는 단순히 $f_j \bar t_j$가 가장 큰 학교로 이루어진다. 따라서 각 반복 단계에서 \eqref{howtotransformtj}을(를) 이용하여 $t_j$-값을 수정하면 $v(\mathcal{X})$를 계산할 필요가 완전히 없어진다. 게다가 이 알고리즘에서 $t_j$를 배열할 필요가 없으므로 $O(m\log m)$인 배열 비용이 사라진다. \fi
 \ifen
 Algorithm \ref{algorithmforlargeh} outputs a list $\mathtt{X}$ of the $h$ schools to which Alma should apply. The schools appear in the order of entry such that when the algorithm is run with $h=m$, the optimal portfolio of size $h$ is given by $\mathcal{X}_h = \{\mathtt{X[1]}, \dots, \mathtt{X[h]}\}$. The entries of the list $\mathtt{V}$ give the valuation thereof. 
 \else
-알고리즘 \ref{algorithmforlargeh}은(는) 알마가 지원하는 $h$개의 학교를 목록 $\mathtt{X}$로 출력한다. 그의 원소들은 진입하는 순서대로 등장한다. 즉, $h=m$으로 알고리즘을 돌리면 크기가 $h$인 최적 포트폴리오는 $\mathcal{X}_h = \{\mathtt{X[1]}, \dots, \mathtt{X[h]}\}$와 같다. 또한 목록 $\mathtt{V}$의 원소들은 해당 포트폴리오의 가치다.
-\fi
+알고리즘 \ref{algorithmforlargeh}은(는) 알마가 지원하는 $h$개의 학교를 목록 $\mathtt{X}$로 출력한다. 그의 원소들은 진입하는 순서대로 등장한다. 즉, $h=m$으로 알고리즘을 돌리면 크기가 $h$인 최적 포트폴리오는 $\mathcal{X}_h = \{\mathtt{X[1]}, \dots, \mathtt{X[h]}\}$와 같다. 또한 목록 $\mathtt{V}$의 원소들은 해당 포트폴리오의 가치다. \fi
 
 \ifen {
 \begin{algorithm}[h] 
@@ -700,43 +797,16 @@ $\mathcal{C}$는 목록 대신 이진 최대 힙 구현으로 저장하는 방�
 \else $h = 2 \dots (m-1)$에 대해,\fi
 \begin{equation}v(\mathcal{X}_h) - v(\mathcal{X}_{h-1}) \geq v(\mathcal{X}_{h+1}) - v(\mathcal{X}_{h}).\end{equation} 
 \end{theorem}
-\begin{proof}
-\ifen We will prove the equivalent expression $2 v(\mathcal{X}_h) \geq v(\mathcal{X}_{h+1}) + v(\mathcal{X}_{h-1})$. Applying Theorem \ref{nestedapplication}, we write $\mathcal{X}_h = \mathcal{X}_{h-1} \cup\{j\}$ and $\mathcal{X}_{h+1} = \mathcal{X}_{h-1} \cup\{j, k\}$. If $t_k \leq t_j$, then 
-\else $2 v(\mathcal{X}_h) \geq v(\mathcal{X}_{h+1}) + v(\mathcal{X}_{h-1})$ 같은 동등한 부등식을 증명하자. 정리 \ref{nestedapplication}을(를) 적용하면 $ \mathcal{X}_h = \mathcal{X}_{h-1} \cup\{j\}$ 그리고 $\mathcal{X}_{h+1} = \mathcal{X}_{h-1} \cup\{j, k\}$으로 표현할 수 있다. $t_k \leq t_j$인 경우, \fi
-\begin{align}
-\begin{split}
-2 v(\mathcal{X}_h) &= v(\mathcal{X}_{h-1} \cup\{j\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
-&\geq v(\mathcal{X}_{h-1} \cup\{k\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
-&= v(\mathcal{X}_{h-1} \cup\{k\}) + (1 - f_j) v(\mathcal{X}_{h-1}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}] \\
-&= v(\mathcal{X}_{h-1} \cup\{k\}) - f_j v(\mathcal{X}_{h-1}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}] + v(\mathcal{X}_{h-1})  \\
-&\geq v(\mathcal{X}_{h-1} \cup\{k\})  - f_j v(\mathcal{X}_{h-1}\cup\{k\}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}]+ v(\mathcal{X}_{h-1})\\
-&= (1 - f_j) v(\mathcal{X}_{h-1} \cup\{k\})  + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}]+ v(\mathcal{X}_{h-1})\\
-&=  v(\mathcal{X}_{h-1} \cup\{j, k\}) + v(\mathcal{X}_{h-1})\\
-&=  v(\mathcal{X}_{h+1}) + v(\mathcal{X}_{h-1}).
-\end{split} 
-\end{align}
-\ifen The first inequality follows from the optimality of $\mathcal{X}_h$, while the second follows from the fact that adding $k$ to $\mathcal{X}_{h-1}$ can only increase its valuation.
-\else 첫 번째 부등식은 $\mathcal{X}_h$의 최적성에 따르며, 두 번째 부등식은 $\mathcal{X}_{h-1}$에 $j$를 더하면 가치가 증가할 수밖에 없기 때문이다.\fi
 
-\ifen If $t_k \geq t_j$, then the steps are analogous:
-\else  $t_k \geq t_j$인 경우는 유사하다:\fi
-\begin{align}
-\begin{split}
-2 v(\mathcal{X}_h) &= v(\mathcal{X}_{h-1} \cup\{j\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
-&\geq v(\mathcal{X}_{h-1} \cup\{k\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
-&= (1 - f_k) v(\mathcal{X}_{h-1}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
-&= v(\mathcal{X}_{h-1}) - f_k  v(\mathcal{X}_{h-1}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
-&\geq v(\mathcal{X}_{h-1}) - f_k  v(\mathcal{X}_{h-1}\cup\{j\}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
-&= v(\mathcal{X}_{h-1}) + (1 - f_k) v(\mathcal{X}_{h-1}\cup\{j\}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}]  \\
-&= v(\mathcal{X}_{h-1}) + v(\mathcal{X}_{h-1} \cup\{j, k\})
-\end{split}\\
-&= v(\mathcal{X}_{h-1})  + v(\mathcal{X}_{h+1}) \qedhere
-\end{align}
+
+\begin{proof}
+\ifen Applying Theorem \ref{nestedapplication}, we write $\mathcal{X}_h = \mathcal{X}_{h-1} \cup\{j\}$ and $\mathcal{X}_{h+1} = \mathcal{X}_{h-1} \cup\{j, k\}$. By optimality, $v(\mathcal{X}_h) - v(\mathcal{X}_{h-1}) \geq v(\mathcal{X}_{h-1}\cup\{k\}) - v(\mathcal{X}_{h-1})$. By submodularity and nestedness, $v(\mathcal{X}_{h-1}\cup\{k\}) - v(\mathcal{X}_{h-1}) \geq  v(\mathcal{X}_{h}\cup\{k\}) - v(\mathcal{X}_{h}) = v(\mathcal{X}_{h+1}) - v(\mathcal{X}_{h})$.
+\else 정리 \ref{nestedapplication}을(를) 적용하면 $ \mathcal{X}_h = \mathcal{X}_{h-1} \cup\{j\}$ 그리고 $\mathcal{X}_{h+1} = \mathcal{X}_{h-1} \cup\{j, k\}$으로 표현할 수 있다. 최적성에 따라, $v(\mathcal{X}_h) - v(\mathcal{X}_{h-1}) \geq v(\mathcal{X}_{h-1}\cup\{k\}) - v(\mathcal{X}_{h-1})$. Submodularity와 포함 사슬 관계 성질에 따라, $v(\mathcal{X}_{h-1}\cup\{k\}) - v(\mathcal{X}_{h-1}) \geq  v(\mathcal{X}_{h}\cup\{k\}) - v(\mathcal{X}_{h}) = v(\mathcal{X}_{h+1}) - v(\mathcal{X}_{h})$. \fi
 \end{proof}
 \ifen
-\noindent It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio for a given market, $v(\mathcal{X}_h)$ is $O(h)$. Example \ref{tightexampleforoneoverhopt}, in which $v(\mathcal{X}_h)$ can be made arbitrarily close to $h$, establishes the tightness of this bound.
+\noindent (An elementary proof is given in \S\,\ref{elementaryconcavityproof}.) It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio for a given market, $v(\mathcal{X}_h)$ is $O(h)$. Example \ref{tightexampleforoneoverhopt}, in which $v(\mathcal{X}_h)$ can be made arbitrarily close to $h$, establishes the tightness of this bound.
 \else
-\noindent 위 결과는 $\mathcal{X}_h$가 어떤 시장의 최적 $h$-포트폴리오일 때, $v(\mathcal{X}_h)$가 $O(h)$ 함수라고 의미한다. 예 \ref{tightexampleforoneoverhopt}에서 $v(\mathcal{X}_h)$를 $h$에 임의로 가깝게 조정할 수 있으므로 이 상한이 타이트함을 알 수 있다.
+\noindent (기초적인 증명은 \S\,\ref{elementaryconcavityproof}에서 제시한다.) 위 결과는 $\mathcal{X}_h$가 어떤 시장의 최적 $h$-포트폴리오일 때, $v(\mathcal{X}_h)$가 $O(h)$ 함수라고 의미한다. 예 \ref{tightexampleforoneoverhopt}에서 $v(\mathcal{X}_h)$를 $h$에 임의로 가깝게 조정할 수 있으므로 이 상한이 타이트함을 알 수 있다.
 \fi
 
 %To wrap up, we provide an example showing that if the entries of $Z$ are dependent, then the optimal solution may violate the nestedness property of Theorem \ref{nestedapplication}.
@@ -1038,15 +1108,15 @@ The choice of partition induces a pair of subproblems. The first subproblem is a
 \end{split}
 \end{align}
 \ifen
-In both subproblems, $\bar H = H - \sum_{j\in \mathcal{I}} g_j$ denotes the residual budget. The parameters $\gamma$ and $\bar t$ are obtained by iteratively applying the transformation \eqref{howtotransformfj} to the schools in $\mathcal{I}$. For each $j\in \mathcal{I}$,  we increment $\gamma$ by the current value of $f_j \bar t_j$, eliminate $j$ from the market, and update the remaining $\bar t_j$-values using \eqref{howtotransformfj}. (An example is given below.)
+In both subproblems, $\bar H = H - \sum_{j\in \mathcal{I}} g_j$ denotes the residual budget. The parameters $\gamma$ and $\bar t$ are obtained by iteratively applying the transformation \eqref{howtotransformtj} to the schools in $\mathcal{I}$. For each $j\in \mathcal{I}$,  we increment $\gamma$ by the current value of $f_j \bar t_j$, eliminate $j$ from the market, and update the remaining $\bar t_j$-values using \eqref{howtotransformtj}. (An example is given below.)
 \else
-각 부문제에서 $\bar H = H - \sum_{j\in \mathcal{I}} g_j$는 잔여 예산을 의미한다. $\mathcal{I}$에 속한 학교에 \eqref{howtotransformfj}의 변환을 적용하여 모수 $\gamma$와 $\bar t$를 얻을 수 있다. 즉, 각 $j\in \mathcal{I}$에 대해 $\gamma$를 $f_j \bar t_j$ 만큼 증가시키고, 시장에서 $j$를 소거하고, \eqref{howtotransformfj}에 따라 남은 $\bar t_j$-값을 수정한다. (아래에서 예를 제시한다.)
+각 부문제에서 $\bar H = H - \sum_{j\in \mathcal{I}} g_j$는 잔여 예산을 의미한다. $\mathcal{I}$에 속한 학교에 \eqref{howtotransformtj}의 변환을 적용하여 모수 $\gamma$와 $\bar t$를 얻을 수 있다. 즉, 각 $j\in \mathcal{I}$에 대해 $\gamma$를 $f_j \bar t_j$ 만큼 증가시키고, 시장에서 $j$를 소거하고, \eqref{howtotransformtj}에 따라 남은 $\bar t_j$-값을 수정한다. (아래에서 예를 제시한다.)
 \fi
 
 \ifen 
-Given a node $n  = (\mathcal{I}, \mathcal{O}, \mathcal{N})$, its children are generated as follows. Every node has two, one, or zero children. In the typical case, we select a school $j \in \mathcal{N}$ for which $g_j \leq \bar H$ and generate one child by moving $j$ to $\mathcal{I}$, and another child by moving $j$ it to $\mathcal{O}$. Equivalently, we set $x_j = 1$ in one child and $x_j = 0$ in the other. In principle, any school can be chosen for $j$, but as a greedy heuristic, we choose the school for which the ratio $f_j \bar t_j / g_j$ is highest. Notice that this method of generating children ensures that each node's $\mathcal{I}$-set differs from its parent's by at most a single school, so the constant $\gamma$ and transformed $\bar t_j$-values for the new node can be obtained by a single application of \eqref{howtotransformfj}. 
+Given a node $n  = (\mathcal{I}, \mathcal{O}, \mathcal{N})$, its children are generated as follows. Every node has two, one, or zero children. In the typical case, we select a school $j \in \mathcal{N}$ for which $g_j \leq \bar H$ and generate one child by moving $j$ to $\mathcal{I}$, and another child by moving $j$ it to $\mathcal{O}$. Equivalently, we set $x_j = 1$ in one child and $x_j = 0$ in the other. In principle, any school can be chosen for $j$, but as a greedy heuristic, we choose the school for which the ratio $f_j \bar t_j / g_j$ is highest. Notice that this method of generating children ensures that each node's $\mathcal{I}$-set differs from its parent's by at most a single school, so the constant $\gamma$ and transformed $\bar t_j$-values for the new node can be obtained by a single application of \eqref{howtotransformtj}. 
 \else
-마디  $n  = (\mathcal{I}, \mathcal{O}, \mathcal{N})$이 주어질 때, 그의 새끼 마디를 다음처럼 생성한다. 모든 마디에는 2, 1, 혹은 0개의 새끼가 있다. 전형적인 경우에서, $g_j \leq \bar H$를 만족하는 학교 $j \in \mathcal{N}$ 선택한다. $j$를 $\mathcal{I}$로 이동시켜서 한 새끼를 얻고, $j$를 $\mathcal{O}$로 이동시켜서 다른 새끼를 얻는다. 즉, 한 새끼 마디에서 $x_j = 1$로 고정하고 다른 새끼 마디에서 $x_j = 0$으로 고정한다. 일반적으로 $j$는 임의의 학교가 될 수 있지만 탐욕적인 휴리스틱으로 $f_j \bar t_j / g_j$의 비율이 가장 큰 학교를 선택한다. 이런 식으로 새끼를 생성하면 각 마디의 $\mathcal{I}$-집합은 자기 어미 마디의 $\mathcal{I}$-집합과 최대 한 학교로만 다르다. 따라서 새로운 마디를 생성할 때, \eqref{howtotransformfj}을(를) 한 번만 적용하면 상수 $\gamma$와 변화된 $\bar t_j$-값을 얻을 수 있다.
+마디  $n  = (\mathcal{I}, \mathcal{O}, \mathcal{N})$이 주어질 때, 그의 새끼 마디를 다음처럼 생성한다. 모든 마디에는 2, 1, 혹은 0개의 새끼가 있다. 전형적인 경우에서, $g_j \leq \bar H$를 만족하는 학교 $j \in \mathcal{N}$ 선택한다. $j$를 $\mathcal{I}$로 이동시켜서 한 새끼를 얻고, $j$를 $\mathcal{O}$로 이동시켜서 다른 새끼를 얻는다. 즉, 한 새끼 마디에서 $x_j = 1$로 고정하고 다른 새끼 마디에서 $x_j = 0$으로 고정한다. 일반적으로 $j$는 임의의 학교가 될 수 있지만 탐욕적인 휴리스틱으로 $f_j \bar t_j / g_j$의 비율이 가장 큰 학교를 선택한다. 이런 식으로 새끼를 생성하면 각 마디의 $\mathcal{I}$-집합은 자기 어미 마디의 $\mathcal{I}$-집합과 최대 한 학교로만 다르다. 따라서 새로운 마디를 생성할 때, \eqref{howtotransformtj}을(를) 한 번만 적용하면 상수 $\gamma$와 변화된 $\bar t_j$-값을 얻을 수 있다.
 \fi
 
 \ifen
@@ -1057,11 +1127,11 @@ There are two atypical cases. First, if every school in $\mathcal{N}$ has $g_j >
 
 \begin{example}
 \ifen
-Consider a market in which $t = (20, 40, 60, 80, 100)$, $f = (0.5, 0.5, 0.5, 0.5, 0.5)$, $g = (3, 2, 3, 2, 3)$, and $H = 8$, and the node $n =  (\mathcal{I}, \mathcal{O}, \mathcal{N}) = (\{2, 5\}, \{1\}, \{3, 4\})$. Let us compute the two subproblems associated with $n$ and identify its children. To compute the subproblems, we first simply disregard $c_1$. Next, to eliminate $c_2$, we apply \eqref{howtotransformfj} to $t$ to obtain
-$\{\bar{\bar t}_3, \bar{\bar t}_4, \bar{\bar t}_5\} = \{ (1 - f_2) t_3, (1 - f_2) t_4, (1 -f_2) t_5\} = \{30, 40, 50 \}$ and $\bar{\bar \gamma} = f_2 t_2 = 20$. We eliminate $c_5$ by again applying \eqref{howtotransformfj} to $\bar{ \bar t}$ to obtain $\{\bar t_3, \bar t_4\} =  \{\bar{\bar t}_3 - f_5 \bar{\bar t}_5, \bar{\bar t}_4-  f_5 \bar{\bar t}_5\}= \{5, 15\}$ and $\gamma = \bar{\bar \gamma} + f_5 \bar{\bar t}_5 = 35$. Finally, $\bar H = H - g_2 - g_5 = 3$. Now problems \eqref{nodenlpsubproblem} and \eqref{nodelprelaxation} are easily obtained by substitution.
+Consider a market in which $t = (20, 40, 60, 80, 100)$, $f = (0.5, 0.5, 0.5, 0.5, 0.5)$, $g = (3, 2, 3, 2, 3)$, and $H = 8$, and the node $n =  (\mathcal{I}, \mathcal{O}, \mathcal{N}) = (\{2, 5\}, \{1\}, \{3, 4\})$. Let us compute the two subproblems associated with $n$ and identify its children. To compute the subproblems, we first simply disregard $c_1$. Next, to eliminate $c_2$, we apply \eqref{howtotransformtj} to $t$ to obtain
+$\{\bar{\bar t}_3, \bar{\bar t}_4, \bar{\bar t}_5\} = \{ (1 - f_2) t_3, (1 - f_2) t_4, (1 -f_2) t_5\} = \{30, 40, 50 \}$ and $\bar{\bar \gamma} = f_2 t_2 = 20$. We eliminate $c_5$ by again applying \eqref{howtotransformtj} to $\bar{ \bar t}$ to obtain $\{\bar t_3, \bar t_4\} =  \{\bar{\bar t}_3 - f_5 \bar{\bar t}_5, \bar{\bar t}_4-  f_5 \bar{\bar t}_5\}= \{5, 15\}$ and $\gamma = \bar{\bar \gamma} + f_5 \bar{\bar t}_5 = 35$. Finally, $\bar H = H - g_2 - g_5 = 3$. Now problems \eqref{nodenlpsubproblem} and \eqref{nodelprelaxation} are easily obtained by substitution.
 \else
- $t = (20, 40, 60, 80, 100)$, $f = (0.5, 0.5, 0.5, 0.5, 0.5)$, $g = (3, 2, 3, 2, 3)$, 그리고 $H = 8$인 시장과 마디 $n =  (\mathcal{I}, \mathcal{O}, \mathcal{N}) = (\{2, 5\}, \{1\}, \{3, 4\})$이 주어질 때 $n$에 대응하는 부문제와 새끼 마디를 구하자. 부문제를 계산하기 위해 먼저 $c_1$을 단순히 무시한다.  $c_2$를 소거하기 위해 $t$에 \eqref{howtotransformfj}에 적용하여 
-$\{\bar{\bar t}_3, \bar{\bar t}_4, \bar{\bar t}_5\} = \{ (1 - f_2) t_3, (1 - f_2) t_4, (1 -f_2) t_5\} = \{30, 40, 50 \}$과 $\bar{\bar \gamma} = f_2 t_2 = 20$을 얻는다. $c_5$를 소거하기 위해 $\bar{\bar t}$에 \eqref{howtotransformfj}에 다시 적용하여 $\{\bar t_3, \bar t_4\} =  \{\bar{\bar t}_3 - f_5 \bar{\bar t}_5, \bar{\bar t}_4-  f_5 \bar{\bar t}_5\}= \{5, 15\}$와 $\gamma = \bar{\bar \gamma} + f_5 \bar{\bar t}_5 = 35$를 얻는다. 마지막으로, $\bar H = H - g_2 - g_5 = 3$이다. 이제 \eqref{nodenlpsubproblem}과(와) \eqref{nodelprelaxation}인 부문제를 쉽게 구할 수 있다.
+ $t = (20, 40, 60, 80, 100)$, $f = (0.5, 0.5, 0.5, 0.5, 0.5)$, $g = (3, 2, 3, 2, 3)$, 그리고 $H = 8$인 시장과 마디 $n =  (\mathcal{I}, \mathcal{O}, \mathcal{N}) = (\{2, 5\}, \{1\}, \{3, 4\})$이 주어질 때 $n$에 대응하는 부문제와 새끼 마디를 구하자. 부문제를 계산하기 위해 먼저 $c_1$을 단순히 무시한다.  $c_2$를 소거하기 위해 $t$에 \eqref{howtotransformtj}에 적용하여 
+$\{\bar{\bar t}_3, \bar{\bar t}_4, \bar{\bar t}_5\} = \{ (1 - f_2) t_3, (1 - f_2) t_4, (1 -f_2) t_5\} = \{30, 40, 50 \}$과 $\bar{\bar \gamma} = f_2 t_2 = 20$을 얻는다. $c_5$를 소거하기 위해 $\bar{\bar t}$에 \eqref{howtotransformtj}에 다시 적용하여 $\{\bar t_3, \bar t_4\} =  \{\bar{\bar t}_3 - f_5 \bar{\bar t}_5, \bar{\bar t}_4-  f_5 \bar{\bar t}_5\}= \{5, 15\}$와 $\gamma = \bar{\bar \gamma} + f_5 \bar{\bar t}_5 = 35$를 얻는다. 마지막으로, $\bar H = H - g_2 - g_5 = 3$이다. 이제 \eqref{nodenlpsubproblem}과(와) \eqref{nodelprelaxation}인 부문제를 쉽게 구할 수 있다.
 \fi
 
 \ifen
@@ -1474,7 +1544,7 @@ Algorithms \ref{ellisDP1} and \ref{ellisDP3} can be written using recursive func
 
 \ifen \subsection{Simulated annealing heuristic} \else \subsection{모의 담금질 휴리스틱}\fi\label{numericalexperiments}
 \ifen
-Simulated annealing is a popular local-search heuristic for nonconvex optimization problems. Because of their inherent randomness, simulated-annealing algorithms offer no accuracy guarantee; however, they are easy to implement, computationally inexpensive, and often produce solutions with a small optimality gap. In this section, we present a simulated-annealing algorithm for Ellis's problem. It is based on the procedure for integer programs outlined by Wolsey (1998, \S\,12.3.2).
+Simulated annealing is a popular local-search heuristic for nonconvex optimization problems. Because of their inherent randomness, simulated-annealing algorithms offer no accuracy guarantee; however, they are easy to implement, computationally inexpensive, and often produce solutions with a small optimality gap. In this section, we present a simulated-annealing algorithm for Ellis's problem. It is patterned on the procedure for integer programs outlined by Wolsey (1998, \S\,12.3.2).
 \else
 모의 담금질은 비볼록 최적화 문제를 위한 인기 많은 지역 탐색 휴리스틱이다. 선천적인 확률성 때문에 모의 담금질 해법에는 보장된 정확도가 없다. 반면에 구현하기 쉽고 계산 비용이 적으면서 최적에 가까운 해를 구하는 경향이 있다. 본 항에서, 엘리스의 문제를 위한 모의 담금질 해법을 제시한다. Wolsey (1998, \S\,12.3.2)가 제시한 정수 계획 모의 담금질 해법이 바탕이 된다.
 \fi
@@ -1602,13 +1672,9 @@ Experiment 1 compared the performance of Algorithm \ref{algorithmforlargeh} for 
 %\fi
 
 \ifen
-In Experiment 2, we turned to the general problem, and compared the performance of the exact algorithms (Algorithms \ref{ellisbnb} and \ref{ellisDP1}) and the approximation scheme (Algorithm \ref{ellisDP3}) at tolerances 0.5 and 0.05.  The results, which appear in Table \ref{experiment2results}, broadly agree with the time complexity analyses presented above. The branch-and-bound algorithm proved impractical for even medium-sized instances. Overall, we found the exact dynamic program to be the fastest algorithm, while the FPTAS was rather slow, a result that echoes the results of computational studies on knapsack problems (Martello and Toth 1990, \S\,2.10).
-
-The strong performance of Algorithm \ref{ellisDP1} is partly attributable to the structure of our synthetic instances, in which application costs are small integers and $H$ is proportional in expectation to $m$, meaning the expected computation time is $O(m^2)$. However, the relative advantage of Algorithm \ref{ellisDP1} is even more pronounced in real college-application instances because the typical student's application budget accommodates at most a dozen or so schools and is constant in $m$. 
+In Experiment 2, we turned to the general problem, and compared the performance of the exact algorithms (Algorithms \ref{ellisbnb} and \ref{ellisDP1}) and the approximation scheme (Algorithm \ref{ellisDP3}) at tolerances 0.5 and 0.05.  The results, which appear in Table \ref{experiment2results}, broadly agree with the time complexity analyses presented above. The branch-and-bound algorithm proved impractical for even medium-sized instances. Overall, we found the exact dynamic program to be the fastest algorithm, while the FPTAS was rather slow, a result that echoes the results of computational studies on knapsack problems (Martello and Toth 1990, \S\,2.10). The strong performance of Algorithm \ref{ellisDP1} is partly attributable to the structure of our synthetic instances, in which application costs are small integers and $H$ is proportional in expectation to $m$, meaning the expected computation time is $O(m^2)$. However, the relative advantage of Algorithm \ref{ellisDP1} may be even more pronounced in real college-application instances because the typical student's application budget accommodates at most a dozen or so schools and is constant in $m$. 
 \else
-실험 2에서 일반적인 문제를 고려한다. 정확한 해법 (알고리즘 \ref{ellisbnb} 및 알고리즘 \ref{ellisDP1}) 그리고 허용치를 0.5와 0.05로 설정한 근사 해법 (알고리즘 \ref{ellisDP3})의 성능을 비교한다. 실험 결과는 표 \ref{experiment1results}에서 나타나며 위에서 도출한 시간 복잡성 결과와 대략 같다. 정확한 동적계획 해법이 전책적으로 가장 빠르며 FPTAS가 약간 느린 것으로 나온 결과는 배낭 문제 해법을 비교한 기존 연구와 비슷하다 (Martello와 Toth 1990, \S\,2.10). 분지한계법은 크기가 중간인 인스턴스에도 비효율적이었다. 
-
-알고리즘 \ref{ellisDP1}의 좋은 실험적 성능은 부분적으로 가상 인스턴스의 구조 덕이다. 가상 인스턴스의 지원 비용이 작은 정수이고 $H$가 $m$과 선형식으로 비례하는 것은 알고리즘의 기대 계산 시간이 $O(m^2)$임을 의미한다. 그러나 전형적인 학생의 지원 예산은 최대한 열 몇 개의 학교에 지원할 수 있게 하며 $m$에 대해 상수이므로, 실제 대학 지원 문제 인스턴스에 적용하면 알고리즘 \ref{ellisDP1}이 더욱 뚜렷한 상대적 우위를 발휘한다. 
+실험 2에서 일반적인 문제를 고려한다. 정확한 해법 (알고리즘 \ref{ellisbnb} 및 알고리즘 \ref{ellisDP1}) 그리고 허용치를 0.5와 0.05로 설정한 근사 해법 (알고리즘 \ref{ellisDP3})의 성능을 비교한다. 실험 결과는 표 \ref{experiment1results}에서 나타나며 위에서 도출한 시간 복잡성 결과와 대략 같다. 정확한 동적계획 해법이 전책적으로 가장 빠르며 FPTAS가 약간 느린 것으로 나온 결과는 배낭 문제 해법을 비교한 기존 연구와 비슷하다 (Martello와 Toth 1990, \S\,2.10). 분지한계법은 크기가 중간인 인스턴스에도 비효율적이었다. 알고리즘 \ref{ellisDP1}의 좋은 실험적 성능은 부분적으로 가상 인스턴스의 구조 덕이다. 가상 인스턴스의 지원 비용이 작은 정수이고 $H$가 $m$과 선형식으로 비례하는 것은 알고리즘의 기대 계산 시간이 $O(m^2)$임을 의미한다. 그러나 전형적인 학생의 지원 예산은 최대한 열 몇 개의 학교에 지원할 수 있게 하며 $m$에 대해 상수이므로, 실제 대학 지원 문제 인스턴스에 적용하면 알고리즘 \ref{ellisDP1}이 더욱 뚜렷한 상대적 우위를 발휘할 가능성이 있다. 
 \fi
 
 \ifen
@@ -1706,9 +1772,9 @@ The branch-and-bound algorithm is impractical for large markets. \lastptofcaptio
 %\pagebreak
 \ifen \section{Conclusion and ideas for future research} \else \section{결론과 향후 연구 방향}\fi\label{conclusion}
 \ifen
-This study has introduced a novel combinatorial optimization problem that we call the college application problem. It can be viewed as a kind of integer asset allocation problem or nonlinear knapsack problem. We showed that the special case in which colleges have identical application costs can be solved in polynomial time by a greedy algorithm because the optimal solutions are nested in the budget constraint. The general problem is NP-complete. We provided four solution algorithms. The strongest from a theoretical standpoint is an FPTAS that produces a $(1-\varepsilon)$-approximate solution in $O(m^3 / \varepsilon)$-time. On the other hand, for typical college-application instances, the dynamic program based on application expenditures is both easier to implement and substantially more time efficient. A heuristic simulated-annealing algorithm also exhibited strong empirical performance in our computational study. The algorithms discussed in this paper are summarized in Table \ref{algorithmssummary}.
+This study has introduced a novel combinatorial optimization problem that we call the college application problem. It can be viewed as a kind of asset allocation or knapsack problem with a submodular objective. We showed that the special case in which colleges have identical application costs can be solved in polynomial time by a greedy algorithm because the optimal solutions are nested in the budget constraint. The general problem is NP-complete. We provided four solution algorithms. The strongest from a theoretical standpoint is an FPTAS that produces a $(1-\varepsilon)$-approximate solution in $O(m^3 / \varepsilon)$-time. On the other hand, for typical college-application instances, the dynamic program based on application expenditures is both easier to implement and substantially more time efficient. A heuristic simulated-annealing algorithm also exhibited strong empirical performance in our computational study. The algorithms discussed in this paper are summarized in Table \ref{algorithmssummary}.
 \else
-본 연구는 새로운 조합 최적화 문제를 제안했으며 이를 대학 지원 최적화 문제라고 부른다. 일종의 정수 자산 배분 문제 또는 확률적인 배낭 문제로 볼 수 있다. 모든 대학의 지원 비용이 동일한 특수한 경우, 탐욕 알고리즘으로 다항 시간 안에 풀 수 있음을 보였으며 최적해가 예산 제약식에 대한 포함 사슬 관계를 가지기 때문이다. 일반적인 문제는 NP-complete하다. 4가지 해법을 제시했으며 이론적으로 가장 효율적인 알고리즘은 $O(m^3 / \varepsilon)$-시간 안에  $(1-\varepsilon)$-근사해를 계산하는 FPTAS이다. 그 반면에 전형적인 대학 지원 문제 인스턴스에 대해, 지원 비용 지출액 기반 동적 계획 해법은 실행하기 쉬울뿐더러 계산 시간이 상당히 짧다. 계산 실험에서 모의 담금질 기반 휴리스틱 해법도 좋은 성능을 발휘했다. 표 \ref{algorithmssummary}에서 본 논문이 다운 알고리즘을 정리한다.
+본 연구는 새로운 조합 최적화 문제를 제안했으며 이를 대학 지원 최적화 문제라고 부른다. Submodular한 목적함수를 가지는 자산 배분 혹은 배낭 문제로 볼 수 있다. 모든 대학의 지원 비용이 동일한 특수한 경우, 탐욕 알고리즘으로 다항 시간 안에 풀 수 있음을 보였으며 최적해가 예산 제약식에 대한 포함 사슬 관계를 가지기 때문이다. 일반적인 문제는 NP-complete하다. 4가지 해법을 제시했으며 이론적으로 가장 효율적인 알고리즘은 $O(m^3 / \varepsilon)$-시간 안에  $(1-\varepsilon)$-근사해를 계산하는 FPTAS이다. 그 반면에 전형적인 대학 지원 문제 인스턴스에 대해, 지원 비용 지출액 기반 동적 계획 해법은 실행하기 쉬울뿐더러 계산 시간이 상당히 짧다. 계산 실험에서 모의 담금질 기반 휴리스틱 해법도 좋은 성능을 발휘했다. 표 \ref{algorithmssummary}에서 본 논문이 다운 알고리즘을 정리한다.
 \fi
 
 \ifen
@@ -1773,11 +1839,11 @@ where $\tau_j = t_j - \beta t_j^2$. Since the first term is itself a portfolio v
 \fi
 
 \ifen
-A parametric treatment of risk aversion may align our model more closely to real-world applicant behavior. Conventional wisdom asserts that the best college application strategy combines reach, target, and safety schools in roughly equal proportion (Jeon 2015). When the application budget is small relative to the size of the admissions market, our algorithms recommend a similar approach (see the example of Subsection \ref{planetsexamplesection}). However, inspecting equation \eqref{howtotransformfj}, which discounts school utility parameters to reflect their marginal value relative to the schools already in the portfolio, reveals that low-utility schools are penalized more harshly than high utility schools in the marginal analysis. Consequentially, as the application budget grows, the optimal portfolio in our model tends to favor reach schools over safety schools. (See Figure \ref{samplemarket} for a clear illustration of this phenomenon.) 
+A parametric treatment of risk aversion may align our model more closely to real-world applicant behavior. Conventional wisdom asserts that the best college application strategy combines reach, target, and safety schools in roughly equal proportion (Jeon 2015). When the application budget is small relative to the size of the admissions market, our algorithms recommend a similar approach (see the example of Subsection \ref{planetsexamplesection}). However, inspecting equation \eqref{howtotransformtj}, which discounts school utility parameters to reflect their marginal value relative to the schools already in the portfolio, reveals that low-utility schools are penalized more harshly than high utility schools in the marginal analysis. Consequentially, as the application budget grows, the optimal portfolio in our model tends to favor reach schools over safety schools. (See Figure \ref{samplemarket} for a clear illustration of this phenomenon.) 
  
 A potential application of our model is an econometric study that estimates students’ perceptions of college quality ($t_j$) from their observed application behavior ($\mathcal{X}$) under the assumption of utility maximization. Empirical research indicates that heterogeneous risk aversion is a significant source of variation in human decision-making, especially in the domains of educational choice and employment search (Kahneman 2011; Hartlaub and Schneider 2012; van Huizen and Alessie 2019). Therefore, an endogenous risk-aversion parameter would greatly enhance our model’s explanatory power in the econometric setting.
 \else
-위험 회피를 모수화한 모형은 실제 지원 행동을 더 정확하게 반영할 수 있다. ``상향·소신·안정'' 지원 학교를 대략 균일하게 분산하여 지원하는 것이 최적이란 통념이다 (전민희 2015). 입학 시장의 크기에 비해 지원 예산이 작은 경우, 본 연구에서 제시하는 알고리즘은 비슷한 전략을 추천한다 (항 \ref{planetsexamplesection}의 예제 참고). 그러나 포트폴리오에 이미 삽입한 학교를 반영한 한계 가치를 나타내도록 효용 모수를 할인하는 수식 \eqref{howtotransformfj}을 살펴보면, 효용이 높은 학교보다 효용이 낮은 학교에 부과되는 페널티가 큰 것을 알 수 있다. 그 결과는 지원 예산이 커질수록 본 모형의 최적 포트폴리오가 안정 지원 학교보다 상향 지원 학교를 편드는 것이다. (그림 \ref{samplemarket}에서 뚜렷이 보이는 현상이다.)
+위험 회피를 모수화한 모형은 실제 지원 행동을 더 정확하게 반영할 수 있다. ``상향·소신·안정'' 지원 학교를 대략 균일하게 분산하여 지원하는 것이 최적이란 통념이다 (전민희 2015). 입학 시장의 크기에 비해 지원 예산이 작은 경우, 본 연구에서 제시하는 알고리즘은 비슷한 전략을 추천한다 (항 \ref{planetsexamplesection}의 예제 참고). 그러나 포트폴리오에 이미 삽입한 학교를 반영한 한계 가치를 나타내도록 효용 모수를 할인하는 수식 \eqref{howtotransformtj}을 살펴보면, 효용이 높은 학교보다 효용이 낮은 학교에 부과되는 페널티가 큰 것을 알 수 있다. 그 결과는 지원 예산이 커질수록 본 모형의 최적 포트폴리오가 안정 지원 학교보다 상향 지원 학교를 편드는 것이다. (그림 \ref{samplemarket}에서 뚜렷이 보이는 현상이다.)
 
 학생의 지원 행동($\mathcal{X}$)을 관찰하고 학생이 인식하는 대학교의 질($t_j$)을 추정하는 경제 측정학 연구에서 본 논문의 모형을 그대로 응용할 수 있다. 실무 연구 결과에 따르면 위험 회피의 다양성은 인간 의사 결정 다양성의 주된 원인이 되며, 교육 선택과 취업 활동은 특히 그렇다 (Kahneman 2011; Hartlaub와 Schneider 2012; van Huizen과 Alessie 2019). 따라서 경제 측정학 맥락에서, 위험 회피 모수를 내생 변수로 도입하면 원래 모형의 묘사력을 많이 개선할 수 있다.
 \fi
@@ -1799,14 +1865,13 @@ In the integer formulation of the college application problem (Problem \ref{inte
 \begin{align}
  x_{j+} + x_{j-} \leq 1, ~~ j = 1\dots m\qquad\text{and}\qquad\sum_{j=1}^m x_{j+} \leq 1
 \end{align}
-completes the formulation. These are knapsack constraints; therefore, the algorithm of Kulik et al. (2013) can be used to obtain a $(1 - 1/e + \varepsilon)$-approximate solution for this problem. When the budget constraint is a cardinality constraint (as in Alma's problem), we note that adding these constraints yields a matriodal solution set, and Calinescu et al. (2011)'s algorithm yields an alternative solution, albeit with the same approximation coefficient of $1 - 1/e + \varepsilon$. %These constraints are conformable to those of the multiple knapsack problem (Kellerer et al. 2004, chap. 10). 
+completes the formulation. These are knapsack constraints; therefore, the submodular maximization algorithm of Kulik et al. (2013) can be used to obtain a $(1 - 1/e - \varepsilon)$-approximate solution for this problem. When the budget constraint is a cardinality constraint (as in Alma's problem), we note that adding these constraints yields a matriodal solution set, and Calinescu et al. (2011)'s algorithm yields an alternative solution, which has the same approximation coefficient of $1 - 1/e -\varepsilon$. %These constraints are conformable to those of the multiple knapsack problem (Kellerer et al. 2004, chap. 10). 
 \else
 대학 지원 문제의 정수 모형(문제 \ref{integernlp})에서 위의 시그널 전략들을 어렵지 않게 도입하는 방식은 각 $c_j$를 $c_{j+}$와 $c_{j-}$로 나누는 것이다. 그다음에 학생이 $c_j$에 높은 관심을 시그널하면 (즉, 가군으로 선택하거나 조기 전형으로 지원하면) $x_{j+} = 1$이며 관심을 시그널 하지 않고 지원하면 (즉 가군 혹은 나군으로 지원하거나 조기 전형 없이 지원하면) $x_{j-} = 1$이 되는 이진 결정 변수를 정의한다. 해당 합격 확률 $f_{j+}$와 $f_{j-}$ 그리고 효용  $t_{j+}$와 $t_{j-}$가 알려져 있으면, 다음 같은 논리 제약식을 더하면 모형을 완성할 수 있다. 
 \begin{align}
  x_{j+} + x_{j-} \leq 1, ~~ j = 1\dots m\qquad\text{그리고}\qquad\sum_{j=1}^m x_{j+} \leq 1
 \end{align}
-These are knapsack constraints; therefore, the algorithm of Kulik et al. (2013) can be used to obtain a $(1 - 1/e + \varepsilon)$-approximate solution for this problem. When the budget constraint is a cardinality constraint (as in Alma's problem), we note that adding these constraints yields a matriodal solution set, and Calinescu et al. (2011)'s algorithm yields an alternative solution, albeit with the same approximation coefficient of $1 - 1/e + \varepsilon$.
-%다중 배낭 문제의 제약식과 같은 꼴이다 (Kellerer et al. 2004, 10제). 
+모두 배낭 제약식이므로 Kulik 외 (2013)의 submodular 최대화 알고리즘을 통해 이 문제의 $(1 - 1/e - \varepsilon)$-근사해를 구할 수 있다. 또한 (알마의 문제처럼) 예산 제약식이 집합 크기 제약식이 되면, 논리 제약식을 더한 모형의 해집합이 매트로이드가 되며, Calinescu 외 (2011)의 알고리즘이 대안 해법이 된다. 단, 그의 근사 계수는 여전히 $1 - 1/e - \varepsilon$이다. 
 \fi
 
 
@@ -1825,41 +1890,54 @@ When such a dynamic program is implemented using a lookup table or dictionary me
 이러한 형태의 동적 계획을 표 혹은 사전 기록으로 구현하면 최적해를 출력하는 것은 $O(NC)$-시간과 $O(NC)$-공간을 소요한다. Kellerer 외 (2004, \S\,3.3)는 동적 계획 $Z$를 $O(N C)$-시간과 $O(N + C)$-공간 안에 최적해를 구하는 분할 정복(divide and conquer) 알고리즘으로 변환하는 일반적인 방법을 제시하며 매우 유익하다. 그러나 이를 이용할 수 있는 조건 중, 목적함수는 어떤 기술적인 의미에서 가산적으로 분할되어야 하며 이를 대학 지원 문제에 적용하기 어렵다.
 \fi
 
+\appendix
+\ifen \section{Appendix} \else \section{부록} \fi
 
-\section{Appendix}
-
-N.B. these results will be worked into the body soon.
-
-\begin{definition}[Submodular set function]
-Given a ground set $\mathcal{C}$ and function $v : 2^{\mathcal{C}} \mapsto \mathbb{R}$, $v(\mathcal{X})$ is called a \emph{submodular set function} if and only if $v(\mathcal{X}) + v(\mathcal{Y}) \geq v(\mathcal{X}\cup\mathcal{Y}) + v(\mathcal{X}\cap\mathcal{Y})$
-for all $\mathcal{X}, \mathcal{Y} \subseteq \mathcal{C}$. Furthermore, if $ v(\mathcal{X}\cup\{k\}) - v(\mathcal{X}) \geq 0$ for all $\mathcal{X} \subset \mathcal{C}$ and $k \in \mathcal{C} \setminus \mathcal{X}$, $v(\mathcal{X})$ is said to be a \emph{nondecreasing} submodular set function.
-\end{definition}
-
-\begin{theorem}
-The college application portfolio valuation function
-$v(\mathcal{X})$ % = \sum_{j\in\mathcal{X}} \Bigl( f_j t_j \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}) \Bigr)\]
-is a nondecreasing submodular set function.
-\end{theorem}
-
+\subsection{Elementary proof of Theorem \ref{concavityinh}} \label{elementaryconcavityproof}
 \begin{proof}
-It is self-evident that $v(\mathcal{X})$ is nondecreasing. To establish its submodularity, we apply proposition 2.1.iii of Nemhauser and Wolsey (1978) and show that
-\begin{equation}\label{nemhauseriii}
-v(\mathcal{X} \cup \{j\}) - v(\mathcal{X}) \geq 
-v(\mathcal{X} \cup \{j, k\}) - v(\mathcal{X} \cup \{k\})
-\end{equation}
-for $\mathcal{X} \subset \mathcal{C}$ and $j \neq k \in \mathcal{C} \setminus \mathcal{X}$. By repeatedly eliminating the schools in $\mathcal{X}$ according to \eqref{howtotransformfj}, we can obtain a portfolio valuation function $w(\mathcal{Y}; t)$ such that $w(\mathcal{Y}) = v(\mathcal{X} \cup \mathcal{Y}) + \text{const.}$ for any $\mathcal{Y} \subseteq \mathcal{C} \setminus \mathcal{X}$. Therefore, \eqref{nemhauseriii} is equivalent to
+\ifen We will prove the equivalent expression $2 v(\mathcal{X}_h) \geq v(\mathcal{X}_{h+1}) + v(\mathcal{X}_{h-1})$. Applying Theorem \ref{nestedapplication}, we write $\mathcal{X}_h = \mathcal{X}_{h-1} \cup\{j\}$ and $\mathcal{X}_{h+1} = \mathcal{X}_{h-1} \cup\{j, k\}$. If $t_k \leq t_j$, then 
+\else $2 v(\mathcal{X}_h) \geq v(\mathcal{X}_{h+1}) + v(\mathcal{X}_{h-1})$ 같은 동등한 부등식을 증명하자. 정리 \ref{nestedapplication}을(를) 적용하면 $ \mathcal{X}_h = \mathcal{X}_{h-1} \cup\{j\}$ 그리고 $\mathcal{X}_{h+1} = \mathcal{X}_{h-1} \cup\{j, k\}$으로 표현할 수 있다. $t_k \leq t_j$인 경우, \fi
 \begin{align}
-& w(\{j\}) - w(\varnothing) \geq w(\{j, k\}) - w(\{k\}) \\
-\iff \qquad &w(\{j\})  +  w(\{k\})  \geq w(\{j, k\})  \\
-\iff \qquad &\operatorname{E}[\,\bar t_j Z_j\,] + \operatorname{E}[\,\bar t_k Z_k\,] 
-\geq \operatorname{E}\bigl[\max\{ \bar t_j Z_j, \bar t_k Z_k \} \bigr]
+\begin{split}
+2 v(\mathcal{X}_h) &= v(\mathcal{X}_{h-1} \cup\{j\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
+&\geq v(\mathcal{X}_{h-1} \cup\{k\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
+&= v(\mathcal{X}_{h-1} \cup\{k\}) + (1 - f_j) v(\mathcal{X}_{h-1}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}] \\
+&= v(\mathcal{X}_{h-1} \cup\{k\}) - f_j v(\mathcal{X}_{h-1}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}] + v(\mathcal{X}_{h-1})  \\
+&\geq v(\mathcal{X}_{h-1} \cup\{k\})  - f_j v(\mathcal{X}_{h-1}\cup\{k\}) + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}]+ v(\mathcal{X}_{h-1})\\
+&= (1 - f_j) v(\mathcal{X}_{h-1} \cup\{k\})  + f_j \operatorname{E}[\max\{t_j, X_{h-1}\}]+ v(\mathcal{X}_{h-1})\\
+&=  v(\mathcal{X}_{h-1} \cup\{j, k\}) + v(\mathcal{X}_{h-1})\\
+&=  v(\mathcal{X}_{h+1}) + v(\mathcal{X}_{h-1}).
+\end{split} 
 \end{align}
-which is plainly true. 
+\ifen The first inequality follows from the optimality of $\mathcal{X}_h$, while the second follows from the fact that adding $k$ to $\mathcal{X}_{h-1}$ can only increase its valuation.
+\else 첫 번째 부등식은 $\mathcal{X}_h$의 최적성에 따르며, 두 번째 부등식은 $\mathcal{X}_{h-1}$에 $j$를 더하면 가치가 증가할 수밖에 없기 때문이다.\fi
+
+\ifen If $t_k \geq t_j$, then the steps are analogous:
+\else  $t_k \geq t_j$인 경우는 유사하다:\fi
+\begin{align}
+\begin{split}
+2 v(\mathcal{X}_h) &= v(\mathcal{X}_{h-1} \cup\{j\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
+&\geq v(\mathcal{X}_{h-1} \cup\{k\}) + v(\mathcal{X}_{h-1} \cup\{j\}) \\
+&= (1 - f_k) v(\mathcal{X}_{h-1}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
+&= v(\mathcal{X}_{h-1}) - f_k  v(\mathcal{X}_{h-1}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
+&\geq v(\mathcal{X}_{h-1}) - f_k  v(\mathcal{X}_{h-1}\cup\{j\}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}] +  v(\mathcal{X}_{h-1} \cup\{j\})  \\
+&= v(\mathcal{X}_{h-1}) + (1 - f_k) v(\mathcal{X}_{h-1}\cup\{j\}) + f_k \operatorname{E}[\max\{t_k, X_{h-1}\}]  \\
+&= v(\mathcal{X}_{h-1}) + v(\mathcal{X}_{h-1} \cup\{j, k\})
+\end{split}\\
+&= v(\mathcal{X}_{h-1})  + v(\mathcal{X}_{h+1}) \qedhere
+\end{align}
 \end{proof}
+\ifen
+\noindent It follows that when $\mathcal{X}_h$ is the optimal $h$-portfolio for a given market, $v(\mathcal{X}_h)$ is $O(h)$. Example \ref{tightexampleforoneoverhopt}, in which $v(\mathcal{X}_h)$ can be made arbitrarily close to $h$, establishes the tightness of this bound.
+\else
+\noindent 위 결과는 $\mathcal{X}_h$가 어떤 시장의 최적 $h$-포트폴리오일 때, $v(\mathcal{X}_h)$가 $O(h)$ 함수라고 의미한다. 예 \ref{tightexampleforoneoverhopt}에서 $v(\mathcal{X}_h)$를 $h$에 임의로 가깝게 조정할 수 있으므로 이 상한이 타이트함을 알 수 있다.
+\fi
+
+
 
 
 \pagebreak
-\ifen \section{References} \else \section{참고문헌} \fi
+\ifen \section*{References} \else \section*{참고문헌} \fi
 \noindent
 
 \parskip 0em
