@@ -64,3 +64,7 @@ Finally, we can check the expected value of an arbitrary portfolio using `valuat
 julia> valuation([20, 16, 35], mkt)
 35.33785503577366
 ````
+
+## arXiv paper
+
+If you found this package useful, please consider citing [our arXiv paper](https://arxiv.org/abs/2205.01869). Rolling updates to the paper can be found on the companion repository [CollegeApplication](https://github.com/maxkapur/CollegeApplication).
