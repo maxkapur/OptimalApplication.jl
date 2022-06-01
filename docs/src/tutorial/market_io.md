@@ -38,12 +38,12 @@ of the abstract type `Market`.
 
 !!! note
 
-    `VariedCostsMarket` supports only `t` with integer eltype. Because the objective-function is linear in `t`,
+    `VariedCostsMarket` supports only `t` with integer eltype. Because the objective function is linear in `t`,
     to work with float data, first multiply by the least common denominator. 
 
 If the application fees share a common divisor, the solvers will perform more effectively if you divide by it. For example,
 fees of `[90, 80, 90, 70]` with budget `160` is equivalent to fees of `[9, 8, 9, 7]` with budget `16`. 
 
 OptimalApplication also provides the convenience functions [`Market(f, t, h)`](@ref) and
-`Market(f, t, g, H)`](@ref), which behave just like those above.
+[`Market(f, t, g, H)`](@ref), which behave just like those above.
 
