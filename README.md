@@ -1,5 +1,7 @@
 # OptimalApplication
 
+[![In Development](https://img.shields.io/badge/docs-dev-blue.svg)](https://misc.maxkapur.com/OptimalApplication/dev/)
+
 Optimal college application strategy with homogeneous and heterogeneous application costs.
 
 Basic usage: 
