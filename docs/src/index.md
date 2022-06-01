@@ -1,4 +1,4 @@
-# OptimalApplication
+# OptimalApplication.jl
 
 ... is a Julia package for solving the *college application problem,* which is the following optimization problem:
 
