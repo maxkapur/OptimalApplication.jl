@@ -217,18 +217,13 @@ function valuation_nopermute_sorted(
 )::Float64
     isempty(X) && return 0.0
     # @assert issorted(X)
-    h = length(X)
-    # TODO: write this without allocation
-    if h > 1
-        res = mkt.f[X[end]] * mkt.t[X[end]]
-        cp = reverse(cumprod(reverse(1 .- mkt.f[X[2:end]])))
-        for j in 1:h-1
-            res += mkt.f[X[j]] * mkt.t[X[j]] * cp[j]
-        end
-        return res
-    else
-        return mkt.f[X[1]] * mkt.t[X[1]]
+    res = 0.0
+
+    for j in X
+        res = (1 - mkt.f[j]) * res + mkt.f[j] * mkt.t[j]
     end
+
+    return res
 end
 
 
