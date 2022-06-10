@@ -1,8 +1,8 @@
 """
-    College(j, f, t, ft, omf)
+    College(j, f, t)
 
-Contains a college's index `j`, admissions probability `f`, utility value `t`,
-their product `ft`, and `1 - f = omf`. Used only by `applicationorder()`.
+Contains a college's index `j`, admissions probability `f` and utility value `t`.
+Used only by `applicationorder()`.
 """
 struct College
     j::Int

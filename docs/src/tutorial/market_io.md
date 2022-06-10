@@ -11,8 +11,7 @@ mkt = SameCostsMarket(
 )
 ```
 
-The output is an instance of `SameCostsMarket{U}`, which contains the input data along with certain
-preliminary calculations, such as `1 .- f`, that are used repeatedly in the solution algorithms. Here 
+The output is an instance of `SameCostsMarket{U}`, which contains the input data. Here 
 `U == eltype(t)` and we require `U <: Real`.
 
 !!! note

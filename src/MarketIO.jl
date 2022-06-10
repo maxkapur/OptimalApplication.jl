@@ -36,7 +36,7 @@ utility values `t`, and application limit `h`.
 
 ```julia-repl
 julia> SameCostsMarket([0.3, 0.2, 0.05], [2, 3, 4], 2)
-SameCostsMarket{Int64}(3, [0.3, 0.2, 0.05], [2, 3, 4], 2, [0.6, 0.6000000000000001, 0.2], [0.7, 0.8, 0.95], [1, 2, 3])
+SameCostsMarket{Int64}(3, [0.3, 0.2, 0.05], [2, 3, 4], 2, [1, 2, 3])
 ```
 
 ```julia
@@ -53,8 +53,6 @@ This type contains the following fields:
  - `f`: Vector of admissions probabilities
  - `t`: Vector of utility values (must be sorted)
  - `h`: Number of schools student is allowed to apply to
- - `ft = f .* t`
- - `omf = 1 .- f`
  - `perm`: How the input data were permuted to sort by `t`
 
 `U` is the eltype of `t`.
@@ -121,7 +119,7 @@ utility values `t`, application costs `g`, and application limit `h`.
 
 ```julia-repl
 julia> mkt = VariedCostsMarket([0.1, 0.5, 0.3, 0.1], [12, 3, 4, 13], [1, 2, 1, 1], 3)
-VariedCostsMarket(4, [0.5, 0.3, 0.1, 0.1], [3, 4, 12, 13], [2, 1, 1, 1], 3, [1.5, 1.2, 1.2000000000000002, 1.3], [0.5, 0.7, 0.9, 0.9], [2, 3, 1, 4])
+VariedCostsMarket(4, [0.5, 0.3, 0.1, 0.1], [3, 4, 12, 13], [2, 1, 1, 1], 3, [2, 3, 1, 4])
 ```
 
 ```julia
@@ -139,8 +137,6 @@ This type contains the following fields:
  - `t`: Vector of utility values (must be sorted)
  - `g`: Vector of application costs
  - `H`: Budget to spend on applications
- - `ft = f .* t`
- - `omf = 1 .- f`
  - `perm`: How the input data were permuted to sort by `t`
 
 Internally, the schools must be indexed so that `t` is sorted ascending. `perm`
