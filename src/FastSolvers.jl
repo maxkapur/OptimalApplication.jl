@@ -8,12 +8,10 @@ struct College
     j::Int
     f::Float64
     t::Float64
-    ft::Float64
-    omf::Float64
 end
 
 # Overload isless() so that the heap is ordered by expected utility.
-isless(c1::College, c2::College) = isless(c1.ft, c2.ft)
+isless(c1::College, c2::College) = isless(c1.f * c1.t, c2.f * c2.t)
 
 
 """
@@ -43,20 +41,20 @@ function applicationorder_list(
 )::Tuple{Vector{Int},Vector{Float64}}
     apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
-    mkt_list = College[College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in 1:mkt.m]
+    mkt_list = College[College(j, mkt.f[j], mkt.t[j]) for j in 1:mkt.m]
 
     c_best::College, idx_best::Int = findmax(mkt_list)
     @inbounds for j in 1:mkt.h
         if verbose
             println("Iteration $j")
-            println("  ft: ", [mkt_list[i].ft for i in 1:length(mkt_list)])
+            println("  ft: ", [mkt_list[i].f * mkt_list[i].t for i in 1:length(mkt_list)])
             println("  Add school $(c_best.j)")
         end
 
-        v[j] = get(v, j - 1, 0) + c_best.ft
+        v[j] = get(v, j - 1, 0) + c_best.f * c_best.t
         apporder[j] = c_best.j
 
-        next_c_best::College = College(0, 1.0, -1.0, -1.0, 0.0)
+        next_c_best::College = College(0, 1.0, -1.0)
         next_idx_best::Int = 0
 
         for i in 1:idx_best-1
@@ -64,9 +62,7 @@ function applicationorder_list(
                 College(
                     mkt_list[i].j,
                     mkt_list[i].f,
-                    mkt_list[i].t * c_best.omf,
-                    mkt_list[i].ft * c_best.omf,
-                    mkt_list[i].omf
+                    mkt_list[i].t * (1 - c_best.f),
                 )
 
             if isless(next_c_best, mkt_list[i])
@@ -80,9 +76,7 @@ function applicationorder_list(
                 College(
                     mkt_list[i].j,
                     mkt_list[i].f,
-                    mkt_list[i].t - c_best.ft,
-                    mkt_list[i].ft - mkt_list[i].f * c_best.ft,
-                    mkt_list[i].omf
+                    mkt_list[i].t - c_best.f * c_best.t,
                 )
 
             if isless(next_c_best, mkt_list[i-1])
@@ -125,11 +119,11 @@ function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{F
     apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
 
-    mkt_heap = BinaryMaxHeap{College}(collect(College(j, mkt.f[j], mkt.t[j], mkt.ft[j], mkt.omf[j]) for j in 1:mkt.m))
+    mkt_heap = BinaryMaxHeap{College}(collect(College(j, mkt.f[j], mkt.t[j]) for j in 1:mkt.m))
 
     @inbounds for j in 1:mkt.h
         c_k = first(mkt_heap)
-        v[j] = get(v, j - 1, 0) + c_k.ft
+        v[j] = get(v, j - 1, 0) + c_k.f * c_k.t
         apporder[j] = c_k.j
 
         # These two implementations perform almost identically
@@ -138,9 +132,7 @@ function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{F
             #     College(
             #         c.j,
             #         c.f,
-            #         c.j < c_k.j ? c.t * c_k.omf : c.t - c_k.ft,
-            #         c.j < c_k.j ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
-            #         c.omf
+            #         c.j < c_k.j ? c.t * (1 - c_k.f) : c.t - c_k.f * c_k.t,
             #     )
             #     for c in mkt_heap.valtree if c.j != c_k.j
             # ]
@@ -148,9 +140,7 @@ function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{F
                 College(
                     c.j,
                     c.f,
-                    c.j < c_k.j ? c.t * c_k.omf : c.t - c_k.ft,
-                    c.j < c_k.j ? c.ft * c_k.omf : c.ft - c.f * c_k.ft,
-                    c.omf
+                    c.j < c_k.j ? c.t * (1 - c_k.f) : c.t - c_k.f * c_k.t,
                 )
             end
         )
@@ -174,10 +164,9 @@ end
             push!(V_dict, (j, h) => V_recursor!(V_dict, j - 1, h, mkt))
             return V_dict[(j, h)]
         else
-            jmo = j - 1
             push!(V_dict, (j, h) => max(
-                V_recursor!(V_dict, jmo, h, mkt),
-                mkt.omf[j] * V_recursor!(V_dict, jmo, h - mkt.g[j], mkt) + mkt.ft[j]
+                V_recursor!(V_dict, j - 1, h, mkt),
+                (1 - mkt.f[j]) * V_recursor!(V_dict, j - 1, h - mkt.g[j], mkt) + mkt.f[j] * mkt.t[j]
             ))
             return V_dict[(j, h)]
         end

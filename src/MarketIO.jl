@@ -77,8 +77,6 @@ struct SameCostsMarket{U<:Real} <: Market
     f::Vector{Float64}
     t::Vector{U}
     h::Int
-    ft::Vector{Float64}      # = f .* t
-    omf::Vector{Float64}     # = 1 .- f
     perm::Vector{Int}
 
     function SameCostsMarket(f::Vector{Float64}, t::Vector{U}, h::Integer) where {U<:Real}
@@ -90,8 +88,6 @@ struct SameCostsMarket{U<:Real} <: Market
             f[perm],
             t[perm],
             min(h, length(f)),
-            (f.*t)[perm],
-            (1 .- f)[perm],
             perm)
     end
 
@@ -104,8 +100,6 @@ struct SameCostsMarket{U<:Real} <: Market
             f[perm],
             t[perm],
             m ÷ 2,
-            (f.*t)[perm],
-            (1 .- f)[perm],
             perm)
     end
 end
@@ -168,8 +162,6 @@ struct VariedCostsMarket <: Market
     t::Vector{Int}
     g::Vector{Int}
     H::Int
-    ft::Vector{Float64}      # = f .* t
-    omf::Vector{Float64}     # = 1 .- f
     perm::Vector{Int}
 
     function VariedCostsMarket(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
@@ -182,8 +174,6 @@ struct VariedCostsMarket <: Market
             t[perm],
             g[perm],
             min(H, sum(g)),
-            (f.*t)[perm],
-            (1 .- f)[perm],
             perm)
     end
 
@@ -200,8 +190,6 @@ struct VariedCostsMarket <: Market
             t[perm],
             g[perm],
             H,
-            (f.*t)[perm],
-            (1 .- f)[perm],
             perm)
     end
 end
@@ -234,15 +222,16 @@ function valuation_nopermute_sorted(
     isempty(X) && return 0.0
     # @assert issorted(X)
     h = length(X)
+    # TODO: write this without allocation
     if h > 1
-        res = mkt.ft[X[end]]
-        cp = reverse(cumprod(reverse(mkt.omf[X[2:end]])))
+        res = mkt.f[X[end]] * mkt.t[X[end]]
+        cp = reverse(cumprod(reverse(1 .- mkt.f[X[2:end]])))
         for j in 1:h-1
-            res += mkt.ft[X[j]] * cp[j]
+            res += mkt.f[X[j]] * mkt.t[X[j]] * cp[j]
         end
         return res
     else
-        return mkt.ft[X[1]]
+        return mkt.f[X[1]] * mkt.t[X[1]]
     end
 end
 

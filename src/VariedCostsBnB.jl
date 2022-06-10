@@ -77,7 +77,7 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)::Vector{Node}
         t_bar1 = copy(nd.t_bar)
         @inbounds for j in newN
             if t_bar1[j] ≤ nd.t_bar[i]
-                t_bar1[j] *= mkt.omf[i]
+                t_bar1[j] *= (1 - mkt.f[i])
             else
                 t_bar1[j] -= mkt.f[i] * nd.t_bar[i]
             end

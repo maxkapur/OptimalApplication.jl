@@ -3,7 +3,7 @@ function optimalportfolio_greedy_nopermute(mkt::VariedCostsMarket)::Vector{Int}
     sort!(
         priority_order,
         by=function (j)
-            mkt.ft[j] / mkt.g[j]
+            mkt.f[j] * mkt.t[j] / mkt.g[j]
         end,
         rev=true
     )
@@ -26,7 +26,7 @@ end
 """
     optimalportfolio_greedy(mkt::VariedCostsMarket) -> X, v
 
-Use a greedy heuristic that adds schools in decreasing order of `mkt.ft ./ mkt.g`
+Use a greedy heuristic that adds schools in decreasing order of `mkt.f .* mkt.t ./ mkt.g`
 to compute a heuristically optimal portfolio for the `VariedCostsMarket`
 defined by `mkt`.
 """

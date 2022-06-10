@@ -1,21 +1,21 @@
 # Used by fptas below
+# TODO: Consider copying mkt.f here for memory localization
 struct ScaleParams
     t::Vector{Int}
-    ft::Vector{Float64}
+    # ft::Vector{Float64} = mkt.f .* t
     Ū::Int
     infty::Int
 
     function ScaleParams(mkt::VariedCostsMarket, ε::Float64)
         @assert 0 < ε < 1
         P = max(0,
-            ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.ft))))
+            ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.f .* mkt.t))))
         )
         t = mkt.t .* 2^P
-        ft = mkt.f .* t
-        Ū = ceil(Int, sum(ft))
+        Ū = ceil(Int, sum(mkt.f .* t))
         infty = sum(mkt.g) + 1
 
-        return new(t, ft, Ū, infty)
+        return new(t, Ū, infty)
     end
 end
 
@@ -38,7 +38,7 @@ end
             if mkt.f[j] < 1
                 # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
                 # is trivially defined, so recording any more extreme number is meaningless
-                v_minus_Δ = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
+                v_minus_Δ = floor(Int, clamp((v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j]), -1, sp.Ū))
 
                 push!(G_dict, (j, v) => min(
                     G_recursor!(G_dict, jmo, v, mkt, sp),
@@ -76,7 +76,8 @@ function optimalportfolio_fptas(
     sizehint!(G_dict, mkt.m * mkt.m ÷ 2)
 
     # Binary search for max{ w :  G_recursor!(G_dict, mkt.m, w, mkt, sp ≤ H }
-    # Should be able to use something like this with a proper by kw in searchsortedlast
+    # In future Julia, may be able to do something like this:
+
     # vs = 0:sp.Ū
     # searchsortedlast(vs, by = ...)
 
@@ -98,7 +99,7 @@ function optimalportfolio_fptas(
         # G_recursor!(G_dict, j, v, mkt, sp) < sp.infty &&
         if G_recursor!(G_dict, j, v, mkt, sp) < G_recursor!(G_dict, j - 1, v, mkt, sp)
             push!(X, j)
-            v = floor(Int, clamp((v - sp.ft[j]) / mkt.omf[j], -1, sp.Ū))
+            v = floor(Int, clamp((v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j]), -1, sp.Ū))
         end
     end
 

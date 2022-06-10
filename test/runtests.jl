@@ -6,6 +6,19 @@ using Random
 const n_markets = 3
 
 @testset verbose = true "OptimalApplication.jl" begin
+    @testset verbose = true "Market I/O" begin
+        mkt = SameCostsMarket([0.39, 0.61, 0.03, 0.73, 0.1], [1, 6, 3, 7, 2], 3)
+        @test valuation(Int[], mkt) == 0
+        @test valuation([1, 3, 5], mkt) ≈ 0.62447
+
+        mkt = SameCostsMarket([0.39, 0.61, 0.03, 0.73, 0.1], Float64[1, 6, 3, 7, 2], 3)
+        @test valuation(Int[], mkt) == 0
+        @test valuation([1, 3, 5], mkt) ≈ 0.62447
+
+        mkt = VariedCostsMarket([0.39, 0.61, 0.03, 0.73, 0.1], [1, 6, 3, 7, 2], ones(Int, 5), 3)
+        @test valuation(Int[], mkt) == 0
+        @test valuation([1, 3, 5], mkt) ≈ 0.62447
+    end
 
     @testset verbose = true "Same app. costs" begin
         @testset verbose = true "t int" begin
