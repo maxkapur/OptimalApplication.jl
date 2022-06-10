@@ -34,19 +34,18 @@ end
         elseif j == 0 || sp.t[j] < v || v ≥ sp.Ū
             return sp.infty
         else
-            jmo = j - 1
             if mkt.f[j] < 1
                 # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
                 # is trivially defined, so recording any more extreme number is meaningless
                 v_minus_Δ = floor(Int, clamp((v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j]), -1, sp.Ū))
 
                 push!(G_dict, (j, v) => min(
-                    G_recursor!(G_dict, jmo, v, mkt, sp),
-                    mkt.g[j] + G_recursor!(G_dict, jmo, v_minus_Δ, mkt, sp)
+                    G_recursor!(G_dict, j - 1, v, mkt, sp),
+                    mkt.g[j] + G_recursor!(G_dict, j - 1, v_minus_Δ, mkt, sp)
                 ))
                 return G_dict[(j, v)]
             else
-                push!(G_dict, (j, v) => min(G_recursor!(G_dict, jmo, v, mkt, sp), mkt.g[j]))
+                push!(G_dict, (j, v) => min(G_recursor!(G_dict, j - 1, v, mkt, sp), mkt.g[j]))
                 return G_dict[(j, v)]
             end
         end
