@@ -1,6 +1,7 @@
 # OptimalApplication.jl
 
-[![In Development](https://img.shields.io/badge/docs-dev-blue.svg)](https://misc.maxkapur.com/OptimalApplication.jl/dev/)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://maxkapur.com/OptimalApplication.jl/stable/)
+[![In Development](https://img.shields.io/badge/docs-dev-blue.svg)](https://maxkapur.com/OptimalApplication.jl/dev/)
 
 Optimal college application strategy with homogeneous and heterogeneous application costs.
 
