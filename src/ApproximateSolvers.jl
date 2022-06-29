@@ -74,7 +74,7 @@ function optimalportfolio_fptas(
     G_dict = Dict{Tuple{Int,Int},Int}()
     sizehint!(G_dict, mkt.m * mkt.m ÷ 2)
 
-    # Binary search for max{ w :  G_recursor!(G_dict, mkt.m, w, mkt, sp ≤ H }
+    # Binary search for max{ w :  G_recursor!(G_dict, mkt.m, w, mkt, sp) ≤ H }
     # In future Julia, may be able to do something like this:
 
     # vs = 0:sp.Ū
