@@ -129,5 +129,5 @@ function optimalportfolio_fptas(
         display(G_table)
     end
 
-    return mkt.perm[X], valuation_nopermute_sorted(sort(X), mkt)
+    return mkt.perm[X], valuation_nopermute_sorted(reverse(X), mkt)
 end

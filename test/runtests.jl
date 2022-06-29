@@ -86,6 +86,7 @@ const n_markets = 3
                 Y, vY = optimalportfolio_dynamicprogram(mkt)
 
                 @test vW / vY ≥ 1 - ε
+                @test vY == valuation(Y, mkt)
             end
         end
     end
