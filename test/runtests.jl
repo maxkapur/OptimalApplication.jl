@@ -75,6 +75,20 @@ const n_markets = 3
             end
         end
 
+        δ = 0.05
+
+        @testset "Slow DP" begin
+            for _ in 1:n_markets
+                mkt = VariedCostsMarket(m)
+    
+                W, vW = optimalportfolio_dynamicprogram_slow(mkt, δ)
+                Y, vY = optimalportfolio_dynamicprogram(mkt)
+    
+                @test vW ≥ vY - δ
+                @test vY == valuation(Y, mkt)
+            end
+        end
+
         m = 50
         ε = 0.1
 
@@ -89,6 +103,7 @@ const n_markets = 3
                 @test vY == valuation(Y, mkt)
             end
         end
+
     end
 
     # Verify that permuting the problem data doesn't change the optimum
@@ -162,6 +177,10 @@ const n_markets = 3
             @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt1, 0.5)[1], mkt1)
             @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt2, 0.5)[1], mkt2)
             @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt3, 0.5)[1], mkt3)
+            
+            @test v ≤ valuation(optimalportfolio_dynamicprogram_slow(mkt1, 0.1)[1], mkt1) + 0.1
+            @test v ≤ valuation(optimalportfolio_dynamicprogram_slow(mkt2, 0.1)[1], mkt2) + 0.1
+            @test v ≤ valuation(optimalportfolio_dynamicprogram_slow(mkt3, 0.1)[1], mkt3) + 0.1
         end
     end
 
@@ -181,6 +200,7 @@ const n_markets = 3
 
             @test 1:4 == sort(optimalportfolio_branchbound(mkt)[1])
             @test 1:4 == sort(optimalportfolio_dynamicprogram(mkt)[1])
+            @test 1:4 == sort(optimalportfolio_dynamicprogram_slow(mkt, 0.1)[1])
             @test 1:4 == sort(optimalportfolio_fptas(mkt, 0.05)[1])
             @test 1:4 == sort(optimalportfolio_enumerate(mkt)[1])
             @test 1:4 == sort(optimalportfolio_greedy(mkt)[1])
@@ -191,6 +211,7 @@ const n_markets = 3
 
             @test [2] == optimalportfolio_branchbound(mkt)[1]
             @test [2] == optimalportfolio_dynamicprogram(mkt)[1]
+            @test [2] == optimalportfolio_dynamicprogram_slow(mkt, 0.1)[1]
             @test [2] == optimalportfolio_fptas(mkt, 0.25)[1]
             @test [2] == optimalportfolio_enumerate(mkt)[1]
             @test [2] == sort(optimalportfolio_greedy(mkt)[1])
