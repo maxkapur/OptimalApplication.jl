@@ -106,7 +106,14 @@ function optimalportfolio_fptas(
         # G_recursor!(G_dict, j, v, mkt, sp) < sp.infty &&
         if G_recursor!(G_dict, j, v, mkt, sp) < G_recursor!(G_dict, j - 1, v, mkt, sp)
             push!(X, j)
-            v = floor(Int, clamp((v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j]), -1, sp.Ū))
+            v = clamp(
+                ceil(
+                    Int,
+                    (v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j])
+                ),
+                -1,
+                sp.Ū
+            )
         end
     end
 
