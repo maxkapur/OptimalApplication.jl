@@ -21,6 +21,7 @@ const n_markets = fullscale ? 50 : 5
 
 # Cutoffs to exclude certain large computations
 const bnbcutoff = fullscale ? 33 : 10
+const slowdpcutoff = fullscale ? 33 : 10
 const twottbnbcutoff = 2^bnbcutoff
 const fptascutoff_m = fullscale ? 300 : 200
 const fptascutoff_eps = fullscale ? 0.0 : 0.1
@@ -86,12 +87,14 @@ end
 
 function benchmark2(marketsizes_VCM = marketsizes_VCM)
     @info "Benchmark 2: Heterogeneous-cost algorithms"
-    epsilons = [0.5, 0.05]
+    delta = 0.1             # for slow DP
+    epsilons = [0.5, 0.05]  # for FPTAS
     mkts_VCM = VariedCostsMarket[VariedCostsMarket(m) for m in marketsizes_VCM, i in 1:n_markets]
 
     sizes = Int[m for m in marketsizes_VCM, _ in 1:n_markets]
     times_bnb = fill(Inf, length(marketsizes_VCM), n_markets)
     times_dp = fill(Inf, length(marketsizes_VCM), n_markets)
+    times_dp_slow = fill(Inf, length(marketsizes_VCM), n_markets)
     times_fptas = fill(Inf, length(epsilons), length(marketsizes_VCM), n_markets)
 
     @threads for j in 1:n_markets
@@ -105,6 +108,10 @@ function benchmark2(marketsizes_VCM = marketsizes_VCM)
 
             times_dp[i, j] = min(times_dp[i, j], @elapsed optimalportfolio_dynamicprogram(mkts_VCM[i, j]))
             # times_dp[i, j] = @belapsed optimalportfolio_dynamicprogram($(mkts_VCM[i, j]))
+            
+            if m ≤ slowdpcutoff
+                times_dp_slow[i, j] = min(times_dp_slow[i, j], @elapsed optimalportfolio_dynamicprogram_slow(mkts_VCM[i, j], delta))
+            end
 
             for (k, epsilon) in enumerate(epsilons)
                 if m ≤ fptascutoff_m || epsilon > fptascutoff_eps
@@ -119,6 +126,7 @@ function benchmark2(marketsizes_VCM = marketsizes_VCM)
         "m" => sizes[:],
         "time_bnb" => times_bnb[:],
         "time_dp" => times_dp[:],
+        "time_dp_slow_$delta" => times_dp_slow[:],
         ["time_fptas_$epsilon" => times_fptas[k, :, :][:] for (k, epsilon) in enumerate(epsilons)]...
     )
 
