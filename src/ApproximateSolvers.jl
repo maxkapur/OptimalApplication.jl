@@ -37,7 +37,14 @@ end
             if mkt.f[j] < 1
                 # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
                 # is trivially defined, so recording any more extreme number is meaningless
-                v_minus_Δ = floor(Int, clamp((v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j]), -1, sp.Ū))
+                v_minus_Δ = clamp(
+                    ceil(
+                        Int,
+                        (v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j])
+                    ),
+                    -1,
+                    sp.Ū
+                )
 
                 push!(G_dict, (j, v) => min(
                     G_recursor!(G_dict, j - 1, v, mkt, sp),
