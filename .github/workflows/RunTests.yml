@@ -2,7 +2,7 @@ name: RunTests
 on: [push, pull_request]
 
 jobs:
-  run:
+  RunTests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
