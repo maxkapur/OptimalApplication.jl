@@ -8,12 +8,13 @@ struct ScaleParams
 
     function ScaleParams(mkt::VariedCostsMarket, ε::Float64)
         @assert 0 < ε < 1
-        P = max(0,
+        P = max(
+            0,
             ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.f .* mkt.t))))
         )
         t = mkt.t .* 2^P
         Ū = ceil(Int, sum(mkt.f .* t))
-        infty = sum(mkt.g) + 1
+        infty = max(mkt.H, sum(mkt.g)) + 1
 
         return new(t, Ū, infty)
     end
