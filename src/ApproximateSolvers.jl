@@ -71,6 +71,13 @@ midpoint(lo::T, hi::T) where {T<:Integer} = lo + ((hi - lo) >>> 0x01)
 
 Use the fully polynomial-time approximation scheme to produce a `1-ε`-optimal portfolio `X`,
 with valuation `v`, for the [`VariedCostsMarket`](@ref) defined by `mkt`.
+
+```julia-repl
+julia> mkt = VariedCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], [2, 4, 2, 5, 1], 8);
+
+julia> optimalportfolio_fptas(mkt, 0.2)
+([3, 5, 2], 3.24)
+```
 """
 function optimalportfolio_fptas(
     mkt::VariedCostsMarket,

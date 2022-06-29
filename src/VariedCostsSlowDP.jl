@@ -27,14 +27,23 @@ end
 """
     optimalportfolio_dynamicprogram_slow(mkt, δ) -> X, v
 
-Uses a very slow dynamic program to produce the optimal portfolio `X`
+Uses a dynamic program to produce the optimal portfolio `X`
 with valuation `v`, for the [`VariedCostsMarket`](@ref) defined by `mkt`. 
 The valuation of `X` differs from that of the global optimum by no more than `δ`.
+
+```julia-repl
+julia> mkt = VariedCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], [2, 4, 2, 5, 1], 8);
+
+julia> optimalportfolio_dynamicprogram_slow(mkt, 1e-6)
+([3, 5, 2], 3.24)
+```
+
 This dynamic program iterates on portfolio valuations and is an "exact" form
-of the approximation algorithm implemented in this package as [`optimalportfolio_fptas`](@ref).
-For the vast majority of problem instances, [`optimalportfolio_dynamicprogram`](@ref)
-is a faster way to obtain an exact solution, but this one technically can be used to
-obtain the global optimum by setting `δ = eps()`.
+of the approximation algorithm implemented in this package as
+[`optimalportfolio_fptas`](@ref). For the vast majority of problem instances,
+[`optimalportfolio_dynamicprogram`](@ref) is a faster way to obtain an exact
+solution, but this one technically can be used to obtain the global optimum by
+setting `δ = eps()`.
 """
 function optimalportfolio_dynamicprogram_slow(
     mkt::VariedCostsMarket,
