@@ -53,12 +53,12 @@ function optimalportfolio_dynamicprogram_slow(
 
     # Binary search for max{ w :  G_recursor_exact(mkt.m, w, mkt), sp ≤ H }
     v = 0.0
-    v_UB = v_static_UB
-    while v + δ < v_UB
-        mid = (v + v_UB) / 2
+    v_current_UB = v_static_UB
+    while v + δ < v_current_UB
+        mid = (v + v_current_UB) / 2
 
         if G_recursor_exact(mkt.m, mid, mkt, v_static_UB) > mkt.H
-            v_UB = mid
+            v_current_UB = mid
         else
             v = mid
         end

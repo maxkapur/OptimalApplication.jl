@@ -8,8 +8,8 @@ mutable struct Node
     N::Vector{Int}
     t_bar::Vector{Float64}
     H_bar::Int
-    v_I::Float64
-    v_LP::Float64
+    v_I::Float64              # Valuation of the schools in I
+    v_LP::Float64             # LP upper bound
 
     "Generate a new node with its LP relaxation value and empty child set."
     function Node(

@@ -3,7 +3,7 @@
 struct ScaleParams
     t::Vector{Int}
     # ft::Vector{Float64} = mkt.f .* t
-    Ū::Int
+    v_UB::Int
     infty::Int
 
     function ScaleParams(mkt::VariedCostsMarket, ε::Float64)
@@ -13,13 +13,12 @@ struct ScaleParams
             ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.f .* mkt.t))))
         )
         t = mkt.t .* 2^P
-        Ū = ceil(Int, sum(mkt.f .* t))
-        infty = max(mkt.H, sum(mkt.g)) + 1
+        v_UB = ceil(Int, sum(mkt.f .* t))
+        infty = mkt.H + 1
 
-        return new(t, Ū, infty)
+        return new(t, v_UB, infty)
     end
 end
-
 
 # Used by fptas below
 @inbounds function G_recursor!(
@@ -32,11 +31,11 @@ end
     return get(G_dict, (j, v)) do
         if v ≤ 0
             return 0
-        elseif j == 0 || sp.t[j] < v || v ≥ sp.Ū
+        elseif j == 0 || sp.t[j] < v || v ≥ sp.v_UB
             return sp.infty
         else
             if mkt.f[j] < 1
-                # Clamping prevents over/underflow: for any v<0 or v≥Ū the function
+                # Clamping prevents over/underflow: for any v<0 or v≥v_UB the function
                 # is trivially defined, so recording any more extreme number is meaningless
                 v_minus_Δ = clamp(
                     ceil(
@@ -44,7 +43,7 @@ end
                         (v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j])
                     ),
                     -1,
-                    sp.Ū
+                    sp.v_UB
                 )
 
                 push!(G_dict, (j, v) => min(
@@ -92,17 +91,17 @@ function optimalportfolio_fptas(
     # Binary search for max{ w :  G_recursor!(G_dict, mkt.m, w, mkt, sp) ≤ H }
     # In future Julia, may be able to do something like this:
 
-    # vs = 0:sp.Ū
+    # vs = 0:sp.v_UB
     # searchsortedlast(vs, by = ...)
 
     v = 0
-    v_UB = sp.Ū
-    @inbounds while v + 1 < v_UB
+    v_current_UB = sp.v_UB
+    @inbounds while v + 1 < v_current_UB
         # mid = (v + v_UB) ÷ 2
-        mid = midpoint(v, v_UB)
+        mid = midpoint(v, v_current_UB)
 
         if G_recursor!(G_dict, mkt.m, mid, mkt, sp) > mkt.H
-            v_UB = mid
+            v_current_UB = mid
         else
             v = mid
         end
@@ -119,15 +118,15 @@ function optimalportfolio_fptas(
                     (v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j])
                 ),
                 -1,
-                sp.Ū
+                sp.v_UB
             )
         end
     end
 
     if verbose
-        G_table = Array{Union{Missing,Int}}(missing, mkt.m, v_UB)
+        G_table::Array{Int} = fill(sp.infty, (mkt.m, sp.v_UB))
         for (j, v) in keys(G_dict)
-            if 0 < j ≤ mkt.m && 0 < v ≤ v_UB
+            if 0 < j ≤ mkt.m && 0 < v ≤ sp.v_UB
                 G_table[j, v] = G_dict[(j, v)]
             end
         end
