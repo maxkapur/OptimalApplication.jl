@@ -26,9 +26,9 @@ export
 include("MarketIO.jl")
 include("EnumerationSolvers.jl")
 include("VariedCostsSlowDP.jl")
-include("VariedCostsBnB.jl")
-include("FastSolvers.jl")
-include("ApproximateSolvers.jl")
+include("BranchAndBound.jl")
+include("FastExactSolvers.jl")
+include("FPTAS.jl")
 include("HeuristicSolvers.jl")
 
 
