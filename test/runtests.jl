@@ -1,11 +1,16 @@
 using OptimalApplication
 using Test
+using Aqua
 using Random
 
 # Number of markets to generate for each test
 const n_markets = 3
 
 @testset verbose = true "OptimalApplication.jl" begin
+    @testset verbose = true "Aqua.jl" begin
+        Aqua.test_all(OptimalApplication)
+    end
+    
     @testset verbose = true "Market I/O" begin
         mkt = SameCostsMarket([0.39, 0.61, 0.03, 0.73, 0.1], [1, 6, 3, 7, 2], 3)
         @test valuation(Int[], mkt) == 0

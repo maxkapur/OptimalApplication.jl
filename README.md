@@ -2,6 +2,7 @@
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://maxkapur.com/OptimalApplication.jl/stable/)
 [![In Development](https://img.shields.io/badge/docs-dev-blue.svg)](https://maxkapur.com/OptimalApplication.jl/dev/)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 Optimal college application strategy with homogeneous and heterogeneous application costs.
 
