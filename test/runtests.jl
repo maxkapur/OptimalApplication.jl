@@ -1,7 +1,8 @@
 using OptimalApplication
-using Test
-using Aqua
-using Random
+using Test: @test, @testset, @test_throws
+using Random: randperm
+
+import Aqua
 
 # Number of markets to generate for each test
 const n_markets = 3

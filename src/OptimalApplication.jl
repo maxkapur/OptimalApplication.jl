@@ -1,8 +1,8 @@
 module OptimalApplication
 
-using Random
+using Random: shuffle!
 using Combinatorics: combinations, multiset_combinations
-using DataStructures
+using DataStructures: BinaryMaxHeap
 import Base.isless
 import Base.hash
 
