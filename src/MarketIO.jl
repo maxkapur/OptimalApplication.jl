@@ -70,7 +70,7 @@ julia> t == mkt.t[invperm(mkt.perm)]
 true
 ```
 """
-struct SameCostsMarket{U<:Real} <: Market
+mutable struct SameCostsMarket{U<:Real} <: Market
     m::Int
     f::Vector{Float64}
     t::Vector{U}
@@ -152,7 +152,7 @@ julia> t == mkt.t[invperm(mkt.perm)]
 true
 ```
 """
-struct VariedCostsMarket <: Market
+mutable struct VariedCostsMarket <: Market
     m::Int
     f::Vector{Float64}
     t::Vector{Int}

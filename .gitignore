@@ -26,3 +26,14 @@ Manifest.toml
 # Produced by the benchmarks
 *.png
 *.pdf
+
+# Benchmark wrapper shell script and output
+benchmark.sh
+benchmark/benchmark_results.txt
+
+# From micro editor
+log.txt
+
+# Sandbox
+sandbox*
+
