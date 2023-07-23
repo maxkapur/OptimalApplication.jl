@@ -6,7 +6,7 @@ DocMeta.setdocmeta!(OptimalApplication, :DocTestSetup, :(using OptimalApplicatio
 makedocs(
     sitename="OptimalApplication",
     modules=[OptimalApplication],
-    format=Documenter.HTML(ansicolor=true),
+    format=Documenter.HTML(ansicolor=true, edit_link="main"),
     # format = Documenter.HTML(prettyurls = false), # For local browsing
     pages=Any[
         "Home"=>"index.md",
