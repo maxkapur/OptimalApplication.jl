@@ -21,17 +21,17 @@ jobs:
           import Pkg
           Pkg.develop(PackageSpec(path=pwd()))
           Pkg.instantiate()
-        shell: julia --color=yes {0}
+        shell: julia --color=yes --project=docs {0}
 
       - name: Run doctests
         run: |
           using Documenter
           using OptimalApplication
           doctest(OptimalApplication)
-        shell: julia --color=yes {0}
+        shell: julia --color=yes --project=docs {0}
 
       - name: Deploy with GitHub pages
-        run: julia --project=docs ./docs/make.jl
+        run: julia --color=yes --project=docs ./docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
