@@ -18,7 +18,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          import Pkg
+          using Pkg
           Pkg.develop(PackageSpec(path=pwd()))
           Pkg.instantiate()
         shell: julia --color=yes --project=docs {0}
