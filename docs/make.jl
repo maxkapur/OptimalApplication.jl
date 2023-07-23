@@ -30,5 +30,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/maxkapur/OptimalApplication.jl.git",
+    repo="github.com/maxkapur/OptimalApplication.jl.git",
 )
