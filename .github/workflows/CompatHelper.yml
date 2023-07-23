@@ -16,6 +16,7 @@ jobs:
           ENV["JULIA_PKG_SERVER"] = ""
           Pkg.Registry.add("General")
         shell: julia --color=yes {0}
+
       - name: "Install CompatHelper"
         run: |
           import Pkg
@@ -24,6 +25,7 @@ jobs:
           version = "3"
           Pkg.add(; name, uuid, version)
         shell: julia --color=yes {0}
+
       - name: "Run CompatHelper"
         run: |
           import CompatHelper
