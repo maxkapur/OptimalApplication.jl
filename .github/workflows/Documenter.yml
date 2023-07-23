@@ -1,0 +1,37 @@
+name: Build documentation
+on:
+  - push
+  - pull_request
+
+jobs:
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v1
+        with:
+          version: "1"
+
+      - name: Install dependencies
+        run: |
+          import Pkg
+          Pkg.develop(PackageSpec(path=pwd()))
+          Pkg.instantiate()
+        shell: julia --color=yes {0}
+
+      - name: Run doctests
+        run: |
+          using Documenter
+          using OptimalApplication
+          doctest(OptimalApplication)
+        shell: julia --color=yes {0}
+
+      - name: Deploy with GitHub pages
+        run: julia --project=docs ./docs/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
