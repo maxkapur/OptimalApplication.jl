@@ -15,6 +15,11 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v2
 
+      - name: Check trailing whitespace
+        if: runner.os == "Linux"
+        run: |
+          ! git grep -IE '\s$'
+
       - name: Set up Julia
         uses: julia-actions/setup-julia@v1
         with:
@@ -31,3 +36,4 @@ jobs:
         run: |
           julia --project=test/ -e 'using JuliaFormatter; format(".")'
           git diff --exit-code
+
