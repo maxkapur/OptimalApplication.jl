@@ -42,21 +42,21 @@ lineplot(0:mkt.m, vcat(0, V), xlabel="h", ylabel="v")
 ```
 
 This graph is called a *valuation curve.* It gives the applicant's utility as a function
-of her budget ``h``. The curve's concave shape is guaranteed by the nestedness property. 
+of her budget ``h``. The curve's concave shape is guaranteed by the nestedness property.
 
 
 
 An alternative way of looking at the optimal portfolios is to take the *inverse-permutation* of `X`.
 The value of `invperm(X)[j]` gives the *smallest* value of ``h`` for which school ``j`` is in
 ``\mathcal{X}_h``. This is called the schools *priority* number; if a school has priority number 1,
-it is the first school you should apply to, and so on. 
+it is the first school you should apply to, and so on.
 
 This format lets us create the following table:
 
 ```@example 1
 priority = invperm(X)
 pretty_table(
-    Any[f t priority V[priority]], 
+    Any[f t priority V[priority]],
     header = ["f", "t", "priority", "valuation"],
     header_crayon = crayon"bold yellow",
 )

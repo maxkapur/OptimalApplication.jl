@@ -28,7 +28,7 @@ end
     optimalportfolio_dynamicprogram_slow(mkt, δ) -> X, v
 
 Uses a dynamic program to produce the optimal portfolio `X`
-with valuation `v`, for the [`VariedCostsMarket`](@ref) defined by `mkt`. 
+with valuation `v`, for the [`VariedCostsMarket`](@ref) defined by `mkt`.
 The valuation of `X` differs from that of the global optimum by no more than `δ`.
 
 ```julia-repl

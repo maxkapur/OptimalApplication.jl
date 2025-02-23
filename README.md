@@ -6,7 +6,7 @@
 
 Optimal college application strategy with homogeneous and heterogeneous application costs.
 
-Basic usage: 
+Basic usage:
 
 ````julia
 julia> using OptimalApplication
@@ -16,8 +16,8 @@ julia> mkt = SameCostsMarket(
                 [0.2, 0.5, 0.1, 0.6, 0.1],
                 # Utility values
                 [1, 4, 9, 1, 8],
-                # Number of schools `h` to apply to. By nestedness property, 
-                # we can obtain the solution for all `h` by setting `h = m`, 
+                # Number of schools `h` to apply to. By nestedness property,
+                # we can obtain the solution for all `h` by setting `h = m`,
                 # where `m` is the number of schools in the market.
                 5
             );
@@ -25,13 +25,13 @@ julia> mkt = SameCostsMarket(
 julia> x, v = applicationorder_list(mkt)
 ([2, 3, 5, 4, 1], [2.0, 2.7, 3.24, 3.483, 3.5154])
 
-julia> x[1:4], v[4] 
+julia> x[1:4], v[4]
 ([2, 3, 5, 4], 3.483)
 ````
 
 This means that when `h = 4`, the optimal portfolio is `{2, 3, 5, 4}` and its valuation is `5.408`.
 
-The function `applicationorder_heap()` works the same way but uses a different internal data structure and may be faster for certain instances. 
+The function `applicationorder_heap()` works the same way but uses a different internal data structure and may be faster for certain instances.
 
 Example with varied costs:
 
@@ -51,7 +51,7 @@ julia> x, v = optimalportfolio_dynamicprogram(mkt)
 ([50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 38, 35, 28], 59.66127736008859)
 ````
 
-For a large market like this, we may be content with an ε-approximate solution: 
+For a large market like this, we may be content with an ε-approximate solution:
 
 ````julia
 julia> x, v = optimalportfolio_fptas(mkt, 0.25)

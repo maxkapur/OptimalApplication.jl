@@ -17,7 +17,7 @@ isless(c1::College, c2::College) = isless(c1.f * c1.t, c2.f * c2.t)
 """
     applicationorder_list(mkt::SameCostsMarket) -> X, V
 
-Produce the optimal application order `X` and associated valuations `V` 
+Produce the optimal application order `X` and associated valuations `V`
 for the [`SameCostsMarket`](@ref) defined by `mkt`. Uses a list data structure;
 typically faster than the equivalent [`applicationorder_heap`](@ref).
 
@@ -31,7 +31,7 @@ julia> mkt = SameCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], 5);
 julia> x, v = applicationorder_list(mkt)
 ([2, 3, 5, 4, 1], [2.0, 2.7, 3.24, 3.483, 3.5154])
 
-julia> x[1:4], v[4] # optimal portfolio and valuation for h = 4 
+julia> x[1:4], v[4] # optimal portfolio and valuation for h = 4
 ([2, 3, 5, 4], 3.483)
 ```
 """
@@ -89,7 +89,7 @@ end
 """
     applicationorder_list(mkt::SameCostsMarket) -> X, V
 
-Produce the optimal application order `X` and associated valuations `V` 
+Produce the optimal application order `X` and associated valuations `V`
 for the [`SameCostsMarket`](@ref) defined by `mkt`. Uses a heap data structure;
 typically the equivalent [`applicationorder_list`](@ref) is faster.
 
@@ -103,7 +103,7 @@ julia> mkt = SameCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], 5);
 julia> x, v = applicationorder_heap(mkt)
 ([2, 3, 5, 4, 1], [2.0, 2.7, 3.24, 3.483, 3.5154])
 
-julia> x[1:4], v[4] # optimal portfolio and valuation for h = 4 
+julia> x[1:4], v[4] # optimal portfolio and valuation for h = 4
 ([2, 3, 5, 4], 3.483)
 ```
 """
@@ -171,7 +171,7 @@ end
     optimalportfolio_dynamicprogram(mkt::VariedCostsMarket) -> X, v
 
 Use the dynamic program on application costs to produce the optimal portfolio `X` and associated
-value `v` for the [`VariedCostsMarket`](@ref) defined by `mkt`. 
+value `v` for the [`VariedCostsMarket`](@ref) defined by `mkt`.
 
 ```julia-repl
 julia> mkt = VariedCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], [2, 4, 2, 5, 1], 8);

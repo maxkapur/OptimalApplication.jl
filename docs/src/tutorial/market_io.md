@@ -11,14 +11,14 @@ mkt = SameCostsMarket(
 )
 ```
 
-The output is an instance of `SameCostsMarket{U}`, which contains the input data. Here 
+The output is an instance of `SameCostsMarket{U}`, which contains the input data. Here
 `U == eltype(t)` and we require `U <: Real`.
 
 !!! note
 
     To improve the performance of the solvers, the schools are sorted in ascending order by `t`
     when the market is constructed. Therefore, `mkt = SameCostsMarket(f, t, h); mkt.t == t` is
-    *not* necessarily true. The input data can be recovered using `mkt.t == t[mkt.perm]`; see 
+    *not* necessarily true. The input data can be recovered using `mkt.t == t[mkt.perm]`; see
     [`SameCostsMarket(f, t, h)`](@ref).
 
 To read in an instance of the varied-costs problem, use [`VariedCostsMarket(f, t, g, H)`](@ref):
@@ -32,16 +32,16 @@ mkt = VariedCostsMarket(
 )
 ```
 
-The output is an instance of `VariedCostsMarket`. Both `SameCostsMarket` and `VariedCostsMarket` are subtypes 
+The output is an instance of `VariedCostsMarket`. Both `SameCostsMarket` and `VariedCostsMarket` are subtypes
 of the abstract type `Market`.
 
 !!! note
 
     `VariedCostsMarket` supports only `t` with integer eltype. Because the objective function is linear in `t`,
-    to work with float data, first multiply by the least common denominator. 
+    to work with float data, first multiply by the least common denominator.
 
 If the application fees share a common divisor, the solvers will perform more effectively if you divide by it. For example,
-fees of `[90, 80, 90, 70]` with budget `160` is equivalent to fees of `[9, 8, 9, 7]` with budget `16`. 
+fees of `[90, 80, 90, 70]` with budget `160` is equivalent to fees of `[9, 8, 9, 7]` with budget `16`.
 
 OptimalApplication also provides the convenience functions [`Market(f, t, h)`](@ref) and
 [`Market(f, t, g, H)`](@ref), which behave just like those above.

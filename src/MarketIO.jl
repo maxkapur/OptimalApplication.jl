@@ -205,7 +205,7 @@ end
 """
     valuation(X, mkt)
 
-Return the valuation of the portfolio `X` for the market `mkt`, which may be either 
+Return the valuation of the portfolio `X` for the market `mkt`, which may be either
 a `SameCostsMarket` or a `VariedCostsMarket`.
 
 `SameCostsMarket` example (`h = 3` is irrelevant):

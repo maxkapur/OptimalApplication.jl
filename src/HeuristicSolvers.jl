@@ -38,7 +38,7 @@ end
 
 Generate a random neighbor of `X` for the market `mkt`. If `X` is feasible,
 preserve feasibility; if not, move to a feasible solution. `X` is assumed
-to refer to the sorted indices of the market. 
+to refer to the sorted indices of the market.
 """
 function neighbor(X::AbstractVector{<:Integer}, mkt::VariedCostsMarket)::Vector{Int}
     X_neighbor = copy(X)

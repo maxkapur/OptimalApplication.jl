@@ -9,7 +9,7 @@ The same-costs market is a special case of the college application problem in wh
     \end{align*}
 ```
 
-Let's consider a random instance of this problem with ``m = 15`` schools and ``h = 5``. 
+Let's consider a random instance of this problem with ``m = 15`` schools and ``h = 5``.
 
 ```@example 1
 using OptimalApplication
