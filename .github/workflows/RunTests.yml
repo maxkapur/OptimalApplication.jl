@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Check trailing whitespace
-        if: runner.os == "Linux"
+        if: runner.os == 'Linux'
         run: |
           ! git grep -IE '\s$'
 
