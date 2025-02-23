@@ -10,7 +10,7 @@ may have different application costs. The optimization problem is as follows:
     \end{align*}
 ```
 
-Let's consider a random instance of this problem with ``m = 15`` schools. 
+Let's consider a random instance of this problem with ``m = 15`` schools.
 
 ```@example 1
 using OptimalApplication
@@ -56,7 +56,7 @@ optimalportfolio_dynamicprogram(mkt)
 
 The college application problem admits a fully polynomial-time approximation scheme (FPTAS). Given a market and tolerance
 ``\varepsilon``, [`optimalportfolio_fptas(mkt, ε)`](@ref): produces a solution that is guaranteed to have an objective value
-of at least ``1 - \varepsilon`` times the optimum, in time ``O(m^3 / \varepsilon)``. 
+of at least ``1 - \varepsilon`` times the optimum, in time ``O(m^3 / \varepsilon)``.
 
 ```@example 1
 optimalportfolio_fptas(mkt, 0.2)

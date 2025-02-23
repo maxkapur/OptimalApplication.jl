@@ -1,6 +1,6 @@
 """
 Contains information about a subproblem in the branch and bound scheme.
-`I` is a set of schools that are "in" the portfolio and `N` is the set that 
+`I` is a set of schools that are "in" the portfolio and `N` is the set that
 are "negotiable" and used to generate an LP upper bound and child nodes.
 """
 mutable struct Node
@@ -112,7 +112,7 @@ end
     optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit=10000, verbose=false) -> X, v
 
 Use the branch-and-bound algorithm to produce the optimal portfolio for the `VariedCostsMarket`
-defined by `mkt`. Intractable for large markets. 
+defined by `mkt`. Intractable for large markets.
 
 ```julia-repl
 julia> mkt = VariedCostsMarket([0.2, 0.5, 0.1, 0.6, 0.1], [1, 4, 9, 1, 8], [2, 4, 2, 5, 1], 8);

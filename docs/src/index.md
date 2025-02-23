@@ -15,7 +15,7 @@ attending school ``j``, and ``Z_j`` is a random Bernoulli variable with probabil
 to decide on a subset of schools ``\mathcal{X}`` to apply to, given ``g_j``, the application fee for school
 ``j``, and ``H`` the total budget to spend on applications. ``v(\mathcal{X})`` represents the expected utility
 associated with the application portfolio ``\mathcal{X}``, and by indexing the schools such that each
-``t_j \leq t_{j+1}``, it can be written in the following closed form: 
+``t_j \leq t_{j+1}``, it can be written in the following closed form:
 
 ```math
     v(\mathcal{X}) = \sum_{j\in \mathcal{X}} \Bigl( f_j t_j \prod_{\substack{i \in \mathcal{X}: \\ i > j}} (1 - f_{i}) \Bigr)
@@ -23,8 +23,8 @@ associated with the application portfolio ``\mathcal{X}``, and by indexing the s
 
 The general college application problem is referred to in this package as the *varied-costs* college application problem.
 A special case, called the *same-costs* problem, occurs when each ``g_j = 1``. Then the budget constraint becomes a simple
-cardinality constraint ``\lvert \mathcal{X} \rvert \leq h``, where ``h`` is written in lowercase to reflect the change in 
-meaning. 
+cardinality constraint ``\lvert \mathcal{X} \rvert \leq h``, where ``h`` is written in lowercase to reflect the change in
+meaning.
 
 The same-costs college application problem is solvable in polynomial time by a greedy algorithm, whereas the varied-costs
 problem is NP-complete (as can be shown by a reduction from the knapsack problem).

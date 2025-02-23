@@ -45,7 +45,7 @@ pl = scatterplot(
     xlabel="f",
     ylabel="t",
     width=60,
-    height=25 
+    height=25
 )
 scatterplot!(
     pl,
@@ -66,4 +66,4 @@ odds of getting at least one acceptance) is high.
 
     In creating the plot above, `mkt.f[X]` and so on retrieve the data in the correct permutation because
     the random constructor ensures that `mkt.perm = 1:mkt.m`. For a general input data, you need to use
-    `mkt.f[invperm(mkt.perm)[X]]`, or simply save `f` and `t` beforehand. 
+    `mkt.f[invperm(mkt.perm)[X]]`, or simply save `f` and `t` beforehand.
