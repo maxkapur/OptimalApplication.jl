@@ -1,12 +1,8 @@
 function optimalportfolio_greedy_nopermute(mkt::VariedCostsMarket)::Vector{Int}
-    priority_order = [j for j in 1:mkt.m if mkt.g[j] ≤ mkt.H]
-    sort!(
-        priority_order,
-        by=function (j)
-            mkt.f[j] * mkt.t[j] / mkt.g[j]
-        end,
-        rev=true
-    )
+    priority_order = [j for j = 1:mkt.m if mkt.g[j] ≤ mkt.H]
+    sort!(priority_order, by = function (j)
+        mkt.f[j] * mkt.t[j] / mkt.g[j]
+    end, rev = true)
 
     X = Int[]
     H = mkt.H
@@ -81,10 +77,10 @@ for the `VariedCostsMarket` defined by `mkt`. `temp` is the initial temperature,
 """
 function optimalportfolio_simulatedannealing(
     mkt::VariedCostsMarket;
-    temp::Float64=0.25,
-    red::Float64=0.0625,
-    nit::Integer=500,
-    verbose::Bool=false
+    temp::Float64 = 0.25,
+    red::Float64 = 0.0625,
+    nit::Integer = 500,
+    verbose::Bool = false,
 )::Tuple{Vector{Int},Float64}
     X = optimalportfolio_greedy_nopermute(mkt)
     sort!(X)
@@ -92,7 +88,7 @@ function optimalportfolio_simulatedannealing(
 
     X_best, v_best = X, v
 
-    for i in 1:nit
+    for i = 1:nit
         X_neighbor = neighbor(X, mkt)
         sort!(X_neighbor)
         v_neighbor = valuation_nopermute_sorted(X_neighbor, mkt)

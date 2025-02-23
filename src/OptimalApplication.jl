@@ -7,8 +7,7 @@ import Base.isless
 import Base.hash
 
 
-export
-    Market,
+export Market,
     SameCostsMarket,
     VariedCostsMarket,
     valuation,

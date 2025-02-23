@@ -4,7 +4,7 @@
     j::Int,
     v::Float64,
     mkt::VariedCostsMarket,
-    v_static_UB::Float64
+    v_static_UB::Float64,
 )::Int
     if v ≤ 0
         return 0
@@ -16,7 +16,7 @@
 
             return min(
                 G_recursor_exact(j - 1, v, mkt, v_static_UB),
-                mkt.g[j] + G_recursor_exact(j - 1, v_minus_Δ, mkt, v_static_UB)
+                mkt.g[j] + G_recursor_exact(j - 1, v_minus_Δ, mkt, v_static_UB),
             )
         else
             return min(G_recursor_exact(j - 1, v, mkt, v_static_UB), mkt.g[j])
@@ -47,7 +47,7 @@ setting `δ = eps()`.
 """
 function optimalportfolio_dynamicprogram_slow(
     mkt::VariedCostsMarket,
-    δ::Float64
+    δ::Float64,
 )::Tuple{Vector{Int},Float64}
     v_static_UB = valuation(1:mkt.m, mkt)
 
@@ -68,7 +68,8 @@ function optimalportfolio_dynamicprogram_slow(
     # Technically memoization would improve the speed of this loop,
     # but the binary search above takes so much longer that it's not worth it
     @inbounds for j in reverse(1:mkt.m)
-        if G_recursor_exact(j, v, mkt, v_static_UB) < G_recursor_exact(j - 1, v, mkt, v_static_UB)
+        if G_recursor_exact(j, v, mkt, v_static_UB) <
+           G_recursor_exact(j - 1, v, mkt, v_static_UB)
             push!(X, j)
             v = (v - mkt.f[j] * mkt.t[j]) / (1 - mkt.f[j])
         end
