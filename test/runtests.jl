@@ -11,7 +11,7 @@ const n_markets = 3
     @testset verbose = true "Aqua.jl" begin
         Aqua.test_all(OptimalApplication)
     end
-    
+
     @testset verbose = true "Market I/O" begin
         mkt = SameCostsMarket([0.39, 0.61, 0.03, 0.73, 0.1], [1, 6, 3, 7, 2], 3)
         @test valuation(Int[], mkt) == 0
@@ -21,7 +21,12 @@ const n_markets = 3
         @test valuation(Int[], mkt) == 0
         @test valuation([1, 3, 5], mkt) ≈ 0.62447
 
-        mkt = VariedCostsMarket([0.39, 0.61, 0.03, 0.73, 0.1], [1, 6, 3, 7, 2], ones(Int, 5), 3)
+        mkt = VariedCostsMarket(
+            [0.39, 0.61, 0.03, 0.73, 0.1],
+            [1, 6, 3, 7, 2],
+            ones(Int, 5),
+            3,
+        )
         @test valuation(Int[], mkt) == 0
         @test valuation([1, 3, 5], mkt) ≈ 0.62447
     end
@@ -30,7 +35,7 @@ const n_markets = 3
         @testset verbose = true "t int" begin
             m = 20
 
-            for _ in 1:n_markets
+            for _ = 1:n_markets
                 mkt = SameCostsMarket(m)
 
                 X_enum, vX_enum = optimalportfolio_enumerate(mkt)
@@ -47,7 +52,7 @@ const n_markets = 3
         @testset verbose = true "t float" begin
             m = 20
 
-            for _ in 1:n_markets
+            for _ = 1:n_markets
                 mkt = SameCostsMarket(rand(16), 12 * rand(16), m ÷ 4)
 
                 X_enum, vX_enum = optimalportfolio_enumerate(mkt)
@@ -66,7 +71,7 @@ const n_markets = 3
         m = 16
 
         @testset "Exact algorithms" begin
-            for _ in 1:n_markets
+            for _ = 1:n_markets
                 mkt = VariedCostsMarket(m)
 
                 X_enum, vX_enum = optimalportfolio_enumerate(mkt)
@@ -84,12 +89,12 @@ const n_markets = 3
         δ = 0.05
 
         @testset "Slow DP" begin
-            for _ in 1:n_markets
+            for _ = 1:n_markets
                 mkt = VariedCostsMarket(m)
-    
+
                 W, vW = optimalportfolio_dynamicprogram_slow(mkt, δ)
                 Y, vY = optimalportfolio_dynamicprogram(mkt)
-    
+
                 @test vW ≥ vY - δ
                 @test vY == valuation(Y, mkt)
             end
@@ -99,7 +104,7 @@ const n_markets = 3
         ε = 0.1
 
         @testset "FPTAS" begin
-            for _ in 1:n_markets
+            for _ = 1:n_markets
                 mkt = VariedCostsMarket(m)
 
                 W, vW = optimalportfolio_fptas(mkt, ε)
@@ -183,10 +188,13 @@ const n_markets = 3
             @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt1, 0.5)[1], mkt1)
             @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt2, 0.5)[1], mkt2)
             @test v ≤ 2 * valuation(optimalportfolio_fptas(mkt3, 0.5)[1], mkt3)
-            
-            @test v ≤ valuation(optimalportfolio_dynamicprogram_slow(mkt1, 0.1)[1], mkt1) + 0.1
-            @test v ≤ valuation(optimalportfolio_dynamicprogram_slow(mkt2, 0.1)[1], mkt2) + 0.1
-            @test v ≤ valuation(optimalportfolio_dynamicprogram_slow(mkt3, 0.1)[1], mkt3) + 0.1
+
+            @test v ≤
+                  valuation(optimalportfolio_dynamicprogram_slow(mkt1, 0.1)[1], mkt1) + 0.1
+            @test v ≤
+                  valuation(optimalportfolio_dynamicprogram_slow(mkt2, 0.1)[1], mkt2) + 0.1
+            @test v ≤
+                  valuation(optimalportfolio_dynamicprogram_slow(mkt3, 0.1)[1], mkt3) + 0.1
         end
     end
 
@@ -210,7 +218,7 @@ const n_markets = 3
             @test 1:4 == sort(optimalportfolio_fptas(mkt, 0.05)[1])
             @test 1:4 == sort(optimalportfolio_enumerate(mkt)[1])
             @test 1:4 == sort(optimalportfolio_greedy(mkt)[1])
-            @test 1:4 == sort(optimalportfolio_simulatedannealing(mkt; nit=4)[1])
+            @test 1:4 == sort(optimalportfolio_simulatedannealing(mkt; nit = 4)[1])
 
             # g[j] > H should be excluded
             mkt = VariedCostsMarket([0.5, 0.5, 1.0], [1, 2, 100], [3, 3, 5], 4)
@@ -221,7 +229,7 @@ const n_markets = 3
             @test [2] == optimalportfolio_fptas(mkt, 0.25)[1]
             @test [2] == optimalportfolio_enumerate(mkt)[1]
             @test [2] == sort(optimalportfolio_greedy(mkt)[1])
-            @test [2] == sort(optimalportfolio_simulatedannealing(mkt; nit=4)[1])
+            @test [2] == sort(optimalportfolio_simulatedannealing(mkt; nit = 4)[1])
         end
     end
 
@@ -230,25 +238,26 @@ const n_markets = 3
         X, v = optimalportfolio_greedy(mkt)
         @test v == valuation(X, mkt)
         @test sort(X) == [1, 4]
-        Y, w = optimalportfolio_simulatedannealing(mkt; nit=10)
+        Y, w = optimalportfolio_simulatedannealing(mkt; nit = 10)
         @test w == valuation(Y, mkt)
         @test w ≥ v
 
-        mkt = VariedCostsMarket([0.131, 0.136, 0.09, 0.016], [2, 3, 9, 54], [9, 5, 5, 9], 14)
+        mkt =
+            VariedCostsMarket([0.131, 0.136, 0.09, 0.016], [2, 3, 9, 54], [9, 5, 5, 9], 14)
         X, v = optimalportfolio_greedy(mkt)
         @test v == valuation(X, mkt)
         @test sort(X) == [3, 4]
-        Y, w = optimalportfolio_simulatedannealing(mkt; nit=10)
+        Y, w = optimalportfolio_simulatedannealing(mkt; nit = 10)
         @test w == valuation(Y, mkt)
         @test w ≥ v
 
         m = 20
-        for _ in 1:n_markets
+        for _ = 1:n_markets
             mkt = VariedCostsMarket(m)
 
             X, v = optimalportfolio_greedy(mkt)
             @test v == valuation(X, mkt)
-            Y, w = optimalportfolio_simulatedannealing(mkt; nit=50)
+            Y, w = optimalportfolio_simulatedannealing(mkt; nit = 50)
             @test w == valuation(Y, mkt)
             @test w ≥ v
         end
@@ -264,7 +273,7 @@ const n_markets = 3
         Y, vY = optimalportfolio_dynamicprogram(mkt)
         @test vW / vY ≥ 0.5
         @test !isempty(optimalportfolio_greedy(mkt)[1])
-        @test !isempty(optimalportfolio_simulatedannealing(mkt; nit=10)[1])
+        @test !isempty(optimalportfolio_simulatedannealing(mkt; nit = 10)[1])
     end
 
     @testset verbose = true "Bad markets" begin

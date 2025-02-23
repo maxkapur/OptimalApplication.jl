@@ -8,10 +8,7 @@ struct ScaleParams
 
     function ScaleParams(mkt::VariedCostsMarket, ε::Float64)
         @assert 0 < ε < 1
-        P = max(
-            0,
-            ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.f .* mkt.t))))
-        )
+        P = max(0, ceil(Int, log2(Int(mkt.m)^2 / (ε * sum(mkt.f .* mkt.t)))))
         t = mkt.t .* 2^P
         v_UB = ceil(Int, sum(mkt.f .* t))
         infty = mkt.H + 1
@@ -26,7 +23,7 @@ end
     j::Int,
     v::Int,
     mkt::VariedCostsMarket,
-    sp::ScaleParams
+    sp::ScaleParams,
 )::Int
     return get(G_dict, (j, v)) do
         if v ≤ 0
@@ -37,22 +34,22 @@ end
             if mkt.f[j] < 1
                 # Clamping prevents over/underflow: for any v<0 or v≥v_UB the function
                 # is trivially defined, so recording any more extreme number is meaningless
-                v_minus_Δ = clamp(
-                    ceil(
-                        Int,
-                        (v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j])
-                    ),
-                    -1,
-                    sp.v_UB
-                )
+                v_minus_Δ =
+                    clamp(ceil(Int, (v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j])), -1, sp.v_UB)
 
-                push!(G_dict, (j, v) => min(
-                    G_recursor!(G_dict, j - 1, v, mkt, sp),
-                    mkt.g[j] + G_recursor!(G_dict, j - 1, v_minus_Δ, mkt, sp)
-                ))
+                push!(
+                    G_dict,
+                    (j, v) => min(
+                        G_recursor!(G_dict, j - 1, v, mkt, sp),
+                        mkt.g[j] + G_recursor!(G_dict, j - 1, v_minus_Δ, mkt, sp),
+                    ),
+                )
                 return G_dict[(j, v)]
             else
-                push!(G_dict, (j, v) => min(G_recursor!(G_dict, j - 1, v, mkt, sp), mkt.g[j]))
+                push!(
+                    G_dict,
+                    (j, v) => min(G_recursor!(G_dict, j - 1, v, mkt, sp), mkt.g[j]),
+                )
                 return G_dict[(j, v)]
             end
         end
@@ -81,7 +78,7 @@ julia> optimalportfolio_fptas(mkt, 0.2)
 function optimalportfolio_fptas(
     mkt::VariedCostsMarket,
     ε::Float64;
-    verbose::Bool=false
+    verbose::Bool = false,
 )::Tuple{Vector{Int},Float64}
     sp = ScaleParams(mkt, ε)
 
@@ -112,14 +109,7 @@ function optimalportfolio_fptas(
         # G_recursor!(G_dict, j, v, mkt, sp) < sp.infty &&
         if G_recursor!(G_dict, j, v, mkt, sp) < G_recursor!(G_dict, j - 1, v, mkt, sp)
             push!(X, j)
-            v = clamp(
-                ceil(
-                    Int,
-                    (v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j])
-                ),
-                -1,
-                sp.v_UB
-            )
+            v = clamp(ceil(Int, (v - mkt.f[j] * sp.t[j]) / (1 - mkt.f[j])), -1, sp.v_UB)
         end
     end
 

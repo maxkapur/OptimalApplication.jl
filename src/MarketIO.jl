@@ -81,24 +81,14 @@ mutable struct SameCostsMarket{U<:Real} <: Market
         iscoherentmarket(f, t)
         perm = sortperm(t)
 
-        return new{U}(
-            length(f),
-            f[perm],
-            t[perm],
-            min(h, length(f)),
-            perm)
+        return new{U}(length(f), f[perm], t[perm], min(h, length(f)), perm)
     end
 
     function SameCostsMarket(m::Integer)
         t = ceil.(Int, -10 * log.(rand(m))) |> sort
         f = inv.(t .+ 10 * rand(m))
         perm = 1:m
-        return new{Int}(
-            m,
-            f[perm],
-            t[perm],
-            m ÷ 2,
-            perm)
+        return new{Int}(m, f[perm], t[perm], m ÷ 2, perm)
     end
 end
 
@@ -164,13 +154,7 @@ mutable struct VariedCostsMarket <: Market
         iscoherentmarket(f, t, g)
         perm = sortperm(t)
 
-        return new(
-            length(f),
-            f[perm],
-            t[perm],
-            g[perm],
-            min(H, sum(g)),
-            perm)
+        return new(length(f), f[perm], t[perm], g[perm], min(H, sum(g)), perm)
     end
 
     function VariedCostsMarket(m::Integer)
@@ -180,13 +164,7 @@ mutable struct VariedCostsMarket <: Market
         H = sum(g) ÷ 2
         perm = 1:m
 
-        return new(
-            m,
-            f[perm],
-            t[perm],
-            g[perm],
-            H,
-            perm)
+        return new(m, f[perm], t[perm], g[perm], H, perm)
     end
 end
 
@@ -211,10 +189,7 @@ function Market(f::Vector{Float64}, t::Vector{Int}, g::Vector{Int}, H::Int)
 end
 
 
-function valuation_nopermute_sorted(
-    X::AbstractVector{<:Integer},
-    mkt::Market;
-)::Float64
+function valuation_nopermute_sorted(X::AbstractVector{<:Integer}, mkt::Market;)::Float64
     isempty(X) && return 0.0
     # @assert issorted(X)
     res = 0.0
@@ -254,7 +229,7 @@ julia> round(valuation([1, 4], mkt), digits=2) # expected utility when applying 
 function valuation(
     X::AbstractVector{<:Integer},
     mkt::Market;
-    invp::AbstractVector{<:Integer}=invperm(mkt.perm)
+    invp::AbstractVector{<:Integer} = invperm(mkt.perm),
 )::Float64
     return valuation_nopermute_sorted(sort(invp[X]), mkt)
 end

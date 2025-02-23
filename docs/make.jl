@@ -1,14 +1,19 @@
 using Documenter
 using OptimalApplication
 
-DocMeta.setdocmeta!(OptimalApplication, :DocTestSetup, :(using OptimalApplication); recursive=true)
+DocMeta.setdocmeta!(
+    OptimalApplication,
+    :DocTestSetup,
+    :(using OptimalApplication);
+    recursive = true,
+)
 
 makedocs(
-    sitename="OptimalApplication",
-    modules=[OptimalApplication],
-    format=Documenter.HTML(ansicolor=true, edit_link="main"),
+    sitename = "OptimalApplication",
+    modules = [OptimalApplication],
+    format = Documenter.HTML(ansicolor = true, edit_link = "main"),
     # format = Documenter.HTML(prettyurls = false), # For local browsing
-    pages=Any[
+    pages = Any[
         "Home"=>"index.md",
         "Tutorial"=>[
             "Market I/O" => "tutorial/market_io.md",
@@ -29,6 +34,4 @@ makedocs(
     ],
 )
 
-deploydocs(
-    repo="github.com/maxkapur/OptimalApplication.jl.git",
-)
+deploydocs(repo = "github.com/maxkapur/OptimalApplication.jl.git")

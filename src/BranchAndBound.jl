@@ -18,18 +18,18 @@ mutable struct Node
         t_bar::Vector{Float64},
         H_bar::Int,
         v_I::Float64,
-        mkt::VariedCostsMarket
+        mkt::VariedCostsMarket,
     )
         # Leaf node
         isempty(N) && new(I, N, t_bar, H_bar, v_I, v_I)
 
         sort!(
             N,
-            by=function (j)
+            by = function (j)
                 mkt.f[j] * t_bar[j] / mkt.g[j]
             end,
-            rev=true,
-            alg=InsertionSort # Typically just one item is out of place
+            rev = true,
+            alg = InsertionSort, # Typically just one item is out of place
         )
 
         v_LP = v_I
@@ -89,7 +89,7 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)::Vector{Node}
             t_bar1,
             nd.H_bar - mkt.g[i],
             nd.v_I + mkt.f[i] * nd.t_bar[i],
-            mkt
+            mkt,
         )
 
         return [child1, child2]
@@ -100,7 +100,7 @@ function generatechildren(nd::Node, mkt::VariedCostsMarket)::Vector{Node}
             Float64[], # nd.t_bar
             0,
             nd.v_I + mkt.f[i] * nd.t_bar[i],
-            mkt
+            mkt,
         )
 
         return [child1, child2]
@@ -121,7 +121,11 @@ julia> optimalportfolio_branchbound(mkt)
 ([2, 3, 5], 3.24)
 ```
 """
-function optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit::Int=100000, verbose::Bool=false)::Tuple{Vector{Int},Float64}
+function optimalportfolio_branchbound(
+    mkt::VariedCostsMarket;
+    maxit::Int = 100000,
+    verbose::Bool = false,
+)::Tuple{Vector{Int},Float64}
     mkt.m ≥ 33 && @warn "Branch and bound is slow for large markets"
 
     C = collect(1:mkt.m)
@@ -131,7 +135,7 @@ function optimalportfolio_branchbound(mkt::VariedCostsMarket; maxit::Int=100000,
     LB_node::Node = rootnode
     tree = BinaryMaxHeap{Node}([rootnode])
 
-    for k in 1:maxit
+    for k = 1:maxit
         verbose && @show k, LB, length(tree)
 
         # All branches have either reached leaves or fathomed: done

@@ -37,17 +37,17 @@ julia> x[1:4], v[4] # optimal portfolio and valuation for h = 4
 """
 function applicationorder_list(
     mkt::SameCostsMarket;
-    verbose::Bool=false
+    verbose::Bool = false,
 )::Tuple{Vector{Int},Vector{Float64}}
     apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
-    mkt_list = College[College(j, mkt.f[j], mkt.t[j]) for j in 1:mkt.m]
+    mkt_list = College[College(j, mkt.f[j], mkt.t[j]) for j = 1:mkt.m]
 
     c_best::College, idx_best::Int = findmax(mkt_list)
-    @inbounds for j in 1:mkt.h
+    @inbounds for j = 1:mkt.h
         if verbose
             println("Iteration $j")
-            println("  ft: ", [mkt_list[i].f * mkt_list[i].t for i in 1:length(mkt_list)])
+            println("  ft: ", [mkt_list[i].f * mkt_list[i].t for i = 1:length(mkt_list)])
             println("  Add school $(c_best.j)")
         end
 
@@ -57,13 +57,9 @@ function applicationorder_list(
         next_c_best::College = College(0, 1.0, -1.0)
         next_idx_best::Int = 0
 
-        for i in 1:idx_best-1
+        for i = 1:idx_best-1
             mkt_list[i] =
-                College(
-                    mkt_list[i].j,
-                    mkt_list[i].f,
-                    mkt_list[i].t * (1 - c_best.f),
-                )
+                College(mkt_list[i].j, mkt_list[i].f, mkt_list[i].t * (1 - c_best.f))
 
             if isless(next_c_best, mkt_list[i])
                 next_c_best = mkt_list[i]
@@ -71,13 +67,9 @@ function applicationorder_list(
             end
         end
 
-        for i in idx_best+1:length(mkt_list)
+        for i = idx_best+1:length(mkt_list)
             mkt_list[i-1] =
-                College(
-                    mkt_list[i].j,
-                    mkt_list[i].f,
-                    mkt_list[i].t - c_best.f * c_best.t,
-                )
+                College(mkt_list[i].j, mkt_list[i].f, mkt_list[i].t - c_best.f * c_best.t)
 
             if isless(next_c_best, mkt_list[i-1])
                 next_c_best = mkt_list[i-1]
@@ -119,9 +111,10 @@ function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{F
     apporder = zeros(Int, mkt.h)
     v = zeros(mkt.h)
 
-    mkt_heap = BinaryMaxHeap{College}(collect(College(j, mkt.f[j], mkt.t[j]) for j in 1:mkt.m))
+    mkt_heap =
+        BinaryMaxHeap{College}(collect(College(j, mkt.f[j], mkt.t[j]) for j = 1:mkt.m))
 
-    @inbounds for j in 1:mkt.h
+    @inbounds for j = 1:mkt.h
         c_k = first(mkt_heap)
         v[j] = get(v, j - 1, 0) + c_k.f * c_k.t
         apporder[j] = c_k.j
@@ -137,12 +130,8 @@ function applicationorder_heap(mkt::SameCostsMarket)::Tuple{Vector{Int},Vector{F
             #     for c in mkt_heap.valtree if c.j != c_k.j
             # ]
             map(filter(c -> c.j != c_k.j, mkt_heap.valtree)) do c
-                College(
-                    c.j,
-                    c.f,
-                    c.j < c_k.j ? c.t * (1 - c_k.f) : c.t - c_k.f * c_k.t,
-                )
-            end
+                College(c.j, c.f, c.j < c_k.j ? c.t * (1 - c_k.f) : c.t - c_k.f * c_k.t)
+            end,
         )
     end
 
@@ -155,7 +144,7 @@ end
     V_dict::Dict{Tuple{Int,Int},Float64},
     j::Int,
     h::Int,
-    mkt::VariedCostsMarket
+    mkt::VariedCostsMarket,
 )::Float64
     return get(V_dict, (j, h)) do
         if j == 0 || h == 0
@@ -164,10 +153,14 @@ end
             push!(V_dict, (j, h) => V_recursor!(V_dict, j - 1, h, mkt))
             return V_dict[(j, h)]
         else
-            push!(V_dict, (j, h) => max(
-                V_recursor!(V_dict, j - 1, h, mkt),
-                (1 - mkt.f[j]) * V_recursor!(V_dict, j - 1, h - mkt.g[j], mkt) + mkt.f[j] * mkt.t[j]
-            ))
+            push!(
+                V_dict,
+                (j, h) => max(
+                    V_recursor!(V_dict, j - 1, h, mkt),
+                    (1 - mkt.f[j]) * V_recursor!(V_dict, j - 1, h - mkt.g[j], mkt) +
+                    mkt.f[j] * mkt.t[j],
+                ),
+            )
             return V_dict[(j, h)]
         end
     end
@@ -189,7 +182,7 @@ julia> optimalportfolio_dynamicprogram(mkt)
 """
 function optimalportfolio_dynamicprogram(
     mkt::VariedCostsMarket;
-    verbose::Bool=false
+    verbose::Bool = false,
 )::Tuple{Vector{Int},Float64}
     V_dict = Dict{Tuple{Int,Int},Float64}()
     sizehint!(V_dict, mkt.m * mkt.m ÷ 2)
