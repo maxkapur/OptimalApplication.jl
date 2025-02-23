@@ -40,5 +40,5 @@ jobs:
 
       - name: Check formatting
         run: |
-          julia --project=test/ -e 'using JuliaFormatter; format(".")'
+          julia -e 'import Pkg; Pkg.add("JuliaFormatter"); using JuliaFormatter; format(".")'
           git diff --exit-code
